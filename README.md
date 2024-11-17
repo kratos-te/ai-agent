@@ -1,6 +1,6 @@
 # Solana Agent Kit
 
-A powerful toolkit for interacting with the Solana blockchain, providing easy-to-use functions for token operations, NFT management, and trading.
+A powerful toolkit for interacting with the Solana blockchain, providing easy-to-use functions for token operations, NFT management, and trading. Now integrated with LangChain for enhanced functionality.
 
 ## Features
 
@@ -19,6 +19,10 @@ A powerful toolkit for interacting with the Solana blockchain, providing easy-to
   - Token swaps with customizable slippage
   - Direct routing options
 
+- 🔗 LangChain Integration
+  - Utilize LangChain tools for enhanced blockchain interactions
+  - Access a suite of tools for balance checks, transfers, token deployments, and more
+
 ## Installation
 
 ```bash
@@ -28,13 +32,16 @@ npm install solana-agent-kit
 ## Quick Start
 
 ```typescript
-import { SolanaAgentKit } from 'solana-agent-kit';
+import { SolanaAgentKit, createSolanaTools } from 'solana-agent-kit';
 
 // Initialize with private key and optional RPC URL
 const agent = new SolanaAgentKit(
   'your-private-key',
   'https://api.mainnet-beta.solana.com'
 );
+
+// Create LangChain tools
+const tools = createSolanaTools(agent);
 ```
 
 ## Usage Examples
