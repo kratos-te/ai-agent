@@ -1,11 +1,13 @@
 {
   "name": "solana-agent-kit",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A toolkit for interacting with the Solana blockchain using LangChain",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "docs": "typedoc src --out docs"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.4",
     "bs58": "^6.0.0",
+    "langchain": "^0.3.6",
     "typedoc": "^0.26.11"
   },
   "devDependencies": {
