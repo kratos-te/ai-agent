@@ -1,6 +1,6 @@
 {
   "name": "solana-agent-kit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A toolkit for interacting with the Solana blockchain using LangChain",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
