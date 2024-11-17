@@ -1,10 +1,10 @@
 import { SolanaAgentKit } from "../index";
-import { 
+import {
   createMint,
   getOrCreateAssociatedTokenAccount,
   mintTo,
   TOKEN_PROGRAM_ID,
-  Account
+  Account,
 } from "@solana/spl-token";
 
 /**
@@ -23,14 +23,18 @@ export async function deploy_token(
     // Create new token mint
     const mint = await createMint(
       agent.connection,
-      agent.wallet,        // Payer
+      agent.wallet, // Payer
       agent.wallet_address, // Mint authority
       agent.wallet_address, // Freeze authority (optional)
       decimals,
-      undefined,          // Optional keypair
-      undefined,          // Confirmation options
+      undefined, // Optional keypair
+      {
+        commitment: "confirmed",
+      }, // Confirmation options
       TOKEN_PROGRAM_ID
     );
+
+    console.log("Token deployed successfully. Mint address: ", mint.toString());
 
     // If initial supply is specified, mint tokens
     let tokenAccount: Account | undefined = undefined;
@@ -43,6 +47,11 @@ export async function deploy_token(
         agent.wallet_address
       );
 
+      console.log(
+        "Token account created successfully. Address: ",
+        tokenAccount.address.toString()
+      );
+
       // Mint the initial supply
       await mintTo(
         agent.connection,
@@ -52,13 +61,19 @@ export async function deploy_token(
         agent.wallet_address,
         initialSupply * Math.pow(10, decimals)
       );
+
+      console.log(
+        "Tokens minted successfully. Total supply: ",
+        initialSupply * Math.pow(10, decimals)
+      );
     }
 
     return {
       mint: mint,
-      tokenAccount: tokenAccount?.address
+      tokenAccount: tokenAccount?.address,
     };
   } catch (error: any) {
+    console.log(error);
     throw new Error(`Token deployment failed: ${error.message}`);
   }
 }

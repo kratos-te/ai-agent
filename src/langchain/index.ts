@@ -53,7 +53,10 @@ export class SolanaDeployTokenTool extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const { decimals = 9, initialSupply } = JSON.parse(input);
+        const validJson = input
+        .replace(/([a-zA-Z0-9_]+):/g, '"$1":') // Add quotes around keys
+        .trim();
+      const { decimals = 9, initialSupply } = JSON.parse(validJson);
       const result = await this.solanaKit.deployToken(decimals, initialSupply);
       return `Token deployed successfully. Mint address: ${result.mint.toString()}`;
     } catch (error: any) {

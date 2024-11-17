@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
 
 /**
@@ -12,7 +12,7 @@ export async function get_balance(
   token_address?: PublicKey
 ) {
   if (!token_address)
-    return await agent.connection.getBalance(agent.wallet_address);
+    return await agent.connection.getBalance(agent.wallet_address) / LAMPORTS_PER_SOL
 
   const token_account = await agent.connection.getTokenAccountBalance(token_address);
   return token_account.value.uiAmount;
