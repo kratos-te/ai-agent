@@ -5,15 +5,18 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "docs": "typedoc src --out docs"
+    "docs": "typedoc src --out docs",
+    "test": "ts-node test/index.ts"
+
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.7",
+    "@langchain/core": "^0.3.18",
+    "@langchain/openai": "^0.3.13",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/mpl-core": "^1.1.1",
     "@metaplex-foundation/mpl-token-metadata": "^3.3.0",

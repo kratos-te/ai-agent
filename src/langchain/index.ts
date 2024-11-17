@@ -166,6 +166,19 @@ export class SolanaRegisterDomainTool extends Tool {
   }
 }
 
+export class SolanaGetWalletAddressTool extends Tool {
+  name = "solana_get_wallet_address";
+  description = "Get the wallet address of the agent";
+  
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(_input: string): Promise<string> {
+    return this.solanaKit.wallet_address.toString();
+  }
+}
+
 // Updated createSolanaTools function
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
@@ -177,5 +190,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTradeTool(solanaKit),
     new SolanaRequestFundsTool(solanaKit),
     new SolanaRegisterDomainTool(solanaKit),
+    new SolanaGetWalletAddressTool(solanaKit),
   ];
 }
