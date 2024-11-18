@@ -43,9 +43,9 @@ export class SolanaAgentKit {
 
   async deployToken(
     decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
-    initialSupply?: number
+    // initialSupply?: number
   ) {
-    return deploy_token(this, decimals, initialSupply);
+    return deploy_token(this, decimals);
   }
 
   async deployCollection(options: CollectionOptions) {

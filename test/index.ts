@@ -8,12 +8,14 @@ import { createReactAgent } from "langchain/agents";
 
 // Initialize SolanaAgentKit
 const solanaKit = new SolanaAgentKit(
-  "2bsq2EHutvSvZenGiFSqg4AKMBCP2gB1LnkRiavS4SHKZs4FnDSkGy9c2quiTBuSoKTn9AKV82P1E5D8mkiHJuEW"
+  "",
+  "https://mainnet.helius-rpc.com/?api-key="
 );
+
+solanaKit.connection.getRecentPrioritizationFees
 
 // Create Solana-specific tools
 const tools = createSolanaTools(solanaKit);
-
 
 (async () => {
   // Define a Prompt Template for the Agent
@@ -34,11 +36,12 @@ const tools = createSolanaTools(solanaKit);
   const agentExecutor = new AgentExecutor({
     agent,
     tools,
+    maxIterations: 50,
   });
 
   const result = await agentExecutor.invoke({
     input:
-      "What is your wallet address?",
+      "Deploy a token with 6 decimals ",
   });
 
   console.log(result);

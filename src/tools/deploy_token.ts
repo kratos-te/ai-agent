@@ -1,11 +1,12 @@
 import { SolanaAgentKit } from "../index";
 import {
-  createMint,
-  getOrCreateAssociatedTokenAccount,
-  mintTo,
+  createInitializeMint2Instruction,
+  MINT_SIZE,
+  getMinimumBalanceForRentExemptAccount,
   TOKEN_PROGRAM_ID,
-  Account,
 } from "@solana/spl-token";
+import { Keypair, SystemProgram, Transaction  } from "@solana/web3.js";
+import { sendTx } from "../utils/send_tx";
 
 /**
  * Deploy a new SPL token
@@ -16,61 +17,49 @@ import {
  */
 export async function deploy_token(
   agent: SolanaAgentKit,
-  decimals: number = 9,
-  initialSupply?: number
+  decimals: number = 9
+  // initialSupply?: number
 ) {
   try {
     // Create new token mint
-    const mint = await createMint(
-      agent.connection,
-      agent.wallet, // Payer
-      agent.wallet_address, // Mint authority
-      agent.wallet_address, // Freeze authority (optional)
+    const lamports = await getMinimumBalanceForRentExemptAccount(
+      agent.connection
+    );
+
+    const mint = Keypair.generate();
+
+    console.log("Mint address: ", mint.publicKey.toString());
+    console.log("Agent address: ", agent.wallet_address.toString());
+
+    let account_create_ix = SystemProgram.createAccount({
+      fromPubkey: agent.wallet_address,
+      newAccountPubkey: mint.publicKey,
+      lamports,
+      space: MINT_SIZE,
+      programId: TOKEN_PROGRAM_ID,
+    });
+
+    let create_mint_ix = createInitializeMint2Instruction(
+      mint.publicKey,
       decimals,
-      undefined, // Optional keypair
-      {
-        commitment: "confirmed",
-      }, // Confirmation options
+      agent.wallet_address,
+      agent.wallet_address,
       TOKEN_PROGRAM_ID
     );
 
-    console.log("Token deployed successfully. Mint address: ", mint.toString());
+    let tx = new Transaction().add(account_create_ix, create_mint_ix);
 
-    // If initial supply is specified, mint tokens
-    let tokenAccount: Account | undefined = undefined;
-    if (initialSupply) {
-      // Create associated token account for the wallet
-      tokenAccount = await getOrCreateAssociatedTokenAccount(
-        agent.connection,
-        agent.wallet,
-        mint,
-        agent.wallet_address
-      );
+    let hash = await sendTx(agent, tx, [mint]);
 
-      console.log(
-        "Token account created successfully. Address: ",
-        tokenAccount.address.toString()
-      );
+    console.log("Transaction hash: ", hash);
 
-      // Mint the initial supply
-      await mintTo(
-        agent.connection,
-        agent.wallet,
-        mint,
-        tokenAccount.address,
-        agent.wallet_address,
-        initialSupply * Math.pow(10, decimals)
-      );
-
-      console.log(
-        "Tokens minted successfully. Total supply: ",
-        initialSupply * Math.pow(10, decimals)
-      );
-    }
+    console.log(
+      "Token deployed successfully. Mint address: ",
+      mint.publicKey.toString()
+    );
 
     return {
-      mint: mint,
-      tokenAccount: tokenAccount?.address,
+      mint: mint.publicKey,
     };
   } catch (error: any) {
     console.log(error);
