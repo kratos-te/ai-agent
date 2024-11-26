@@ -30,11 +30,22 @@ export class SolanaAgentKit {
   public wallet_address: PublicKey;
 
   constructor(
-    privateKey: string,
+    privateKey?: string,
     rpcURL = "https://api.mainnet-beta.solana.com",
   ) {
     this.connection = new Connection(rpcURL);
-    this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
+    if (privateKey) {
+      this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
+    } else {
+      this.wallet = Keypair.generate();
+      console.log("Generated new wallet: ", this.wallet.publicKey.toBase58());
+      console.log(
+        "Safely store the private key: ",
+        "\n----------------------------------\n",
+        this.wallet.secretKey,
+        "\n----------------------------------\n",
+      );
+    }
     this.wallet_address = this.wallet.publicKey;
   }
 
