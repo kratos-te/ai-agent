@@ -8,15 +8,17 @@ import {
   mintCollectionNFT,
   transfer,
   trade,
-  registerDomain
+  registerDomain,
+  lendAsset,
+  getLendingDetails,
 } from "../tools";
-import { CollectionOptions } from "../types";
+import { CollectionOptions, LuloDepositAssetMint } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
 
 /**
  * Main class for interacting with Solana blockchain
  * Provides a unified interface for token operations, NFT management, and trading
- * 
+ *
  * @class SolanaAgentKit
  * @property {Connection} connection - Solana RPC connection
  * @property {Keypair} wallet - Wallet keypair for signing transactions
@@ -28,11 +30,11 @@ export class SolanaAgentKit {
   public wallet_address: PublicKey;
 
   constructor(
-    private_key: string,
-    rpc_url = "https://api.mainnet-beta.solana.com"
+    privateKey: string,
+    rpcURL = "https://api.mainnet-beta.solana.com",
   ) {
-    this.connection = new Connection(rpc_url);
-    this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
+    this.connection = new Connection(rpcURL);
+    this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
     this.wallet_address = this.wallet.publicKey;
   }
 
@@ -59,7 +61,7 @@ export class SolanaAgentKit {
   async mintNFT(
     collectionMint: PublicKey,
     metadata: Parameters<typeof mintCollectionNFT>[2],
-    recipient?: PublicKey
+    recipient?: PublicKey,
   ) {
     return mintCollectionNFT(this, collectionMint, metadata, recipient);
   }
@@ -76,8 +78,20 @@ export class SolanaAgentKit {
     outputMint: PublicKey,
     inputAmount: number,
     inputMint?: PublicKey,
-    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS
+    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
   ) {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
+  }
+
+  async lendAssets(
+    asset: LuloDepositAssetMint,
+    amount: number,
+    LULO_API_KEY: string,
+  ) {
+    return lendAsset(this, asset, amount, LULO_API_KEY);
+  }
+
+  async fetchLendingDetails(LULO_API_KEY: string) {
+    return getLendingDetails(this, LULO_API_KEY);
   }
 }

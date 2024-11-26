@@ -3,6 +3,7 @@ import { Transaction } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { TOKENS } from "../constants";
+
 /**
  * Register a .sol domain name using Bonfida Name Service
  * @param agent SolanaAgentKit instance
@@ -13,7 +14,7 @@ import { TOKENS } from "../constants";
 export async function registerDomain(
   agent: SolanaAgentKit,
   name: string,
-  spaceKB: number = 1
+  spaceKB: number = 1,
 ): Promise<string> {
   try {
     // Validate space size
@@ -26,7 +27,7 @@ export async function registerDomain(
 
     const buyerTokenAccount = await getAssociatedTokenAddressSync(
       agent.wallet_address,
-      TOKENS.USDC
+      TOKENS.USDC,
     );
 
     // Create registration instruction
@@ -35,7 +36,7 @@ export async function registerDomain(
       name,
       space,
       agent.wallet_address,
-      buyerTokenAccount
+      buyerTokenAccount,
     );
 
     // Create and sign transaction

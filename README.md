@@ -121,7 +121,6 @@ The toolkit relies on several key Solana and Metaplex libraries:
 
 - @solana/web3.js
 - @solana/spl-token
-- @metaplex-foundation/js
 - @metaplex-foundation/mpl-token-metadata
 - @metaplex-foundation/umi
 
