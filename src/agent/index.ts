@@ -44,6 +44,7 @@ export class SolanaAgentKit {
         "\n----------------------------------\n",
         this.wallet.secretKey,
         "\n----------------------------------\n",
+        "Please fund this wallet with SOL to use it (on mainnet), or use the faucet method to request funds (only on devnet/testnet).",
       );
     }
     this.wallet_address = this.wallet.publicKey;
