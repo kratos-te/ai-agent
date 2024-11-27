@@ -99,7 +99,7 @@ const signature = await trade(
 ### Lend Tokens
 
 ```typescript
-import { lend } from 'solana-agent-kit';
+import { lendAsset } from 'solana-agent-kit';
 import { PublicKey } from '@solana/web3.js';
 
 const signature = await lendAsset(

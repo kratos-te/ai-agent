@@ -25,18 +25,18 @@ export async function lendAsset(
 
     const request = {
       owner: agent.wallet.publicKey.toBase58(),
-      mintAddress: asset,
-      depositAmount: amount,
+      mintAddress: asset.toBase58(),
+      depositAmount: amount.toString(),
     };
 
-    const priority = `?priorityFee=${getPriorityFees(agent.connection)}`;
+    const priorityFees = await getPriorityFees(agent.connection);
+    const priority = `?priorityFee=${priorityFees.median}`;
 
     const response = await fetch(
       `${LULO_API}/generate/account/deposit${priority}`,
       {
         method: "POST",
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
           "x-wallet-pubkey": agent.wallet.publicKey.toBase58(),
           "x-api-key": LULO_API_KEY,

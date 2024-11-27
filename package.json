@@ -29,6 +29,7 @@
     "typedoc": "^0.26.11"
   },
   "devDependencies": {
-    "@types/node": "^22.9.0"
+    "@types/node": "^22.9.0",
+    "ts-node": "^10.9.2"
   }
 }
