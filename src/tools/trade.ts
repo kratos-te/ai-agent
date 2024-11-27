@@ -1,9 +1,7 @@
-import {
-  VersionedTransaction,
-  PublicKey,
-} from "@solana/web3.js";
+import { VersionedTransaction, PublicKey } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
-import { TOKENS, DEFAULT_OPTIONS } from "../constants";
+import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
+
 /**
  * Swap tokens using Jupiter Exchange
  * @param agent SolanaAgentKit instance
@@ -18,19 +16,19 @@ export async function trade(
   outputMint: PublicKey,
   inputAmount: number,
   inputMint: PublicKey = TOKENS.USDC,
-  slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS
+  slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
 ): Promise<string> {
   try {
     // Get quote for the swap
     const quoteResponse = await (
       await fetch(
-        `https://quote-api.jup.ag/v6/quote?` +
+        `${JUP_API}/quote?` +
           `inputMint=${inputMint.toString()}` +
           `&outputMint=${outputMint.toString()}` +
           `&amount=${inputAmount}` +
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
-          `&maxAccounts=20`
+          `&maxAccounts=20`,
       )
     ).json();
 

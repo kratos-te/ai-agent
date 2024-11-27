@@ -1,5 +1,5 @@
 import { SolanaAgentKit } from "../agent";
-import { Transaction, Keypair } from "@solana/web3.js";
+import { Transaction, Keypair, TransactionInstruction } from "@solana/web3.js";
 import { Connection, ComputeBudgetProgram } from "@solana/web3.js";
 
 /**
@@ -7,7 +7,16 @@ import { Connection, ComputeBudgetProgram } from "@solana/web3.js";
  * @param connection - Solana RPC connection
  * @returns Priority fees statistics and instructions for different fee levels
  */
-async function getPriorityFees(connection: Connection) {
+export async function getPriorityFees(connection: Connection): Promise<{
+  min: number;
+  median: number;
+  max: number;
+  instructions?: {
+    low: TransactionInstruction;
+    medium: TransactionInstruction;
+    high: TransactionInstruction;
+  };
+}> {
   try {
     // Get recent prioritization fees
     const priorityFees = await connection.getRecentPrioritizationFees();
@@ -32,7 +41,7 @@ async function getPriorityFees(connection: Connection) {
     const median =
       sortedFees.length % 2 === 0
         ? ((sortedFees[mid - 1] ?? 0) + (sortedFees[mid] ?? 0)) / 2
-        : sortedFees[mid] ?? 0;
+        : (sortedFees[mid] ?? 0);
 
     // Helper to create priority fee IX based on chosen strategy
     const createPriorityFeeIx = (fee: number) => {
@@ -67,7 +76,7 @@ async function getPriorityFees(connection: Connection) {
 export async function sendTx(
   agent: SolanaAgentKit,
   tx: Transaction,
-  otherKeypairs?: Keypair[]
+  otherKeypairs?: Keypair[],
 ) {
   tx.recentBlockhash = (await agent.connection.getLatestBlockhash()).blockhash;
   tx.feePayer = agent.wallet_address;
@@ -81,9 +90,8 @@ export async function sendTx(
   await agent.connection.confirmTransaction({
     signature: txid,
     blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
-    lastValidBlockHeight: (
-      await agent.connection.getLatestBlockhash()
-    ).lastValidBlockHeight,
+    lastValidBlockHeight: (await agent.connection.getLatestBlockhash())
+      .lastValidBlockHeight,
   });
   return txid;
 }

@@ -19,6 +19,9 @@ A powerful toolkit for interacting with the Solana blockchain, providing easy-to
   - Token swaps with customizable slippage
   - Direct routing options
 
+- 🏦 Yield Farming
+  - Lend idle assets to earn interest with Lulo
+
 - 🔗 LangChain Integration
   - Utilize LangChain tools for enhanced blockchain interactions
   - Access a suite of tools for balance checks, transfers, token deployments, and more
@@ -93,6 +96,20 @@ const signature = await trade(
 );
 ```
 
+### Lend Tokens
+
+```typescript
+import { lendAsset } from 'solana-agent-kit';
+import { PublicKey } from '@solana/web3.js';
+
+const signature = await lendAsset(
+  agent,
+  new PublicKey('asset-mint'),
+  100, // amount
+  "lulo-api-key"
+);
+```
+
 ## API Reference
 
 ### Core Functions
@@ -115,13 +132,15 @@ Swap tokens using Jupiter Exchange integration.
 #### `get_balance(agent, token_address)`
 Check SOL or token balance for the agent's wallet.
 
+#### `lendAsset(agent, assetMint, amount, apiKey)`
+Lend idle assets to earn interest with Lulo.
+
 ## Dependencies
 
 The toolkit relies on several key Solana and Metaplex libraries:
 
 - @solana/web3.js
 - @solana/spl-token
-- @metaplex-foundation/js
 - @metaplex-foundation/mpl-token-metadata
 - @metaplex-foundation/umi
 
