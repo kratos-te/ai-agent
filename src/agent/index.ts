@@ -11,6 +11,7 @@ import {
   registerDomain,
   lendAsset,
   getLendingDetails,
+  getTPS,
 } from "../tools";
 import { CollectionOptions, LuloDepositAssetMint } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -105,5 +106,9 @@ export class SolanaAgentKit {
 
   async fetchLendingDetails(LULO_API_KEY: string) {
     return getLendingDetails(this, LULO_API_KEY);
+  }
+
+  async getTPS() {
+    return getTPS(this);
   }
 }

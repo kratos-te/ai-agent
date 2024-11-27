@@ -7,3 +7,4 @@ export * from "./transfer";
 export * from "./trade";
 export * from "./register_domain";
 export * from "./lend";
+export * from "./get_tps";
