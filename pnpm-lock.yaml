@@ -44,6 +44,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
+      form-data:
+        specifier: ^4.0.1
+        version: 4.0.1
       langchain:
         specifier: ^0.3.6
         version: 0.3.6(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))(axios@1.7.7)(openai@4.72.0(zod@3.23.8))

@@ -9,9 +9,9 @@ import {
   transfer,
   trade,
   registerDomain,
-  launchpumpfuntoken,
+  launchPumpFunToken,
 } from "../tools";
-import { CollectionOptions } from "../types";
+import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
 
 /**
@@ -81,20 +81,12 @@ export class SolanaAgentKit {
   ) {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
-  
-  async launchpumpfuntoken(
+
+  async launchPumpFunToken(
     tokenName: string,
     tokenTicker: string,
-    options: {
-      description: string;
-      twitter: string;
-      telegram: string;
-      website: string;
-      imageUrl: string;
-      initialLiquiditySOL: any;
-      mintAddress: string;
-    }
+    options?: PumpFunTokenOptions 
   ) {
-    return launchpumpfuntoken(this, tokenName, tokenTicker, options);
+    return launchPumpFunToken(this, tokenName, tokenTicker, options);
   }
 }

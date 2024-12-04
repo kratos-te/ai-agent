@@ -29,10 +29,9 @@ export interface PumpFunTokenOptions {
   telegram?: string;
   website?: string;
   imageUrl?: string;
-  initialLiquiditySOL?: any;
+  initialLiquiditySOL?: number;
   slippageBps?: number;
   priorityFee?: number;
-  mintAddress?: string; // Optional mint address
 }
 
 export interface PumpfunLaunchResponse {

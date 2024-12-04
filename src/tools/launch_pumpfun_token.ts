@@ -1,87 +1,84 @@
 // src/tools/launch_pumpfun_token.ts
 import { VersionedTransaction, Keypair } from "@solana/web3.js";
 import { PumpFunTokenOptions, SolanaAgentKit } from "../index";
-import fetch from "node-fetch";
-import FormData from 'form-data';
 
 async function uploadMetadata(
   tokenName: string, 
   tokenTicker: string,
-  options: PumpFunTokenOptions
+  options?: PumpFunTokenOptions
 ): Promise<any> {
+  // Create metadata object
+  const formData = new URLSearchParams();
+  formData.append('name', tokenName);
+  formData.append('symbol', tokenTicker);
+  formData.append('description', options?.description || `${tokenName} token created via SolanaAgentKit`);
+  formData.append('showName', 'true');
 
-  // Create form data for IPFS
-  const formData: FormData = new FormData();
-  
-  // required fields
-  formData.append("name", tokenName);
-  formData.append("symbol", tokenTicker);
-  formData.append("description", options.description || `${tokenName} token created via PumpPortal.fun`);
-  formData.append("showName", "true");
+  if (options?.twitter) formData.append('twitter', options.twitter);
+  if (options?.telegram) formData.append('telegram', options.telegram);
+  if (options?.website) formData.append('website', options.website);
 
-  // optional fields
-  if (options.twitter) formData.append("twitter", options.twitter);
-  if (options.telegram) formData.append("telegram", options.telegram);
-  if (options.website) formData.append("website", options.website);
-
-  // If imageUrl is provided, fetch and append the image
-  if (options.imageUrl) {
+  let files;
+  // If imageUrl is provided, fetch and prepare the image
+  if (options?.imageUrl) {
     const imageResponse = await fetch(options.imageUrl);
-    const imageBuffer = await imageResponse.buffer();
-    formData.append("file", imageBuffer, {
-      filename: "token_image.png",
-      contentType: "image/png"
-    });
+    const imageBlob = await imageResponse.blob();
+    files = {
+      file: new File([imageBlob], 'token_image.png', { type: 'image/png' })
+    };
   }
 
-  // TBD : Remove after approval
-  console.log("Uploading metadata with fields:", {
-    name: tokenName,
-    symbol: tokenTicker,
-    description: options.description,
-    hasImage: !!options.imageUrl
-  });
+  // Create form data with both metadata and file
+  const finalFormData = new FormData();
+  // Add all metadata fields
+  for (const [key, value] of formData.entries()) {
+    finalFormData.append(key, value);
+  }
+  // Add file if exists
+  if (files?.file) {
+    finalFormData.append('file', files.file);
+  }
 
   const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
     method: "POST",
-    body: formData as any,
-    headers: formData.getHeaders()
+    body: finalFormData
   });
 
   if (!metadataResponse.ok) {
-    const errorText = await metadataResponse.text();
-    throw new Error(`Metadata upload failed: ${errorText || metadataResponse.statusText}`);
+    throw new Error(`Metadata upload failed: ${metadataResponse.statusText}`);
   }
 
   return await metadataResponse.json();
 }
 
 async function createTokenTransaction(
-  kit: SolanaAgentKit,
+  agent: SolanaAgentKit,
   mintKeypair: Keypair,
   metadataResponse: any,
-  options: PumpFunTokenOptions
+  options?: PumpFunTokenOptions
 ) {
+  const payload = {
+    publicKey: agent.wallet_address.toBase58(),
+    action: "create",
+    tokenMetadata: {
+      name: metadataResponse.metadata.name,
+      symbol: metadataResponse.metadata.symbol,
+      uri: metadataResponse.metadataUri,
+    },
+    mint: mintKeypair.publicKey.toBase58(),
+    denominatedInSol: "true", // API expects string "true"
+    amount: options?.initialLiquiditySOL || 0.0001,
+    slippage: options?.slippageBps || 5,
+    priorityFee: options?.priorityFee || 0.00005,
+    pool: "pump",
+  };
+
   const response = await fetch("https://pumpportal.fun/api/trade-local", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      publicKey: kit.wallet_address.toBase58(),
-      action: "create",
-      tokenMetadata: {
-        name: metadataResponse.metadata.name,
-        symbol: metadataResponse.metadata.symbol,
-        uri: metadataResponse.metadataUri,
-      },
-      mint: mintKeypair.publicKey.toBase58(),
-      denominatedInSol: "true",
-      amount: options.initialLiquiditySOL || 0.0001,
-      slippage: 5,
-      priorityFee: 0.00005,
-      pool: "pump",
-    }),
+    body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
@@ -135,11 +132,18 @@ async function signAndSendTransaction(
   }
 }
 
-export async function launchpumpfuntoken(
-  kit: SolanaAgentKit,
+/**
+ * Launch a token on Pump.fun
+ * @param agent - SolanaAgentKit instance
+ * @param tokenName - Name of the token
+ * @param tokenTicker - Ticker of the token
+ * @param options - Optional token options (description, twitter, telegram, website, imageUrl, initialLiquiditySOL, slippageBps, priorityFee)
+ */
+export async function launchPumpFunToken(
+  agent: SolanaAgentKit,
   tokenName: string,
   tokenTicker: string,
-  options: PumpFunTokenOptions = {}
+  options?: PumpFunTokenOptions
 ) {
   try {
     // TBD : Remove clgs after approval
@@ -156,14 +160,14 @@ export async function launchpumpfuntoken(
 
     // Create token transaction
     console.log("Creating token transaction...");
-    const response = await createTokenTransaction(kit, mintKeypair, metadataResponse, options);
+    const response = await createTokenTransaction(agent, mintKeypair, metadataResponse, options);
 
     const transactionData = await response.arrayBuffer();
     const tx = VersionedTransaction.deserialize(new Uint8Array(transactionData));
 
     // Send transaction with proper blockhash handling
     console.log("Sending transaction...");
-    const signature = await signAndSendTransaction(kit, tx, mintKeypair);
+    const signature = await signAndSendTransaction(agent, tx, mintKeypair);
 
     console.log("Token launch successful!");
     return {

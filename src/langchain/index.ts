@@ -1,6 +1,7 @@
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
+import { launchPumpFunToken } from "../tools";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -185,58 +186,21 @@ export class SolanaGetWalletAddressTool extends Tool {
 export class SolanaPumpfunTokenLaunch extends Tool {
   name = "solana_launch_pumpfun_token";
   description = "Launch a new token on Pump.fun via Solana Agent Kit. Input should be JSON with: {tokenName: string, tokenTicker: string, description?: string, twitter?: string, telegram?: string, website?: string, imageUrl?: string, initialLiquiditySOL?: number, mintAddress?: string}";
-  
+
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
   async _call(input: string): Promise<string> {
     try {
-      // Parse and validate input
-      const validJson = input
-        .replace(/([a-zA-Z0-9_]+):/g, '"$1":')
-        .trim();
-      const {
-        tokenName,
-        tokenTicker,
-        description,
-        twitter,
-        telegram,
-        website,
-        imageUrl,
-        initialLiquiditySOL,
-        mintAddress
-      } = JSON.parse(validJson);
-
-      if (!tokenName || !tokenTicker) {
-        throw new Error("tokenName and tokenTicker are required");
-      }
-
-      // Launch token with options
-      const result = await this.solanaKit.launchpumpfuntoken(
-        tokenName,
-        tokenTicker,
-        {
-          description,
-          twitter,
-          telegram,
-          website,
-          imageUrl,
-          initialLiquiditySOL,
-          mintAddress,
-        }
-      );
-
-      return `Token launched successfully. 
-        Transaction: ${result.signature}
-        Mint Address: ${result.mint}
-        Metadata URI: ${result.metadataUri}`;
+      const options = JSON.parse(input);
+      await launchPumpFunToken(this.solanaKit, options.tokenName, options.tokenTicker, options);
+      return "Token launched successfully on Pump.fun";
     } catch (error: any) {
       return `Error launching token: ${error.message}`;
     }
   }
 }
-
 // Updated createSolanaTools function
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [

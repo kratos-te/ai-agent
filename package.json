@@ -25,6 +25,7 @@
     "@solana/web3.js": "^1.95.4",
     "bs58": "^6.0.0",
     "dotenv": "^16.4.5",
+    "form-data": "^4.0.1",
     "langchain": "^0.3.6",
     "typedoc": "^0.26.11"
   },
