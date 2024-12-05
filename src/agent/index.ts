@@ -27,14 +27,17 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
+  public openai_api_key: string;
 
   constructor(
     private_key: string,
-    rpc_url = "https://api.mainnet-beta.solana.com"
+    rpc_url = "https://api.mainnet-beta.solana.com",
+    openai_api_key: string
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
     this.wallet_address = this.wallet.publicKey;
+    this.openai_api_key = openai_api_key;
   }
 
   // Tool methods

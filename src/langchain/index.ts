@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
 import { PumpFunTokenOptions } from "../types";
 import { toJSON } from "../utils/toJSON";
+import { create_image } from "../tools/create_image";
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
   description =
@@ -193,59 +194,80 @@ export class SolanaGetWalletAddressTool extends Tool {
 
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
-  description = "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName and tokenTicker, with optional fields for description, twitter, telegram, website, imageUrl, initialLiquiditySOL, and mintAddress.";
+  description =
+    "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName and tokenTicker, with optional fields for description, twitter, telegram, website, imageUrl, initialLiquiditySOL, and mintAddress.";
 
   constructor(private solanaKit: SolanaAgentKit) {
-      super();
+    super();
   }
 
-  private validateInput(input : any): void {
-      if (!input.tokenName || typeof input.tokenName !== 'string') {
-          throw new Error('tokenName is required and must be a string');
-      }
-      if (!input.tokenTicker || typeof input.tokenTicker !== 'string') {
-          throw new Error('tokenTicker is required and must be a string');
-      }
-      if (input.initialLiquiditySOL !== undefined && typeof input.initialLiquiditySOL !== 'number') {
-          throw new Error('initialLiquiditySOL must be a number when provided');
-      }
+  private validateInput(input: any): void {
+    if (!input.tokenName || typeof input.tokenName !== "string") {
+      throw new Error("tokenName is required and must be a string");
+    }
+    if (!input.tokenTicker || typeof input.tokenTicker !== "string") {
+      throw new Error("tokenTicker is required and must be a string");
+    }
+    if (
+      input.initialLiquiditySOL !== undefined &&
+      typeof input.initialLiquiditySOL !== "number"
+    ) {
+      throw new Error("initialLiquiditySOL must be a number when provided");
+    }
   }
 
   protected async _call(input: string): Promise<string> {
-      try {
-          // Parse and normalize input
-          const parsedInput = toJSON(input);
-          // Validate the input
-          this.validateInput(parsedInput);
+    try {
+      // Parse and normalize input
+      const parsedInput = toJSON(input);
+      // Validate the input
+      this.validateInput(parsedInput);
 
-          // Launch token with validated input
-          await this.solanaKit.launchPumpFunToken(
-              parsedInput.tokenName,
-              parsedInput.tokenTicker,
-              {
-                  description: parsedInput.description,
-                  twitter: parsedInput.twitter,
-                  telegram: parsedInput.telegram,
-                  website: parsedInput.website,
-                  imageUrl: parsedInput.imageUrl,
-                  initialLiquiditySOL: parsedInput.initialLiquiditySOL,
-              }
-          );
+      // Launch token with validated input
+      await this.solanaKit.launchPumpFunToken(
+        parsedInput.tokenName,
+        parsedInput.tokenTicker,
+        {
+          description: parsedInput.description,
+          twitter: parsedInput.twitter,
+          telegram: parsedInput.telegram,
+          website: parsedInput.website,
+          imageUrl: parsedInput.imageUrl,
+          initialLiquiditySOL: parsedInput.initialLiquiditySOL,
+        }
+      );
 
-          return JSON.stringify({
-              status: "success",
-              message: "Token launched successfully on Pump.fun",
-              tokenName: parsedInput.tokenName,
-              tokenTicker: parsedInput.tokenTicker
-          });
+      return JSON.stringify({
+        status: "success",
+        message: "Token launched successfully on Pump.fun",
+        tokenName: parsedInput.tokenName,
+        tokenTicker: parsedInput.tokenTicker,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
 
-      } catch (error: any) {
-          return JSON.stringify({
-              status: "error",
-              message: error.message,
-              code: error.code || "UNKNOWN_ERROR"
-          });
-      }
+export class SolanaCreateImageTool extends Tool {
+  name = "solana_create_image";
+  description = "Create an image using OpenAI's DALL-E";
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const result = await create_image(this.solanaKit, input);
+      return JSON.stringify(result);
+    } catch (error: any) {
+      return `Error creating image: ${error.message}`;
+    }
   }
 }
 
@@ -261,5 +283,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRegisterDomainTool(solanaKit),
     new SolanaGetWalletAddressTool(solanaKit),
     new SolanaPumpfunTokenLaunchTool(solanaKit),
+    new SolanaCreateImageTool(solanaKit),
   ];
 }

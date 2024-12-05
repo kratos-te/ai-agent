@@ -28,6 +28,7 @@
     "dotenv": "^16.4.5",
     "form-data": "^4.0.1",
     "langchain": "^0.3.6",
+    "openai": "^4.75.0",
     "typedoc": "^0.26.11"
   },
   "devDependencies": {
