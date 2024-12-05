@@ -14,6 +14,9 @@ importers:
       '@langchain/core':
         specifier: ^0.3.18
         version: 0.3.18(openai@4.72.0(zod@3.23.8))
+      '@langchain/groq':
+        specifier: ^0.1.2
+        version: 0.1.2(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))
       '@langchain/openai':
         specifier: ^0.3.13
         version: 0.3.13(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))
@@ -49,7 +52,7 @@ importers:
         version: 4.0.1
       langchain:
         specifier: ^0.3.6
-        version: 0.3.6(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))(axios@1.7.7)(openai@4.72.0(zod@3.23.8))
+        version: 0.3.6(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))(@langchain/groq@0.1.2(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8))))(axios@1.7.7)(openai@4.72.0(zod@3.23.8))
       typedoc:
         specifier: ^0.26.11
         version: 0.26.11(typescript@5.6.3)
@@ -94,6 +97,12 @@ packages:
   '@langchain/core@0.3.18':
     resolution: {integrity: sha512-IEZCrFs1Xd0J2FTH1D3Lnm3/Yk2r8LSpwDeLYwcCom3rNAK5k4mKQ2rwIpNq3YuqBdrTNMKRO+PopjkP1SB17A==}
     engines: {node: '>=18'}
+
+  '@langchain/groq@0.1.2':
+    resolution: {integrity: sha512-bgQ9yGoNHOwG6LG2ngGvSNxF/1U1c1u3vKmFWmzecFIcBoQQOJY0jb0MrL3g1uTife0Sr3zxkWKXQg2aK/U4Sg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@langchain/core': '>=0.2.21 <0.4.0'
 
   '@langchain/openai@0.3.13':
     resolution: {integrity: sha512-lfiauYttb1Vv1GVGDNZlse8475RUsKm9JJ7X9kMVtYoOQnK8xxzMVSrpW7HYLmJokrtVgF6STwRzNJI2gZ3uBw==}
@@ -609,6 +618,9 @@ packages:
   graphemesplit@2.4.4:
     resolution: {integrity: sha512-lKrpp1mk1NH26USxC/Asw4OHbhSQf5XfrWZ+CDv/dFVvd1j17kFgMotdJvOesmHkbFX9P9sBfpH8VogxOWLg8w==}
 
+  groq-sdk@0.5.0:
+    resolution: {integrity: sha512-RVmhW7qZ+XZoy5fIuSdx/LGQJONpL8MHgZEW7dFwTdgkzStub2XQx6OKv28CHogijdwH41J+Npj/z2jBPu3vmw==}
+
   hast-util-to-html@9.0.3:
     resolution: {integrity: sha512-M17uBDzMJ9RPCqLMO92gNNUDuBSq10a25SDBI08iCCxmorf4Yy6sYHK57n9WAbRAAaU+DuR4W6GN9K4DFZesYg==}
 
@@ -963,6 +975,10 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
+
   web-streams-polyfill@4.0.0-beta.3:
     resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
     engines: {node: '>= 14'}
@@ -1077,6 +1093,16 @@ snapshots:
       zod-to-json-schema: 3.23.5(zod@3.23.8)
     transitivePeerDependencies:
       - openai
+
+  '@langchain/groq@0.1.2(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))':
+    dependencies:
+      '@langchain/core': 0.3.18(openai@4.72.0(zod@3.23.8))
+      '@langchain/openai': 0.3.13(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))
+      groq-sdk: 0.5.0
+      zod: 3.23.8
+      zod-to-json-schema: 3.23.5(zod@3.23.8)
+    transitivePeerDependencies:
+      - encoding
 
   '@langchain/openai@0.3.13(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))':
     dependencies:
@@ -1667,6 +1693,19 @@ snapshots:
       js-base64: 3.7.7
       unicode-trie: 2.0.0
 
+  groq-sdk@0.5.0:
+    dependencies:
+      '@types/node': 18.19.64
+      '@types/node-fetch': 2.6.12
+      abort-controller: 3.0.0
+      agentkeepalive: 4.5.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+      web-streams-polyfill: 3.3.3
+    transitivePeerDependencies:
+      - encoding
+
   hast-util-to-html@9.0.3:
     dependencies:
       '@types/hast': 3.0.4
@@ -1733,7 +1772,7 @@ snapshots:
 
   jsonpointer@5.0.1: {}
 
-  langchain@0.3.6(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))(axios@1.7.7)(openai@4.72.0(zod@3.23.8)):
+  langchain@0.3.6(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))(@langchain/groq@0.1.2(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8))))(axios@1.7.7)(openai@4.72.0(zod@3.23.8)):
     dependencies:
       '@langchain/core': 0.3.18(openai@4.72.0(zod@3.23.8))
       '@langchain/openai': 0.3.13(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))
@@ -1749,6 +1788,7 @@ snapshots:
       zod: 3.23.8
       zod-to-json-schema: 3.23.5(zod@3.23.8)
     optionalDependencies:
+      '@langchain/groq': 0.1.2(@langchain/core@0.3.18(openai@4.72.0(zod@3.23.8)))
       axios: 1.7.7
     transitivePeerDependencies:
       - encoding
@@ -2027,6 +2067,8 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
+
+  web-streams-polyfill@3.3.3: {}
 
   web-streams-polyfill@4.0.0-beta.3: {}
 

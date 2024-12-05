@@ -39,12 +39,15 @@ async function uploadMetadata(
     finalFormData.append('file', files.file);
   }
 
+  console.log("Final form data:", finalFormData);
+
   const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
     method: "POST",
     body: finalFormData
   });
 
   if (!metadataResponse.ok) {
+    console.log("Metadata response:", await metadataResponse.json());
     throw new Error(`Metadata upload failed: ${metadataResponse.statusText}`);
   }
 
