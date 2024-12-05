@@ -88,8 +88,17 @@ export class SolanaAgentKit {
   async launchPumpFunToken(
     tokenName: string,
     tokenTicker: string,
+    description: string,
+    imageUrl: string,
     options?: PumpFunTokenOptions 
   ) {
-    return launchPumpFunToken(this, tokenName, tokenTicker, options);
+    return launchPumpFunToken(
+      this,
+      tokenName,
+      tokenTicker,
+      description,
+      imageUrl,
+      options
+    );
   }
 }

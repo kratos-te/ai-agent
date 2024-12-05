@@ -13,13 +13,22 @@ export class SolanaBalanceTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  protected async _call(input: string): Promise<string> {
     try {
       const tokenAddress = input ? new PublicKey(input) : undefined;
       const balance = await this.solanaKit.getBalance(tokenAddress);
-      return `Balance: ${balance}`;
+      
+      return JSON.stringify({
+        status: "success",
+        balance: balance,
+        token: input || "SOL"
+      });
     } catch (error: any) {
-      return `Error getting balance: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -33,16 +42,41 @@ export class SolanaTransferTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
-    try {
-      const { to, amount, mint } = JSON.parse(input);
-      const recipient = new PublicKey(to);
-      const mintAddress = mint ? new PublicKey(mint) : undefined;
+  private validateInput(input: any): void {
+    if (!input.to || typeof input.to !== "string") {
+      throw new Error("to address is required and must be a string");
+    }
+    if (typeof input.amount !== "number" || input.amount <= 0) {
+      throw new Error("amount is required and must be a positive number");
+    }
+    if (input.mint !== undefined && typeof input.mint !== "string") {
+      throw new Error("mint must be a string when provided");
+    }
+  }
 
-      await this.solanaKit.transfer(recipient, amount, mintAddress);
-      return `Successfully transferred ${amount} to ${to}`;
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
+      const recipient = new PublicKey(parsedInput.to);
+      const mintAddress = parsedInput.mint ? new PublicKey(parsedInput.mint) : undefined;
+
+      await this.solanaKit.transfer(recipient, parsedInput.amount, mintAddress);
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Transfer completed successfully",
+        amount: parsedInput.amount,
+        recipient: parsedInput.to,
+        token: parsedInput.mint || "SOL"
+      });
     } catch (error: any) {
-      return `Error making transfer: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -56,16 +90,36 @@ export class SolanaDeployTokenTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: any): void {
+    if (input.decimals !== undefined && 
+        (typeof input.decimals !== "number" || input.decimals < 0 || input.decimals > 9)) {
+      throw new Error("decimals must be a number between 0 and 9 when provided");
+    }
+    if (input.initialSupply !== undefined && 
+        (typeof input.initialSupply !== "number" || input.initialSupply <= 0)) {
+      throw new Error("initialSupply must be a positive number when provided");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const validJson = input
-        .replace(/([a-zA-Z0-9_]+):/g, '"$1":') // Add quotes around keys
-        .trim();
-      const { decimals = 9 } = JSON.parse(validJson);
-      const result = await this.solanaKit.deployToken(decimals);
-      return `Token deployed successfully. Mint address: ${result.mint.toString()}`;
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
+      const result = await this.solanaKit.deployToken(parsedInput.decimals);
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Token deployed successfully",
+        mintAddress: result.mint.toString(),
+        decimals: parsedInput.decimals || 9
+      });
     } catch (error: any) {
-      return `Error deploying token: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -79,13 +133,53 @@ export class SolanaDeployCollectionTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: any): void {
+    if (!input.name || typeof input.name !== "string") {
+      throw new Error("name is required and must be a string");
+    }
+    if (!input.uri || typeof input.uri !== "string") {
+      throw new Error("uri is required and must be a string");
+    }
+    if (input.royaltyBasisPoints !== undefined && 
+        (typeof input.royaltyBasisPoints !== "number" || 
+         input.royaltyBasisPoints < 0 || 
+         input.royaltyBasisPoints > 10000)) {
+      throw new Error("royaltyBasisPoints must be a number between 0 and 10000 when provided");
+    }
+    if (input.creators) {
+      if (!Array.isArray(input.creators)) {
+        throw new Error("creators must be an array when provided");
+      }
+      input.creators.forEach((creator: any, index: number) => {
+        if (!creator.address || typeof creator.address !== "string") {
+          throw new Error(`creator[${index}].address is required and must be a string`);
+        }
+        if (typeof creator.percentage !== "number" || creator.percentage < 0 || creator.percentage > 100) {
+          throw new Error(`creator[${index}].percentage must be a number between 0 and 100`);
+        }
+      });
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const options = JSON.parse(input);
-      const result = await this.solanaKit.deployCollection(options);
-      return `Collection deployed successfully. Address: ${result.collectionAddress.toString()}`;
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
+      const result = await this.solanaKit.deployCollection(parsedInput);
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Collection deployed successfully",
+        collectionAddress: result.collectionAddress.toString(),
+        name: parsedInput.name
+      });
     } catch (error: any) {
-      return `Error deploying collection: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -99,18 +193,51 @@ export class SolanaMintNFTTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: any): void {
+    if (!input.collectionMint || typeof input.collectionMint !== "string") {
+      throw new Error("collectionMint is required and must be a string");
+    }
+    if (!input.metadata || typeof input.metadata !== "object") {
+      throw new Error("metadata is required and must be an object");
+    }
+    if (!input.metadata.name || typeof input.metadata.name !== "string") {
+      throw new Error("metadata.name is required and must be a string");
+    }
+    if (!input.metadata.symbol || typeof input.metadata.symbol !== "string") {
+      throw new Error("metadata.symbol is required and must be a string");
+    }
+    if (!input.metadata.uri || typeof input.metadata.uri !== "string") {
+      throw new Error("metadata.uri is required and must be a string");
+    }
+    if (input.recipient !== undefined && typeof input.recipient !== "string") {
+      throw new Error("recipient must be a string when provided");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const { collectionMint, metadata, recipient } = JSON.parse(input);
-      const recipientPubkey = recipient ? new PublicKey(recipient) : undefined;
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
       const result = await this.solanaKit.mintNFT(
-        new PublicKey(collectionMint),
-        metadata,
-        recipientPubkey
+        new PublicKey(parsedInput.collectionMint),
+        parsedInput.metadata,
+        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
       );
-      return `NFT minted successfully. Mint address: ${result.mint.toString()}`;
+      
+      return JSON.stringify({
+        status: "success",
+        message: "NFT minted successfully",
+        mintAddress: result.mint.toString(),
+        name: parsedInput.metadata.name,
+        recipient: parsedInput.recipient || result.mint.toString()
+      });
     } catch (error: any) {
-      return `Error minting NFT: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -124,19 +251,50 @@ export class SolanaTradeTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: any): void {
+    if (!input.outputMint || typeof input.outputMint !== "string") {
+      throw new Error("outputMint is required and must be a string");
+    }
+    if (typeof input.inputAmount !== "number" || input.inputAmount <= 0) {
+      throw new Error("inputAmount is required and must be a positive number");
+    }
+    if (input.inputMint !== undefined && typeof input.inputMint !== "string") {
+      throw new Error("inputMint must be a string when provided");
+    }
+    if (input.slippageBps !== undefined && 
+        (typeof input.slippageBps !== "number" || 
+         input.slippageBps < 0 || 
+         input.slippageBps > 10000)) {
+      throw new Error("slippageBps must be a number between 0 and 10000 when provided");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const { outputMint, inputAmount, inputMint, slippageBps } =
-        JSON.parse(input);
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
       const tx = await this.solanaKit.trade(
-        new PublicKey(outputMint),
-        inputAmount,
-        inputMint ? new PublicKey(inputMint) : undefined,
-        slippageBps
+        new PublicKey(parsedInput.outputMint),
+        parsedInput.inputAmount,
+        parsedInput.inputMint ? new PublicKey(parsedInput.inputMint) : undefined,
+        parsedInput.slippageBps
       );
-      return `Trade executed successfully. Transaction: ${tx}`;
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Trade executed successfully",
+        transaction: tx,
+        inputAmount: parsedInput.inputAmount,
+        inputToken: parsedInput.inputMint || "SOL",
+        outputToken: parsedInput.outputMint
+      });
     } catch (error: any) {
-      return `Error executing trade: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -149,12 +307,21 @@ export class SolanaRequestFundsTool extends Tool {
     super();
   }
 
-  async _call(_input: string): Promise<string> {
+  protected async _call(_input: string): Promise<string> {
     try {
       await this.solanaKit.requestFaucetFunds();
-      return "Successfully requested faucet funds";
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Successfully requested faucet funds",
+        network: this.solanaKit.connection.rpcEndpoint.split("/")[2]
+      });
     } catch (error: any) {
-      return `Error requesting funds: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -168,13 +335,39 @@ export class SolanaRegisterDomainTool extends Tool {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: any): void {
+    if (!input.name || typeof input.name !== "string") {
+      throw new Error("name is required and must be a string");
+    }
+    if (input.spaceKB !== undefined && 
+        (typeof input.spaceKB !== "number" || input.spaceKB <= 0)) {
+      throw new Error("spaceKB must be a positive number when provided");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const { name, spaceKB = 1 } = JSON.parse(input);
-      const tx = await this.solanaKit.registerDomain(name, spaceKB);
-      return `Domain registered successfully. Transaction: ${tx}`;
+      const parsedInput = toJSON(input);
+      this.validateInput(parsedInput);
+
+      const tx = await this.solanaKit.registerDomain(
+        parsedInput.name, 
+        parsedInput.spaceKB || 1
+      );
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Domain registered successfully",
+        transaction: tx,
+        domain: `${parsedInput.name}.sol`,
+        spaceKB: parsedInput.spaceKB || 1
+      });
     } catch (error: any) {
-      return `Error registering domain: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }
@@ -195,7 +388,7 @@ export class SolanaGetWalletAddressTool extends Tool {
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
   description =
-    "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName and tokenTicker, with optional fields for description, twitter, telegram, website, imageUrl, initialLiquiditySOL, and mintAddress.";
+    "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName, tokenTicker, description, imageUrl, and optional fields for twitter, telegram, website, and initialLiquiditySOL.";
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -207,6 +400,12 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
     }
     if (!input.tokenTicker || typeof input.tokenTicker !== "string") {
       throw new Error("tokenTicker is required and must be a string");
+    }
+    if (!input.description || typeof input.description !== "string") {
+      throw new Error("description is required and must be a string");
+    }
+    if (!input.imageUrl || typeof input.imageUrl !== "string") {
+      throw new Error("imageUrl is required and must be a string");
     }
     if (
       input.initialLiquiditySOL !== undefined &&
@@ -223,16 +422,18 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
       // Validate the input
       this.validateInput(parsedInput);
 
+      console.log(parsedInput);
+
       // Launch token with validated input
       await this.solanaKit.launchPumpFunToken(
         parsedInput.tokenName,
         parsedInput.tokenTicker,
+        parsedInput.description,
+        parsedInput.imageUrl,
         {
-          description: parsedInput.description,
           twitter: parsedInput.twitter,
           telegram: parsedInput.telegram,
           website: parsedInput.website,
-          imageUrl: parsedInput.imageUrl,
           initialLiquiditySOL: parsedInput.initialLiquiditySOL,
         }
       );
@@ -255,18 +456,35 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
 
 export class SolanaCreateImageTool extends Tool {
   name = "solana_create_image";
-  description = "Create an image using OpenAI's DALL-E";
+  description =
+    "Create an image using OpenAI's DALL-E. Input should be a string prompt for the image.";
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  private validateInput(input: string): void {
+    if (typeof input !== "string" || input.trim().length === 0) {
+      throw new Error("Input must be a non-empty string prompt");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
     try {
-      const result = await create_image(this.solanaKit, input);
-      return JSON.stringify(result);
+      this.validateInput(input);
+      const result = await create_image(this.solanaKit, input.trim());
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Image created successfully",
+        ...result
+      });
     } catch (error: any) {
-      return `Error creating image: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR"
+      });
     }
   }
 }

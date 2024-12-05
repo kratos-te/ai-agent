@@ -5,28 +5,27 @@ import { PumpFunTokenOptions, SolanaAgentKit } from "../index";
 async function uploadMetadata(
   tokenName: string, 
   tokenTicker: string,
+  description: string,
+  imageUrl: string,
   options?: PumpFunTokenOptions
 ): Promise<any> {
   // Create metadata object
   const formData = new URLSearchParams();
   formData.append('name', tokenName);
-  formData.append('symbol', tokenTicker);
-  formData.append('description', options?.description || `${tokenName} token created via SolanaAgentKit`);
-  formData.append('showName', 'true');
+  formData.append("symbol", tokenTicker);
+  formData.append("description", description);
+
+  formData.append("showName", "true");
 
   if (options?.twitter) formData.append('twitter', options.twitter);
-  if (options?.telegram) formData.append('telegram', options.telegram);
-  if (options?.website) formData.append('website', options.website);
+  if (options?.telegram) formData.append("telegram", options.telegram);
+  if (options?.website) formData.append("website", options.website);
 
-  let files;
-  // If imageUrl is provided, fetch and prepare the image
-  if (options?.imageUrl) {
-    const imageResponse = await fetch(options.imageUrl);
-    const imageBlob = await imageResponse.blob();
-    files = {
-      file: new File([imageBlob], 'token_image.png', { type: 'image/png' })
-    };
-  }
+  const imageResponse = await fetch(imageUrl);
+  const imageBlob = await imageResponse.blob();
+  const files = {
+    file: new File([imageBlob], "token_image.png", { type: "image/png" }),
+  };
 
   // Create form data with both metadata and file
   const finalFormData = new FormData();
@@ -146,6 +145,8 @@ export async function launchPumpFunToken(
   agent: SolanaAgentKit,
   tokenName: string,
   tokenTicker: string,
+  description: string,
+  imageUrl: string,
   options?: PumpFunTokenOptions
 ) {
   try {
@@ -158,7 +159,7 @@ export async function launchPumpFunToken(
 
     // Upload metadata
     console.log("Uploading metadata to IPFS...");
-    const metadataResponse = await uploadMetadata(tokenName, tokenTicker, options);
+    const metadataResponse = await uploadMetadata(tokenName, tokenTicker, description, imageUrl, options);
     console.log("Metadata response:", metadataResponse);
 
     // Create token transaction

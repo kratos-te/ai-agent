@@ -25,11 +25,9 @@ export interface MintCollectionNFTResponse {
 }
 
 export interface PumpFunTokenOptions {
-  description?: string;
   twitter?: string;
   telegram?: string;
   website?: string;
-  imageUrl?: string;
   initialLiquiditySOL?: number;
   slippageBps?: number;
   priorityFee?: number;
