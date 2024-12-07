@@ -139,7 +139,9 @@ async function signAndSendTransaction(
  * @param agent - SolanaAgentKit instance
  * @param tokenName - Name of the token
  * @param tokenTicker - Ticker of the token
- * @param options - Optional token options (description, twitter, telegram, website, imageUrl, initialLiquiditySOL, slippageBps, priorityFee)
+ * @param description - Description of the token
+ * @param imageUrl - URL of the token image
+ * @param options - Optional token options (twitter, telegram, website, initialLiquiditySOL, slippageBps, priorityFee)
  */
 export async function launchPumpFunToken(
   agent: SolanaAgentKit,
