@@ -1,4 +1,4 @@
-import { VersionedTransaction, PublicKey } from "@solana/web3.js";
+import { VersionedTransaction, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
 import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
 
@@ -20,12 +20,13 @@ export async function trade(
 ): Promise<string> {
   try {
     // Get quote for the swap
+    console.log(inputMint.toString(), outputMint.toString(), inputAmount, slippageBps);
     const quoteResponse = await (
       await fetch(
         `${JUP_API}/quote?` +
           `inputMint=${inputMint.toString()}` +
           `&outputMint=${outputMint.toString()}` +
-          `&amount=${inputAmount}` +
+          `&amount=${inputAmount * LAMPORTS_PER_SOL}` +
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
           `&maxAccounts=20`,
@@ -48,11 +49,10 @@ export async function trade(
         }),
       })
     ).json();
-
     // Deserialize transaction
     const swapTransactionBuf = Buffer.from(swapTransaction, "base64");
-    const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
+    const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
     // Sign and send transaction
     transaction.sign([agent.wallet]);
     const signature = await agent.connection.sendTransaction(transaction);
