@@ -4,6 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { PumpFunTokenOptions } from "../types";
 import { toJSON } from "../utils/toJSON";
 import { create_image } from "../tools/create_image";
+
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
   description =
@@ -17,17 +18,17 @@ export class SolanaBalanceTool extends Tool {
     try {
       const tokenAddress = input ? new PublicKey(input) : undefined;
       const balance = await this.solanaKit.getBalance(tokenAddress);
-      
+
       return JSON.stringify({
         status: "success",
         balance: balance,
-        token: input || "SOL"
+        token: input || "SOL",
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -60,22 +61,24 @@ export class SolanaTransferTool extends Tool {
       this.validateInput(parsedInput);
 
       const recipient = new PublicKey(parsedInput.to);
-      const mintAddress = parsedInput.mint ? new PublicKey(parsedInput.mint) : undefined;
+      const mintAddress = parsedInput.mint
+        ? new PublicKey(parsedInput.mint)
+        : undefined;
 
       await this.solanaKit.transfer(recipient, parsedInput.amount, mintAddress);
-      
+
       return JSON.stringify({
         status: "success",
         message: "Transfer completed successfully",
         amount: parsedInput.amount,
         recipient: parsedInput.to,
-        token: parsedInput.mint || "SOL"
+        token: parsedInput.mint || "SOL",
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -91,12 +94,20 @@ export class SolanaDeployTokenTool extends Tool {
   }
 
   private validateInput(input: any): void {
-    if (input.decimals !== undefined && 
-        (typeof input.decimals !== "number" || input.decimals < 0 || input.decimals > 9)) {
-      throw new Error("decimals must be a number between 0 and 9 when provided");
+    if (
+      input.decimals !== undefined &&
+      (typeof input.decimals !== "number" ||
+        input.decimals < 0 ||
+        input.decimals > 9)
+    ) {
+      throw new Error(
+        "decimals must be a number between 0 and 9 when provided"
+      );
     }
-    if (input.initialSupply !== undefined && 
-        (typeof input.initialSupply !== "number" || input.initialSupply <= 0)) {
+    if (
+      input.initialSupply !== undefined &&
+      (typeof input.initialSupply !== "number" || input.initialSupply <= 0)
+    ) {
       throw new Error("initialSupply must be a positive number when provided");
     }
   }
@@ -107,18 +118,18 @@ export class SolanaDeployTokenTool extends Tool {
       this.validateInput(parsedInput);
 
       const result = await this.solanaKit.deployToken(parsedInput.decimals);
-      
+
       return JSON.stringify({
         status: "success",
         message: "Token deployed successfully",
         mintAddress: result.mint.toString(),
-        decimals: parsedInput.decimals || 9
+        decimals: parsedInput.decimals || 9,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -140,11 +151,15 @@ export class SolanaDeployCollectionTool extends Tool {
     if (!input.uri || typeof input.uri !== "string") {
       throw new Error("uri is required and must be a string");
     }
-    if (input.royaltyBasisPoints !== undefined && 
-        (typeof input.royaltyBasisPoints !== "number" || 
-         input.royaltyBasisPoints < 0 || 
-         input.royaltyBasisPoints > 10000)) {
-      throw new Error("royaltyBasisPoints must be a number between 0 and 10000 when provided");
+    if (
+      input.royaltyBasisPoints !== undefined &&
+      (typeof input.royaltyBasisPoints !== "number" ||
+        input.royaltyBasisPoints < 0 ||
+        input.royaltyBasisPoints > 10000)
+    ) {
+      throw new Error(
+        "royaltyBasisPoints must be a number between 0 and 10000 when provided"
+      );
     }
     if (input.creators) {
       if (!Array.isArray(input.creators)) {
@@ -152,10 +167,18 @@ export class SolanaDeployCollectionTool extends Tool {
       }
       input.creators.forEach((creator: any, index: number) => {
         if (!creator.address || typeof creator.address !== "string") {
-          throw new Error(`creator[${index}].address is required and must be a string`);
+          throw new Error(
+            `creator[${index}].address is required and must be a string`
+          );
         }
-        if (typeof creator.percentage !== "number" || creator.percentage < 0 || creator.percentage > 100) {
-          throw new Error(`creator[${index}].percentage must be a number between 0 and 100`);
+        if (
+          typeof creator.percentage !== "number" ||
+          creator.percentage < 0 ||
+          creator.percentage > 100
+        ) {
+          throw new Error(
+            `creator[${index}].percentage must be a number between 0 and 100`
+          );
         }
       });
     }
@@ -167,18 +190,18 @@ export class SolanaDeployCollectionTool extends Tool {
       this.validateInput(parsedInput);
 
       const result = await this.solanaKit.deployCollection(parsedInput);
-      
+
       return JSON.stringify({
         status: "success",
         message: "Collection deployed successfully",
         collectionAddress: result.collectionAddress.toString(),
-        name: parsedInput.name
+        name: parsedInput.name,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -224,19 +247,19 @@ export class SolanaMintNFTTool extends Tool {
         parsedInput.metadata,
         parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
       );
-      
+
       return JSON.stringify({
         status: "success",
         message: "NFT minted successfully",
         mintAddress: result.mint.toString(),
         name: parsedInput.metadata.name,
-        recipient: parsedInput.recipient || result.mint.toString()
+        recipient: parsedInput.recipient || result.mint.toString(),
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -261,11 +284,15 @@ export class SolanaTradeTool extends Tool {
     if (input.inputMint !== undefined && typeof input.inputMint !== "string") {
       throw new Error("inputMint must be a string when provided");
     }
-    if (input.slippageBps !== undefined && 
-        (typeof input.slippageBps !== "number" || 
-         input.slippageBps < 0 || 
-         input.slippageBps > 10000)) {
-      throw new Error("slippageBps must be a number between 0 and 10000 when provided");
+    if (
+      input.slippageBps !== undefined &&
+      (typeof input.slippageBps !== "number" ||
+        input.slippageBps < 0 ||
+        input.slippageBps > 10000)
+    ) {
+      throw new Error(
+        "slippageBps must be a number between 0 and 10000 when provided"
+      );
     }
   }
 
@@ -277,23 +304,25 @@ export class SolanaTradeTool extends Tool {
       const tx = await this.solanaKit.trade(
         new PublicKey(parsedInput.outputMint),
         parsedInput.inputAmount,
-        parsedInput.inputMint ? new PublicKey(parsedInput.inputMint) : undefined,
+        parsedInput.inputMint
+          ? new PublicKey(parsedInput.inputMint)
+          : undefined,
         parsedInput.slippageBps
       );
-      
+
       return JSON.stringify({
         status: "success",
         message: "Trade executed successfully",
         transaction: tx,
         inputAmount: parsedInput.inputAmount,
         inputToken: parsedInput.inputMint || "SOL",
-        outputToken: parsedInput.outputMint
+        outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -310,17 +339,17 @@ export class SolanaRequestFundsTool extends Tool {
   protected async _call(_input: string): Promise<string> {
     try {
       await this.solanaKit.requestFaucetFunds();
-      
+
       return JSON.stringify({
         status: "success",
         message: "Successfully requested faucet funds",
-        network: this.solanaKit.connection.rpcEndpoint.split("/")[2]
+        network: this.solanaKit.connection.rpcEndpoint.split("/")[2],
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -339,8 +368,10 @@ export class SolanaRegisterDomainTool extends Tool {
     if (!input.name || typeof input.name !== "string") {
       throw new Error("name is required and must be a string");
     }
-    if (input.spaceKB !== undefined && 
-        (typeof input.spaceKB !== "number" || input.spaceKB <= 0)) {
+    if (
+      input.spaceKB !== undefined &&
+      (typeof input.spaceKB !== "number" || input.spaceKB <= 0)
+    ) {
       throw new Error("spaceKB must be a positive number when provided");
     }
   }
@@ -351,22 +382,22 @@ export class SolanaRegisterDomainTool extends Tool {
       this.validateInput(parsedInput);
 
       const tx = await this.solanaKit.registerDomain(
-        parsedInput.name, 
+        parsedInput.name,
         parsedInput.spaceKB || 1
       );
-      
+
       return JSON.stringify({
         status: "success",
         message: "Domain registered successfully",
         transaction: tx,
         domain: `${parsedInput.name}.sol`,
-        spaceKB: parsedInput.spaceKB || 1
+        spaceKB: parsedInput.spaceKB || 1,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -387,14 +418,26 @@ export class SolanaGetWalletAddressTool extends Tool {
 
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
-  description =
-    "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName, tokenTicker, description, imageUrl, and optional fields for twitter, telegram, website, and initialLiquiditySOL.";
+  // description =
+  //   "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName, tokenTicker, description, imageUrl, and optional fields for twitter, telegram, website, and initialLiquiditySOL.";
+
+  description = `This tool can be used to launch a token on Pump.fun,
+   do not use this tool for any other purpose, or for creating SPL tokens.
+   If the user asks you to chose the parameters, you should generate valid values.  
+   For generating the image, you can use the solana_create_image tool.
+   
+   Inputs:
+   tokenName: string, eg "PumpFun Token",
+   tokenTicker: string, eg "PUMP",
+   description: string, eg "PumpFun Token is a token on the Solana blockchain",
+   imageUrl: string, eg "https://i.imgur.com/UFm07Np_d.png`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
   private validateInput(input: any): void {
+    console.log(input);
     if (!input.tokenName || typeof input.tokenName !== "string") {
       throw new Error("tokenName is required and must be a string");
     }
@@ -418,11 +461,10 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       // Parse and normalize input
-      const parsedInput = toJSON(input);
-      // Validate the input
-      this.validateInput(parsedInput);
+      input = input.trim();
+      let parsedInput = JSON.parse(input);
 
-      console.log(parsedInput);
+      this.validateInput(parsedInput);
 
       // Launch token with validated input
       await this.solanaKit.launchPumpFunToken(
@@ -473,17 +515,17 @@ export class SolanaCreateImageTool extends Tool {
     try {
       this.validateInput(input);
       const result = await create_image(this.solanaKit, input.trim());
-      
+
       return JSON.stringify({
         status: "success",
         message: "Image created successfully",
-        ...result
+        ...result,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
