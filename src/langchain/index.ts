@@ -1,14 +1,18 @@
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
-import { PumpFunTokenOptions } from "../types";
 import { toJSON } from "../utils/toJSON";
 import { create_image } from "../tools/create_image";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
-  description =
-    "Get the balance of a Solana wallet or token account. Input can be a token address or empty for SOL balance.";
+  description = `Get the balance of a Solana wallet or token account.
+
+  If you want to get the balance of your wallet, you don't need to provide the tokenAddress.
+  If no tokenAddress is provided, the balance will be in SOL.
+
+  Inputs:
+  tokenAddress: string, eg "So11111111111111111111111111111111111111112" (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -36,36 +40,32 @@ export class SolanaBalanceTool extends Tool {
 
 export class SolanaTransferTool extends Tool {
   name = "solana_transfer";
-  description =
-    "Transfer tokens or SOL to another address. Input should be JSON string with: {to: string, amount: number, mint?: string}";
+  description = `Transfer tokens or SOL to another address ( also called as wallet address ).
+
+  Inputs ( input is a JSON string ): 
+  to: string, eg "8x2dR8Mpzuz2YqyZyZjUbYWKSWesBo5jMx2Q9Y86udVk" (required)
+  amount: number, eg 1 (required)
+  mint?: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.to || typeof input.to !== "string") {
-      throw new Error("to address is required and must be a string");
-    }
-    if (typeof input.amount !== "number" || input.amount <= 0) {
-      throw new Error("amount is required and must be a positive number");
-    }
-    if (input.mint !== undefined && typeof input.mint !== "string") {
-      throw new Error("mint must be a string when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
+      console.log(parsedInput);
 
       const recipient = new PublicKey(parsedInput.to);
       const mintAddress = parsedInput.mint
         ? new PublicKey(parsedInput.mint)
         : undefined;
 
-      await this.solanaKit.transfer(recipient, parsedInput.amount, mintAddress);
+      const tx = await this.solanaKit.transfer(
+        recipient,
+        parsedInput.amount,
+        mintAddress
+      );
 
       return JSON.stringify({
         status: "success",
@@ -73,6 +73,7 @@ export class SolanaTransferTool extends Tool {
         amount: parsedInput.amount,
         recipient: parsedInput.to,
         token: parsedInput.mint || "SOL",
+        transaction: tx,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -267,46 +268,28 @@ export class SolanaMintNFTTool extends Tool {
 
 export class SolanaTradeTool extends Tool {
   name = "solana_trade";
-  description =
-    "Swap tokens using Jupiter Exchange. Input should be JSON with: {outputMint: string, inputAmount: number, inputMint?: string, slippageBps?: number}";
+  description = `This tool can be used to swap tokens to another token ( It uses Jupiter Exchange ).
+
+  Inputs ( input is a JSON string ):
+  outputMint: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (required)
+  inputAmount: number, eg 1 or 0.01 (required)
+  inputMint?: string, eg "So11111111111111111111111111111111111111112" (optional)
+  slippageBps?: number, eg 100 (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.outputMint || typeof input.outputMint !== "string") {
-      throw new Error("outputMint is required and must be a string");
-    }
-    if (typeof input.inputAmount !== "number" || input.inputAmount <= 0) {
-      throw new Error("inputAmount is required and must be a positive number");
-    }
-    if (input.inputMint !== undefined && typeof input.inputMint !== "string") {
-      throw new Error("inputMint must be a string when provided");
-    }
-    if (
-      input.slippageBps !== undefined &&
-      (typeof input.slippageBps !== "number" ||
-        input.slippageBps < 0 ||
-        input.slippageBps > 10000)
-    ) {
-      throw new Error(
-        "slippageBps must be a number between 0 and 10000 when provided"
-      );
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
       const tx = await this.solanaKit.trade(
         new PublicKey(parsedInput.outputMint),
         parsedInput.inputAmount,
         parsedInput.inputMint
           ? new PublicKey(parsedInput.inputMint)
-          : undefined,
+          : new PublicKey("So11111111111111111111111111111111111111112"),
         parsedInput.slippageBps
       );
 
@@ -319,6 +302,7 @@ export class SolanaTradeTool extends Tool {
         outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
+      console.log(error);
       return JSON.stringify({
         status: "error",
         message: error.message,
@@ -357,8 +341,12 @@ export class SolanaRequestFundsTool extends Tool {
 
 export class SolanaRegisterDomainTool extends Tool {
   name = "solana_register_domain";
-  description =
-    "Register a .sol domain name. Input should be JSON with: {name: string, spaceKB?: number}";
+  description = `Register a .sol domain name for your wallet.
+
+  Inputs:
+  name: string, eg "pumpfun.sol" (required)
+  spaceKB: number, eg 1 (optional, default is 1)
+  `;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -405,7 +393,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
 export class SolanaGetWalletAddressTool extends Tool {
   name = "solana_get_wallet_address";
-  description = "Get the wallet address of the agent";
+  description = `Get the wallet address of the agent`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -418,8 +406,6 @@ export class SolanaGetWalletAddressTool extends Tool {
 
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
-  // description =
-  //   "Launch a new token on Pump.fun via Solana Agent Kit. Requires a JSON input with tokenName, tokenTicker, description, imageUrl, and optional fields for twitter, telegram, website, and initialLiquiditySOL.";
 
   description = `This tool can be used to launch a token on Pump.fun,
    do not use this tool for any other purpose, or for creating SPL tokens.
