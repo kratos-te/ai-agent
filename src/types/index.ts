@@ -24,6 +24,23 @@ export interface MintCollectionNFTResponse {
   metadata: PublicKey;
 }
 
+export interface PumpFunTokenOptions {
+  twitter?: string;
+  telegram?: string;
+  website?: string;
+  initialLiquiditySOL?: number;
+  slippageBps?: number;
+  priorityFee?: number;
+}
+
+export interface PumpfunLaunchResponse {
+  signature: string;
+  mint: string;
+  metadataUri?: string;
+  error?: string;
+}
+
+
 /**
  * Mint addresses of supported tokens for lending on Lulo
  */

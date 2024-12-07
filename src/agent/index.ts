@@ -9,11 +9,9 @@ import {
   transfer,
   trade,
   registerDomain,
-  lendAsset,
-  getLendingDetails,
-  getTPS,
+  launchPumpFunToken,
 } from "../tools";
-import { CollectionOptions, LuloDepositAssetMint } from "../types";
+import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
 
 /**
@@ -29,26 +27,17 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
+  public openai_api_key: string;
 
   constructor(
-    privateKey?: string,
-    rpcURL = "https://api.mainnet-beta.solana.com",
+    private_key: string,
+    rpc_url = "https://api.mainnet-beta.solana.com",
+    openai_api_key: string
   ) {
-    this.connection = new Connection(rpcURL);
-    if (privateKey) {
-      this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
-    } else {
-      this.wallet = Keypair.generate();
-      console.log("Generated new wallet: ", this.wallet.publicKey.toBase58());
-      console.log(
-        "Safely store the private key: ",
-        "\n----------------------------------\n",
-        this.wallet.secretKey,
-        "\n----------------------------------\n",
-        "Please fund this wallet with SOL to use it (on mainnet), or use the faucet method to request funds (only on devnet/testnet).",
-      );
-    }
+    this.connection = new Connection(rpc_url);
+    this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
     this.wallet_address = this.wallet.publicKey;
+    this.openai_api_key = openai_api_key;
   }
 
   // Tool methods
@@ -57,7 +46,7 @@ export class SolanaAgentKit {
   }
 
   async deployToken(
-    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
+    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS
     // initialSupply?: number
   ) {
     return deploy_token(this, decimals);
@@ -74,7 +63,7 @@ export class SolanaAgentKit {
   async mintNFT(
     collectionMint: PublicKey,
     metadata: Parameters<typeof mintCollectionNFT>[2],
-    recipient?: PublicKey,
+    recipient?: PublicKey
   ) {
     return mintCollectionNFT(this, collectionMint, metadata, recipient);
   }
@@ -91,24 +80,25 @@ export class SolanaAgentKit {
     outputMint: PublicKey,
     inputAmount: number,
     inputMint?: PublicKey,
-    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
+    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS
   ) {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
 
-  async lendAssets(
-    asset: LuloDepositAssetMint,
-    amount: number,
-    LULO_API_KEY: string,
+  async launchPumpFunToken(
+    tokenName: string,
+    tokenTicker: string,
+    description: string,
+    imageUrl: string,
+    options?: PumpFunTokenOptions 
   ) {
-    return lendAsset(this, asset, amount, LULO_API_KEY);
-  }
-
-  async fetchLendingDetails(LULO_API_KEY: string) {
-    return getLendingDetails(this, LULO_API_KEY);
-  }
-
-  async getTPS() {
-    return getTPS(this);
+    return launchPumpFunToken(
+      this,
+      tokenName,
+      tokenTicker,
+      description,
+      imageUrl,
+      options
+    );
   }
 }
