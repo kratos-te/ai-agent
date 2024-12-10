@@ -193,7 +193,7 @@ export class SolanaGetWalletAddressTool extends Tool {
 export class SolanaLendAssetTool extends Tool {
   name = "solana_lend_asset";
   description =
-    "Lend idle assets for yield using Lulo. Input should be JSON with: {asset: string, amount: number, luloApiKey: string}";
+    "Lend idle assets for yield using Lulo. Input should be JSON with: {amount: number}";
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -201,13 +201,9 @@ export class SolanaLendAssetTool extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const { asset, amount, luloApiKey } = JSON.parse(input);
+      const { amount } = JSON.parse(input);
 
-      const tx = await this.solanaKit.lendAssets(
-        new PublicKey(asset),
-        amount,
-        luloApiKey,
-      );
+      const tx = await this.solanaKit.lendAssets(amount);
 
       return `Asset lent successfully. Transaction: ${tx}`;
     } catch (error: any) {

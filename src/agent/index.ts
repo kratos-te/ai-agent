@@ -13,7 +13,7 @@ import {
   getLendingDetails,
   getTPS,
 } from "../tools";
-import { CollectionOptions, LuloDepositAssetMint } from "../types";
+import { CollectionOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
 
 /**
@@ -96,12 +96,8 @@ export class SolanaAgentKit {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
 
-  async lendAssets(
-    asset: LuloDepositAssetMint,
-    amount: number,
-    LULO_API_KEY: string,
-  ) {
-    return lendAsset(this, asset, amount, LULO_API_KEY);
+  async lendAssets(amount: number) {
+    return lendAsset(this, amount);
   }
 
   async fetchLendingDetails(LULO_API_KEY: string) {
