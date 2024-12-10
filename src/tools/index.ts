@@ -6,5 +6,6 @@ export * from "./mint_nft";
 export * from "./transfer";
 export * from "./trade";
 export * from "./register_domain";
+export * from "./launch_pumpfun_token";
 export * from "./lend";
 export * from "./get_tps";

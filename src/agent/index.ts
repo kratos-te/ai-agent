@@ -9,11 +9,12 @@ import {
   transfer,
   trade,
   registerDomain,
-  lendAsset,
+  launchPumpFunToken,
   getLendingDetails,
+  lendAsset,
   getTPS,
 } from "../tools";
-import { CollectionOptions } from "../types";
+import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
 
 /**
@@ -29,26 +30,17 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
+  public openai_api_key: string;
 
   constructor(
-    privateKey?: string,
-    rpcURL = "https://api.mainnet-beta.solana.com",
+    private_key: string,
+    rpc_url = "https://api.mainnet-beta.solana.com",
+    openai_api_key: string,
   ) {
-    this.connection = new Connection(rpcURL);
-    if (privateKey) {
-      this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
-    } else {
-      this.wallet = Keypair.generate();
-      console.log("Generated new wallet: ", this.wallet.publicKey.toBase58());
-      console.log(
-        "Safely store the private key: ",
-        "\n----------------------------------\n",
-        this.wallet.secretKey,
-        "\n----------------------------------\n",
-        "Please fund this wallet with SOL to use it (on mainnet), or use the faucet method to request funds (only on devnet/testnet).",
-      );
-    }
+    this.connection = new Connection(rpc_url);
+    this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
     this.wallet_address = this.wallet.publicKey;
+    this.openai_api_key = openai_api_key;
   }
 
   // Tool methods
@@ -106,5 +98,22 @@ export class SolanaAgentKit {
 
   async getTPS() {
     return getTPS(this);
+  }
+
+  async launchPumpFunToken(
+    tokenName: string,
+    tokenTicker: string,
+    description: string,
+    imageUrl: string,
+    options?: PumpFunTokenOptions,
+  ) {
+    return launchPumpFunToken(
+      this,
+      tokenName,
+      tokenTicker,
+      description,
+      imageUrl,
+      options,
+    );
   }
 }
