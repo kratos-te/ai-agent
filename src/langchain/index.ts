@@ -42,7 +42,7 @@ export class SolanaTransferTool extends Tool {
   name = "solana_transfer";
   description = `Transfer tokens or SOL to another address ( also called as wallet address ).
 
-  Inputs ( input is a JSON string ): 
+  Inputs ( input is a JSON string ):
   to: string, eg "8x2dR8Mpzuz2YqyZyZjUbYWKSWesBo5jMx2Q9Y86udVk" (required)
   amount: number, eg 1 (required)
   mint?: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
@@ -409,9 +409,9 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
 
   description = `This tool can be used to launch a token on Pump.fun,
    do not use this tool for any other purpose, or for creating SPL tokens.
-   If the user asks you to chose the parameters, you should generate valid values.  
+   If the user asks you to chose the parameters, you should generate valid values.
    For generating the image, you can use the solana_create_image tool.
-   
+
    Inputs:
    tokenName: string, eg "PumpFun Token",
    tokenTicker: string, eg "PUMP",
@@ -517,6 +517,57 @@ export class SolanaCreateImageTool extends Tool {
   }
 }
 
+export class SolanaLendAssetTool extends Tool {
+  name = "solana_lend_asset";
+  description = `Lend idle USDC for yield using Lulo. ( only USDC is supported )
+
+  Inputs (input is a json string):
+  amount: number, eg 1, 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      let amount = JSON.parse(input).amount || input;
+
+      const tx = await this.solanaKit.lendAssets(amount);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Asset lent successfully",
+        transaction: tx,
+        amount: amount,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTPSCalculatorTool extends Tool {
+  name = "solana_get_tps";
+  description = "Get the current TPS of the Solana network";
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(_input: string): Promise<string> {
+    try {
+      const tps = await this.solanaKit.getTPS();
+      return `Solana (mainnet-beta) current transactions per second: ${tps}`;
+    } catch (error: any) {
+      return `Error fetching TPS: ${error.message}`;
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -530,5 +581,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaGetWalletAddressTool(solanaKit),
     new SolanaPumpfunTokenLaunchTool(solanaKit),
     new SolanaCreateImageTool(solanaKit),
+    new SolanaLendAssetTool(solanaKit),
+    new SolanaTPSCalculatorTool(solanaKit),
   ];
 }
