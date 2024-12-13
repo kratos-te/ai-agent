@@ -16,6 +16,9 @@ export async function stakeWithJup(
       `https://worker.jup.ag/blinks/swap/So11111111111111111111111111111111111111112/jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v/${amount}`,
       {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           account: agent.wallet.publicKey.toBase58(),
         }),
@@ -28,9 +31,23 @@ export async function stakeWithJup(
       Buffer.from(data.transaction, "base64"),
     );
 
+    const { blockhash } = await agent.connection.getLatestBlockhash();
+    txn.message.recentBlockhash = blockhash;
+
     // Sign and send transaction
     txn.sign([agent.wallet]);
-    const signature = await agent.connection.sendTransaction(txn);
+    const signature = await agent.connection.sendTransaction(txn, {
+      preflightCommitment: "confirmed",
+      maxRetries: 3,
+    });
+
+    const latestBlockhash = await agent.connection.getLatestBlockhash();
+    await agent.connection.confirmTransaction({
+      signature,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+    });
+
     return signature;
   } catch (error: any) {
     console.error(error);
