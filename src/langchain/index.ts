@@ -64,7 +64,7 @@ export class SolanaTransferTool extends Tool {
       const tx = await this.solanaKit.transfer(
         recipient,
         parsedInput.amount,
-        mintAddress,
+        mintAddress
       );
 
       return JSON.stringify({
@@ -102,7 +102,7 @@ export class SolanaDeployTokenTool extends Tool {
         input.decimals > 9)
     ) {
       throw new Error(
-        "decimals must be a number between 0 and 9 when provided",
+        "decimals must be a number between 0 and 9 when provided"
       );
     }
     if (
@@ -159,7 +159,7 @@ export class SolanaDeployCollectionTool extends Tool {
         input.royaltyBasisPoints > 10000)
     ) {
       throw new Error(
-        "royaltyBasisPoints must be a number between 0 and 10000 when provided",
+        "royaltyBasisPoints must be a number between 0 and 10000 when provided"
       );
     }
     if (input.creators) {
@@ -169,7 +169,7 @@ export class SolanaDeployCollectionTool extends Tool {
       input.creators.forEach((creator: any, index: number) => {
         if (!creator.address || typeof creator.address !== "string") {
           throw new Error(
-            `creator[${index}].address is required and must be a string`,
+            `creator[${index}].address is required and must be a string`
           );
         }
         if (
@@ -178,7 +178,7 @@ export class SolanaDeployCollectionTool extends Tool {
           creator.percentage > 100
         ) {
           throw new Error(
-            `creator[${index}].percentage must be a number between 0 and 100`,
+            `creator[${index}].percentage must be a number between 0 and 100`
           );
         }
       });
@@ -246,9 +246,7 @@ export class SolanaMintNFTTool extends Tool {
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
         parsedInput.metadata,
-        parsedInput.recipient
-          ? new PublicKey(parsedInput.recipient)
-          : undefined,
+        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
       );
 
       return JSON.stringify({
@@ -292,7 +290,7 @@ export class SolanaTradeTool extends Tool {
         parsedInput.inputMint
           ? new PublicKey(parsedInput.inputMint)
           : new PublicKey("So11111111111111111111111111111111111111112"),
-        parsedInput.slippageBps,
+        parsedInput.slippageBps
       );
 
       return JSON.stringify({
@@ -373,7 +371,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
       const tx = await this.solanaKit.registerDomain(
         parsedInput.name,
-        parsedInput.spaceKB || 1,
+        parsedInput.spaceKB || 1
       );
 
       return JSON.stringify({
@@ -465,7 +463,7 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
           telegram: parsedInput.telegram,
           website: parsedInput.website,
           initialLiquiditySOL: parsedInput.initialLiquiditySOL,
-        },
+        }
       );
 
       return JSON.stringify({
@@ -521,8 +519,10 @@ export class SolanaCreateImageTool extends Tool {
 
 export class SolanaLendAssetTool extends Tool {
   name = "solana_lend_asset";
-  description =
-    "Lend idle assets for yield using Lulo. Input should be JSON with: {amount: number}";
+  description = `Lend idle USDC for yield using Lulo. ( only USDC is supported )
+
+  Inputs (input is a json string):
+  amount: number, eg 1, 0.01 (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -530,36 +530,22 @@ export class SolanaLendAssetTool extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const { amount } = JSON.parse(input);
+      let amount = JSON.parse(input).amount || input;
 
       const tx = await this.solanaKit.lendAssets(amount);
 
-      return `Asset lent successfully. Transaction: ${tx}`;
+      return JSON.stringify({
+        status: "success",
+        message: "Asset lent successfully",
+        transaction: tx,
+        amount: amount,
+      });
     } catch (error: any) {
-      return `Error lending asset: ${error.message}`;
-    }
-  }
-}
-
-export class SolanaFetchLendingDetailsTool extends Tool {
-  name = "solana_get_lending_details";
-  description =
-    "Get details of assets lent on Lulo. Input should be JSON with: {luloApiKey: string}";
-
-  constructor(private solanaKit: SolanaAgentKit) {
-    super();
-  }
-
-  async _call(input: string): Promise<string> {
-    try {
-      const { luloApiKey } = JSON.parse(input);
-
-      const lendingDetails =
-        await this.solanaKit.fetchLendingDetails(luloApiKey);
-
-      return `Lending details: ${lendingDetails}`;
-    } catch (error: any) {
-      return `Error fetching lending details: ${error.message}`;
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }
@@ -596,7 +582,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPumpfunTokenLaunchTool(solanaKit),
     new SolanaCreateImageTool(solanaKit),
     new SolanaLendAssetTool(solanaKit),
-    new SolanaFetchLendingDetailsTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
   ];
 }

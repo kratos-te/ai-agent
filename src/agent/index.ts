@@ -10,7 +10,6 @@ import {
   trade,
   registerDomain,
   launchPumpFunToken,
-  getLendingDetails,
   lendAsset,
   getTPS,
 } from "../tools";
@@ -90,10 +89,6 @@ export class SolanaAgentKit {
 
   async lendAssets(amount: number) {
     return lendAsset(this, amount);
-  }
-
-  async fetchLendingDetails(LULO_API_KEY: string) {
-    return getLendingDetails(this, LULO_API_KEY);
   }
 
   async getTPS() {
