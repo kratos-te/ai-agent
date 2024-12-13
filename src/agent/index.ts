@@ -12,6 +12,8 @@ import {
   launchPumpFunToken,
   lendAsset,
   getTPS,
+  fetchTokenDataByMint,
+  fetchTokenDataByName,
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -93,6 +95,14 @@ export class SolanaAgentKit {
 
   async getTPS() {
     return getTPS(this);
+  }
+
+  async getTokenDataByMint(mint: PublicKey) {
+    return fetchTokenDataByMint(mint);
+  }
+
+  async getTokenDataByName(name: string) {
+    return fetchTokenDataByName(name);
   }
 
   async launchPumpFunToken(
