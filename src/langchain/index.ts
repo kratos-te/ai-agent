@@ -54,7 +54,6 @@ export class SolanaTransferTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      console.log(parsedInput);
 
       const recipient = new PublicKey(parsedInput.to);
       const mintAddress = parsedInput.mint
@@ -304,7 +303,6 @@ export class SolanaTradeTool extends Tool {
         outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
-      console.log(error);
       return JSON.stringify({
         status: "error",
         message: error.message,
@@ -425,7 +423,6 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
   }
 
   private validateInput(input: any): void {
-    console.log(input);
     if (!input.tokenName || typeof input.tokenName !== "string") {
       throw new Error("tokenName is required and must be a string");
     }
@@ -521,7 +518,7 @@ export class SolanaCreateImageTool extends Tool {
 
 export class SolanaStakeTool extends Tool {
   name = "solana_stake";
-  description = `This tool can be used to stake your SOL (Solana)
+  description = `This tool can be used to stake your SOL (Solana), also called as SOL staking or liquid staking.
 
   Inputs ( input is a JSON string ):
   amount: number, eg 1 or 0.01 (required)`;
@@ -530,19 +527,9 @@ export class SolanaStakeTool extends Tool {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (
-      input.amount !== undefined &&
-      (typeof input.amount !== "number" || input.amount <= 0)
-    ) {
-      throw new Error("amount must be a positive number when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input) || Number(input);
 
       const tx = await this.solanaKit.stake(parsedInput.amount);
 
@@ -553,7 +540,6 @@ export class SolanaStakeTool extends Tool {
         amount: parsedInput.amount,
       });
     } catch (error: any) {
-      console.log(error);
       return JSON.stringify({
         status: "error",
         message: error.message,

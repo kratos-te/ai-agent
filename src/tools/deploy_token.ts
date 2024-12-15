@@ -27,10 +27,6 @@ export async function deploy_token(
     );
 
     const mint = Keypair.generate();
-
-    console.log("Mint address: ", mint.publicKey.toString());
-    console.log("Agent address: ", agent.wallet_address.toString());
-
     let account_create_ix = SystemProgram.createAccount({
       fromPubkey: agent.wallet_address,
       newAccountPubkey: mint.publicKey,
@@ -50,13 +46,6 @@ export async function deploy_token(
     let tx = new Transaction().add(account_create_ix, create_mint_ix);
 
     let hash = await sendTx(agent, tx, [mint]);
-
-    console.log("Transaction hash: ", hash);
-
-    console.log(
-      "Token deployed successfully. Mint address: ",
-      mint.publicKey.toString()
-    );
 
     return {
       mint: mint.publicKey,
