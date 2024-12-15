@@ -54,3 +54,11 @@ export interface LuloAccountDetailsResponse {
     minimumRate: string;
   };
 }
+
+export interface FetchPriceResponse {
+  status: "success" | "error";
+  tokenId?: string;
+  priceInUSDC?: string;
+  message?: string;
+  code?: string;
+}

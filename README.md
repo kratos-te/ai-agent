@@ -120,6 +120,19 @@ const signature = await stakeWithJup(
 );
 ```
 
+### Fetch Token Price
+
+```typescript
+import { fetchPrice } from 'solana-agent-kit';
+
+const price = await fetchPrice(
+  agent,
+  'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' // Token mint address
+);
+
+console.log('Price in USDC:', price);
+```
+
 ## API Reference
 
 ### Core Functions
