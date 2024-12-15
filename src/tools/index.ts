@@ -9,3 +9,4 @@ export * from "./register_domain";
 export * from "./launch_pumpfun_token";
 export * from "./lend";
 export * from "./get_tps";
+export * from './stake_with_jup';
