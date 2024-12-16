@@ -12,6 +12,7 @@ import {
   launchPumpFunToken,
   lendAsset,
   getTPS,
+  stakeWithJup,
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -113,5 +114,11 @@ export class SolanaAgentKit {
       imageUrl,
       options,
     );
+  }
+  
+  async stake(
+    amount: number,
+  ) {
+    return stakeWithJup(this, amount);
   }
 }

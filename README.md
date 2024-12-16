@@ -8,6 +8,7 @@ A powerful toolkit for interacting with the Solana blockchain, providing easy-to
   - Deploy new SPL tokens
   - Transfer SOL and SPL tokens
   - Check token balances
+  - Stake SOL
 
 - 🖼️ NFT Management
   - Deploy NFT collections
@@ -108,6 +109,30 @@ const signature = await lendAsset(
 );
 ```
 
+### Stake SOL
+
+```typescript
+import { stakeWithJup } from 'solana-agent-kit';
+
+const signature = await stakeWithJup(
+  agent,
+  1 // amount in SOL
+);
+```
+
+### Fetch Token Price
+
+```typescript
+import { fetchPrice } from 'solana-agent-kit';
+
+const price = await fetchPrice(
+  agent,
+  'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' // Token mint address
+);
+
+console.log('Price in USDC:', price);
+```
+
 ## API Reference
 
 ### Core Functions
@@ -139,6 +164,9 @@ Check SOL or token balance for the agent's wallet.
 #### `lendAsset(agent, assetMint, amount, apiKey)`
 
 Lend idle assets to earn interest with Lulo.
+
+#### `stakeWithJup(agent, amount)`
+Stake SOL with Jupiter to earn rewards.
 
 ## Dependencies
 

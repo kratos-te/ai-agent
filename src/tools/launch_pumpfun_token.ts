@@ -38,7 +38,6 @@ async function uploadMetadata(
     finalFormData.append('file', files.file);
   }
 
-  console.log("Final form data:", finalFormData);
 
   const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
     method: "POST",
@@ -46,7 +45,6 @@ async function uploadMetadata(
   });
 
   if (!metadataResponse.ok) {
-    console.log("Metadata response:", await metadataResponse.json());
     throw new Error(`Metadata upload failed: ${metadataResponse.statusText}`);
   }
 
@@ -152,30 +150,14 @@ export async function launchPumpFunToken(
   options?: PumpFunTokenOptions
 ) {
   try {
-    // TBD : Remove clgs after approval
-    console.log("Starting token launch process...");
 
-    // Generate mint keypair
     const mintKeypair = Keypair.generate();
-    console.log("Mint public key:", mintKeypair.publicKey.toBase58());
-
-    // Upload metadata
-    console.log("Uploading metadata to IPFS...");
     const metadataResponse = await uploadMetadata(tokenName, tokenTicker, description, imageUrl, options);
-    console.log("Metadata response:", metadataResponse);
-
-    // Create token transaction
-    console.log("Creating token transaction...");
     const response = await createTokenTransaction(agent, mintKeypair, metadataResponse, options);
-
     const transactionData = await response.arrayBuffer();
     const tx = VersionedTransaction.deserialize(new Uint8Array(transactionData));
-
-    // Send transaction with proper blockhash handling
-    console.log("Sending transaction...");
     const signature = await signAndSendTransaction(agent, tx, mintKeypair);
 
-    console.log("Token launch successful!");
     return {
       signature,
       mint: mintKeypair.publicKey.toBase58(),
