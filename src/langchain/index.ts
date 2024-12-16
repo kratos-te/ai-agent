@@ -572,7 +572,7 @@ export class SolanaTPSCalculatorTool extends Tool {
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
-  description = `create raydium amm v4 pool
+  description = `Raydium's Legacy AMM that requiers an OpenBook marketID
 
   Inputs (input is a json string):
   marketId: string (required)
@@ -613,12 +613,12 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 
 export class SolanaRaydiumCreateClmm extends Tool {
   name = "raydium_create_clmm";
-  description = `create raydium clmm pool
+  description = `Concentrated liquidity market maker, custom liquidity ranges, increased capital efficiency
 
   Inputs (input is a json string):
   mint1: string (required)
   mint2: string (required)
-  configId: string (required)
+  configId: string (required) stores pool info, id, index, protocolFeeRate, tradeFeeRate, tickSpacing, fundFeeRate
   initialPrice: number, eg: 123.12 (required)
   startTime: number(seconds), eg: now number or zero (required)
   `;
@@ -658,12 +658,12 @@ export class SolanaRaydiumCreateClmm extends Tool {
 
 export class SolanaRaydiumCreateCpmm extends Tool {
   name = "raydium_create_cpmm";
-  description = `create raydium cpmm pool
+  description = `Raydium's newest CPMM, does not require marketID, supports Token 2022 standard 
 
   Inputs (input is a json string):
   mint1: string (required)
   mint2: string (required)
-  configId: string (required)
+  configId: string (required), stores pool info, index, protocolFeeRate, tradeFeeRate, fundFeeRate, createPoolFee
   mintAAmount: number(int), eg: 1111 (required)
   mintBAmount: number(int), eg: 2222 (required)
   startTime: number(seconds), eg: now number or zero (required)
@@ -704,6 +704,48 @@ export class SolanaRaydiumCreateCpmm extends Tool {
   }
 }
 
+export class SolanaOpenbookCreateMarket extends Tool {
+  name = "solana_openbook_create_market";
+  description = `Openbook marketId, required for ammv4 
+
+  Inputs (input is a json string):
+  baseMint: string (required)
+  quoteMint: string (required)
+  lotSize: number (required)
+  tickSize: number (required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      let inputFormat = JSON.parse(input)
+
+      const tx = await this.solanaKit.openbookCreateMarket(
+        new PublicKey(inputFormat.baseMint),
+        new PublicKey(inputFormat.quoteMint),
+
+        inputFormat.lotSize,
+        inputFormat.tickSize,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Create openbook market successfully",
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -722,5 +764,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateAmmV4(solanaKit),
     new SolanaRaydiumCreateClmm(solanaKit),
     new SolanaRaydiumCreateCpmm(solanaKit),
+    new SolanaOpenbookCreateMarket(solanaKit),
   ];
 }
