@@ -14,7 +14,7 @@ import { SolanaAgentKit } from "../index";
  * @returns A promise that resolves to the corresponding Solana PublicKey
  * @throws Error if the domain resolution fails
  */
-export async function resolve_sol_domain(
+export async function resolveSolDomain(
   agent: SolanaAgentKit,
   domain: string
 ): Promise<PublicKey> {
