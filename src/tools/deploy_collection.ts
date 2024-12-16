@@ -1,9 +1,9 @@
 import { SolanaAgentKit } from "../index";
-import { createUmi, generateSigner, publicKey } from "@metaplex-foundation/umi";
-import { createCollection, ruleSet } from "@metaplex-foundation/mpl-core";
-import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import { generateSigner, publicKey } from "@metaplex-foundation/umi";
+import { createCollection, mplCore, ruleSet } from "@metaplex-foundation/mpl-core";
 import { CollectionOptions, CollectionDeployment } from "../types";
 import { toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 /**
  * Deploy a new NFT collection
@@ -17,7 +17,7 @@ export async function deploy_collection(
 ): Promise<CollectionDeployment> {
   try {
     // Initialize Umi
-    const umi = createUmi().use(mplTokenMetadata());
+    const umi = createUmi(agent.connection.rpcEndpoint).use(mplCore());
 
     // Generate collection signer
     const collectionSigner = generateSigner(umi);
@@ -27,11 +27,11 @@ export async function deploy_collection(
       address: publicKey(creator.address),
       percentage: creator.percentage,
     })) || [
-      {
-        address: publicKey(agent.wallet_address.toString()),
-        percentage: 100,
-      },
-    ];
+        {
+          address: publicKey(agent.wallet_address.toString()),
+          percentage: 100,
+        },
+      ];
 
     // Create collection
     const tx = await createCollection(umi, {

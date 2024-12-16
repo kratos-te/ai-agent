@@ -112,25 +112,32 @@ const signature = await lendAsset(
 
 ### Core Functions
 
-#### `deploy_token(agent, decimals?, initialSupply?)`
+#### `deploy_token(agent, decimals, name, uri, symbol, initialSupply?)`
+
 Deploy a new SPL token with optional initial supply.
 
 #### `deploy_collection(agent, options)`
+
 Create a new NFT collection with customizable metadata and royalties.
 
 #### `mintCollectionNFT(agent, collectionMint, metadata, recipient?)`
+
 Mint a new NFT as part of an existing collection.
 
 #### `transfer(agent, to, amount, mint?)`
+
 Transfer SOL or SPL tokens to a recipient.
 
 #### `trade(agent, outputMint, inputAmount, inputMint?, slippageBps?)`
+
 Swap tokens using Jupiter Exchange integration.
 
 #### `get_balance(agent, token_address)`
+
 Check SOL or token balance for the agent's wallet.
 
 #### `lendAsset(agent, assetMint, amount, apiKey)`
+
 Lend idle assets to earn interest with Lulo.
 
 ## Dependencies
@@ -140,6 +147,7 @@ The toolkit relies on several key Solana and Metaplex libraries:
 - @solana/web3.js
 - @solana/spl-token
 - @metaplex-foundation/mpl-token-metadata
+- @metaplex-foundation/mpl-core
 - @metaplex-foundation/umi
 
 ## Contributing

@@ -32,11 +32,11 @@ export async function mintCollectionNFT(
 ): Promise<MintCollectionNFTResponse> {
   try {
     // Create UMI instance from agent
-    const umi = createUmi(agent.connection)
+    const umi = createUmi(agent.connection.rpcEndpoint)
 
     // Convert collection mint to UMI format
     const umiCollectionMint = fromWeb3JsPublicKey(collectionMint);
-    
+
     // Fetch the existing collection
     const collection = await fetchCollection(umi, umiCollectionMint);
 
@@ -48,7 +48,7 @@ export async function mintCollectionNFT(
       asset: assetSigner,
       collection: collection,
       name: metadata.name,
-      uri: metadata.uri, 
+      uri: metadata.uri,
       owner: fromWeb3JsPublicKey(recipient!)
     }).sendAndConfirm(umi);
 
