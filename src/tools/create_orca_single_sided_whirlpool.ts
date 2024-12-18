@@ -27,7 +27,7 @@ export async function createOrcaSingleSidedWhirlpool(
   depositTokenMint: PublicKey,
   otherTokenMint: PublicKey,
   initialPrice: Decimal,
-  upperPrice: Decimal,
+  maxPrice: Decimal,
   feeTier: FeeTierPercentage,
 ): Promise<string> {
   const wallet = new Wallet(agent.wallet);
@@ -44,7 +44,7 @@ export async function createOrcaSingleSidedWhirlpool(
   } else {
     [mintA, mintB] = [depositTokenMint, otherTokenMint];
     initialPrice = new Decimal(1 / initialPrice.toNumber());
-    upperPrice = new Decimal(1 / upperPrice.toNumber());
+    maxPrice = new Decimal(1 / maxPrice.toNumber());
   }
   const mintAAccount = await fetcher.getMintInfo(otherTokenMint);
   const mintBAccount = await fetcher.getMintInfo(depositTokenMint);
@@ -139,8 +139,15 @@ export async function createOrcaSingleSidedWhirlpool(
     }),
   );
 
-  const tickLowerIndex = inverseOrder ? initialTick - tickSpacing : initialTick + tickSpacing;
-  const tickUpperIndex = PriceMath.priceToTickIndex(upperPrice, mintAAccount.decimals, mintBAccount.decimals);
+  let tickLowerIndex, tickUpperIndex;
+  if (!inverseOrder) {
+    tickLowerIndex = initialTick + tickSpacing;
+    tickUpperIndex = PriceMath.priceToTickIndex(maxPrice, mintAAccount.decimals, mintBAccount.decimals);
+  } else {
+    tickLowerIndex = PriceMath.priceToTickIndex(maxPrice, mintAAccount.decimals, mintBAccount.decimals);
+    tickUpperIndex = initialTick - tickSpacing;
+  }
+
   const tickLowerInitializableIndex = TickUtil.getInitializableTickIndex(tickLowerIndex, tickSpacing);
   const tickUpperInitializableIndex = TickUtil.getInitializableTickIndex(tickUpperIndex, tickSpacing);
   const increasLiquidityQuoteParam: IncreaseLiquidityQuoteParam = {
