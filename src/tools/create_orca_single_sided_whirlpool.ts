@@ -47,7 +47,7 @@ import {
  * @example
  * const tickSpacing = FEE_TIERS[0.30]; // Returns 64
  */
-const FEE_TIERS = {
+export const FEE_TIERS = {
   0.01: 1,
   0.02: 2,
   0.04: 4,
