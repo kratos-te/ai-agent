@@ -23,7 +23,7 @@ type FeeTierPercentage = keyof typeof FEE_TIERS;
 
 export async function createOrcaSingleSidedWhirlpool(
   agent: SolanaAgentKit,
-  depositTokenAmount: Decimal,
+  depositTokenAmount: BN,
   depositTokenMint: PublicKey,
   otherTokenMint: PublicKey,
   initialPrice: Decimal,
@@ -37,19 +37,18 @@ export async function createOrcaSingleSidedWhirlpool(
   const correctTokenOrder = PoolUtil.orderMints(otherTokenMint, depositTokenMint).map(
     (addr) => addr.toString(),
   );
-  const inverseOrder = correctTokenOrder[0] !== otherTokenMint.toString();
+  const isCorrectMintOrder = correctTokenOrder[0] === depositTokenMint.toString();
   let mintA, mintB;
-  if (!inverseOrder) {
-    [mintA, mintB] = [otherTokenMint, depositTokenMint];
-  } else {
+  if (isCorrectMintOrder) {
     [mintA, mintB] = [depositTokenMint, otherTokenMint];
+  } else {
+    [mintA, mintB] = [otherTokenMint, depositTokenMint];
     initialPrice = new Decimal(1 / initialPrice.toNumber());
     maxPrice = new Decimal(1 / maxPrice.toNumber());
   }
-  const mintAAccount = await fetcher.getMintInfo(otherTokenMint);
-  const mintBAccount = await fetcher.getMintInfo(depositTokenMint);
+  const mintAAccount = await fetcher.getMintInfo(mintA);
+  const mintBAccount = await fetcher.getMintInfo(mintB);
   if (mintAAccount === null || mintBAccount === null) throw Error('Mint account not found');
-
   const tickSpacing = FEE_TIERS[feeTier];
   const tickIndex = PriceMath.priceToTickIndex(initialPrice, mintAAccount.decimals, mintBAccount.decimals);
   const initialTick = TickUtil.getInitializableTickIndex(tickIndex, tickSpacing);
@@ -60,17 +59,14 @@ export async function createOrcaSingleSidedWhirlpool(
     tokenMintWithProgramA: mintAAccount,
     tokenMintWithProgramB: mintBAccount,
   };
-
   const feeTierKey = PDAUtil.getFeeTier(
     ORCA_WHIRLPOOL_PROGRAM_ID,
     ORCA_WHIRLPOOLS_CONFIG,
     tickSpacing,
   ).publicKey;
-
   const initSqrtPrice = PriceMath.tickIndexToSqrtPriceX64(initialTick);
   const tokenVaultAKeypair = Keypair.generate();
   const tokenVaultBKeypair = Keypair.generate();
-
   const whirlpoolPda = PDAUtil.getWhirlpool(
     ORCA_WHIRLPOOL_PROGRAM_ID,
     ORCA_WHIRLPOOLS_CONFIG,
@@ -78,13 +74,6 @@ export async function createOrcaSingleSidedWhirlpool(
     mintB,
     FEE_TIERS[feeTier],
   );
-
-  const txBuilder = new TransactionBuilder(
-    ctx.provider.connection,
-    ctx.provider.wallet,
-    ctx.txBuilderOpts,
-  );
-
   const tokenBadgeA = PDAUtil.getTokenBadge(
     ORCA_WHIRLPOOL_PROGRAM_ID,
     ORCA_WHIRLPOOLS_CONFIG,
@@ -95,7 +84,6 @@ export async function createOrcaSingleSidedWhirlpool(
     ORCA_WHIRLPOOLS_CONFIG,
     mintB,
   ).publicKey;
-
   const baseParamsPool = {
     initSqrtPrice,
     whirlpoolsConfig: ORCA_WHIRLPOOLS_CONFIG,
@@ -108,7 +96,6 @@ export async function createOrcaSingleSidedWhirlpool(
     tickSpacing: tickSpacing,
     funder: wallet.publicKey
   };
-
   const initPoolIx = !TokenExtensionUtil.isV2IxRequiredPool(tokenExtensionCtx)
     ? WhirlpoolIx.initializePoolIx(ctx.program, baseParamsPool)
     : WhirlpoolIx.initializePoolV2Ix(ctx.program, {
@@ -118,7 +105,6 @@ export async function createOrcaSingleSidedWhirlpool(
       tokenBadgeA,
       tokenBadgeB,
     });
-
   const initialTickArrayStartTick = TickUtil.getStartTickIndex(
     initialTick,
     tickSpacing,
@@ -129,6 +115,11 @@ export async function createOrcaSingleSidedWhirlpool(
     initialTickArrayStartTick,
   );
 
+  const txBuilder = new TransactionBuilder(
+    ctx.provider.connection,
+    ctx.provider.wallet,
+    ctx.txBuilderOpts,
+  );
   txBuilder.addInstruction(initPoolIx);
   txBuilder.addInstruction(
     initTickArrayIx(ctx.program, {
@@ -140,14 +131,13 @@ export async function createOrcaSingleSidedWhirlpool(
   );
 
   let tickLowerIndex, tickUpperIndex;
-  if (!inverseOrder) {
-    tickLowerIndex = initialTick + tickSpacing;
+  if (isCorrectMintOrder) {
+    tickLowerIndex = initialTick;
     tickUpperIndex = PriceMath.priceToTickIndex(maxPrice, mintAAccount.decimals, mintBAccount.decimals);
   } else {
     tickLowerIndex = PriceMath.priceToTickIndex(maxPrice, mintAAccount.decimals, mintBAccount.decimals);
-    tickUpperIndex = initialTick - tickSpacing;
+    tickUpperIndex = initialTick;
   }
-
   const tickLowerInitializableIndex = TickUtil.getInitializableTickIndex(tickLowerIndex, tickSpacing);
   const tickUpperInitializableIndex = TickUtil.getInitializableTickIndex(tickUpperIndex, tickSpacing);
   const increasLiquidityQuoteParam: IncreaseLiquidityQuoteParam = {
@@ -166,7 +156,7 @@ export async function createOrcaSingleSidedWhirlpool(
     increasLiquidityQuoteParam
   )
   const { liquidityAmount: liquidity, tokenMaxA, tokenMaxB } = liquidityInput;
-
+  
   const positionMintKeypair = Keypair.generate();
   const positionMintPubkey = positionMintKeypair.publicKey;
   const positionPda = PDAUtil.getPosition(
@@ -179,7 +169,6 @@ export async function createOrcaSingleSidedWhirlpool(
     ctx.accountResolverOpts.allowPDAOwnerAddress,
     TOKEN_2022_PROGRAM_ID,
   );
-
   const params = {
     funder: wallet.publicKey,
     owner: wallet.publicKey,
@@ -194,9 +183,10 @@ export async function createOrcaSingleSidedWhirlpool(
     positionMint: positionMintPubkey,
     withTokenMetadataExtension: true,
   })
+
   txBuilder.addInstruction(positionIx);
   txBuilder.addSigner(positionMintKeypair);
-
+  
   const [ataA, ataB] = await resolveOrCreateATAs(
     ctx.connection,
     wallet.publicKey,
@@ -216,18 +206,45 @@ export async function createOrcaSingleSidedWhirlpool(
   txBuilder.addInstruction(tokenOwnerAccountAIx);
   txBuilder.addInstruction(tokenOwnerAccountBIx);
 
-  const tickArrayLowerPda = PDAUtil.getTickArrayFromTickIndex(
+  const tickArrayLowerStartIndex = TickUtil.getStartTickIndex(
     tickLowerInitializableIndex,
     tickSpacing,
-    whirlpoolPda.publicKey,
-    ctx.program.programId,
   );
-  const tickArrayUpperPda = PDAUtil.getTickArrayFromTickIndex(
+  const tickArrayUpperStartIndex = TickUtil.getStartTickIndex(
     tickUpperInitializableIndex,
     tickSpacing,
-    whirlpoolPda.publicKey,
-    ctx.program.programId,
   );
+  const tickArrayLowerPda = PDAUtil.getTickArray(
+    ctx.program.programId,
+    whirlpoolPda.publicKey,
+    tickArrayLowerStartIndex,
+  );
+  const tickArrayUpperPda = PDAUtil.getTickArray(
+    ctx.program.programId,
+    whirlpoolPda.publicKey,
+    tickArrayUpperStartIndex,
+  );
+  if ( tickArrayUpperStartIndex !== tickArrayLowerStartIndex ) {
+    if (isCorrectMintOrder) {
+      txBuilder.addInstruction(
+        initTickArrayIx(ctx.program, {
+          startTick: tickArrayUpperStartIndex,
+          tickArrayPda: tickArrayUpperPda,
+          whirlpool: whirlpoolPda.publicKey,
+          funder: wallet.publicKey,
+        }),
+      );
+    } else {
+      txBuilder.addInstruction(
+        initTickArrayIx(ctx.program, {
+          startTick: tickArrayLowerStartIndex,
+          tickArrayPda: tickArrayLowerPda,
+          whirlpool: whirlpoolPda.publicKey,
+          funder: wallet.publicKey,
+        }),
+      );
+    }
+  }
 
   const baseParamsLiquidity = {
     liquidityAmount: liquidity,
