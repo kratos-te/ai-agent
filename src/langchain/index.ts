@@ -54,7 +54,6 @@ export class SolanaTransferTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      console.log(parsedInput);
 
       const recipient = new PublicKey(parsedInput.to);
       const mintAddress = parsedInput.mint
@@ -304,7 +303,6 @@ export class SolanaTradeTool extends Tool {
         outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
-      console.log(error);
       return JSON.stringify({
         status: "error",
         message: error.message,
@@ -425,7 +423,6 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
   }
 
   private validateInput(input: any): void {
-    console.log(input);
     if (!input.tokenName || typeof input.tokenName !== "string") {
       throw new Error("tokenName is required and must be a string");
     }
@@ -616,7 +613,6 @@ export class SolanaTokenDataByTickerTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      console.log(input);
       const ticker = input.trim();
       const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
       return JSON.stringify({
