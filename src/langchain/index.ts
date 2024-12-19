@@ -87,38 +87,32 @@ export class SolanaTransferTool extends Tool {
 
 export class SolanaDeployTokenTool extends Tool {
   name = "solana_deploy_token";
-  description =
-    "Deploy a new SPL token. Input should be JSON string with: {decimals?: number, initialSupply?: number}";
+  description = `Deploy a new token on Solana blockchain.
+
+  Inputs (input is a JSON string):
+  name: string, eg "My Token" (required)
+  uri: string, eg "https://example.com/token.json" (required) 
+  symbol: string, eg "MTK" (required)
+  decimals?: number, eg 9 (optional, defaults to 9)
+  initialSupply?: number, eg 1000000 (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (
-      input.decimals !== undefined &&
-      (typeof input.decimals !== "number" ||
-        input.decimals < 0 ||
-        input.decimals > 9)
-    ) {
-      throw new Error(
-        "decimals must be a number between 0 and 9 when provided"
-      );
-    }
-    if (
-      input.initialSupply !== undefined &&
-      (typeof input.initialSupply !== "number" || input.initialSupply <= 0)
-    ) {
-      throw new Error("initialSupply must be a positive number when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
-      const result = await this.solanaKit.deployToken(parsedInput.decimals);
+      console.log(parsedInput);
+
+      const result = await this.solanaKit.deployToken(
+        parsedInput.name,
+        parsedInput.uri,
+        parsedInput.symbol,
+        parsedInput.decimals,
+        parsedInput.initialSupply
+      );
 
       return JSON.stringify({
         status: "success",

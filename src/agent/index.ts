@@ -49,13 +49,13 @@ export class SolanaAgentKit {
   }
 
   async deployToken(
-    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
     name: string,
     uri: string,
     symbol: string,
+    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
     initialSupply?: number,
   ) {
-    return deploy_token(this, decimals, name, uri, symbol, initialSupply);
+    return deploy_token(this, name, uri, symbol, decimals, initialSupply);
   }
 
   async deployCollection(options: CollectionOptions) {
