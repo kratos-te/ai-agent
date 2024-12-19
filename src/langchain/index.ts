@@ -64,7 +64,7 @@ export class SolanaTransferTool extends Tool {
       const tx = await this.solanaKit.transfer(
         recipient,
         parsedInput.amount,
-        mintAddress,
+        mintAddress
       );
 
       return JSON.stringify({
@@ -132,57 +132,21 @@ export class SolanaDeployTokenTool extends Tool {
 
 export class SolanaDeployCollectionTool extends Tool {
   name = "solana_deploy_collection";
-  description =
-    "Deploy a new NFT collection. Input should be JSON with: {name: string, uri: string, royaltyBasisPoints?: number, creators?: Array<{address: string, percentage: number}>}";
+  description = `Deploy a new NFT collection on Solana blockchain.
+
+  Inputs (input is a JSON string):
+  name: string, eg "My Collection" (required)
+  uri: string, eg "https://example.com/collection.json" (required)
+  royaltyBasisPoints?: number, eg 500 for 5% (optional)
+  creators?: Array<{address: string, percentage: number}>, eg [{address: "abc123...", percentage: 100}] (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.name || typeof input.name !== "string") {
-      throw new Error("name is required and must be a string");
-    }
-    if (!input.uri || typeof input.uri !== "string") {
-      throw new Error("uri is required and must be a string");
-    }
-    if (
-      input.royaltyBasisPoints !== undefined &&
-      (typeof input.royaltyBasisPoints !== "number" ||
-        input.royaltyBasisPoints < 0 ||
-        input.royaltyBasisPoints > 10000)
-    ) {
-      throw new Error(
-        "royaltyBasisPoints must be a number between 0 and 10000 when provided",
-      );
-    }
-    if (input.creators) {
-      if (!Array.isArray(input.creators)) {
-        throw new Error("creators must be an array when provided");
-      }
-      input.creators.forEach((creator: any, index: number) => {
-        if (!creator.address || typeof creator.address !== "string") {
-          throw new Error(
-            `creator[${index}].address is required and must be a string`,
-          );
-        }
-        if (
-          typeof creator.percentage !== "number" ||
-          creator.percentage < 0 ||
-          creator.percentage > 100
-        ) {
-          throw new Error(
-            `creator[${index}].percentage must be a number between 0 and 100`,
-          );
-        }
-      });
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
       const result = await this.solanaKit.deployCollection(parsedInput);
 
@@ -204,52 +168,42 @@ export class SolanaDeployCollectionTool extends Tool {
 
 export class SolanaMintNFTTool extends Tool {
   name = "solana_mint_nft";
-  description =
-    "Mint a new NFT in a collection. Input should be JSON with: {collectionMint: string, metadata: {name: string, symbol: string, uri: string}, recipient?: string}";
+  description = `Mint a new NFT in a collection on Solana blockchain.
+
+    Inputs (input is a JSON string):
+    collectionMint: string, eg "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w" (required) - The address of the collection to mint into
+    name: string, eg "My NFT" (required)
+    symbol: string, eg "NFT" (required)
+    uri: string, eg "https://example.com/nft.json" (required)
+    recipient?: string, eg "9aUn5swQzUTRanaaTwmszxiv89cvFwUCjEBv1vZCoT1u" (optional) - The wallet to receive the NFT, defaults to agent's wallet`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.collectionMint || typeof input.collectionMint !== "string") {
-      throw new Error("collectionMint is required and must be a string");
-    }
-    if (!input.metadata || typeof input.metadata !== "object") {
-      throw new Error("metadata is required and must be an object");
-    }
-    if (!input.metadata.name || typeof input.metadata.name !== "string") {
-      throw new Error("metadata.name is required and must be a string");
-    }
-    if (!input.metadata.symbol || typeof input.metadata.symbol !== "string") {
-      throw new Error("metadata.symbol is required and must be a string");
-    }
-    if (!input.metadata.uri || typeof input.metadata.uri !== "string") {
-      throw new Error("metadata.uri is required and must be a string");
-    }
-    if (input.recipient !== undefined && typeof input.recipient !== "string") {
-      throw new Error("recipient must be a string when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
-        parsedInput.metadata,
-        parsedInput.recipient
-          ? new PublicKey(parsedInput.recipient)
-          : undefined,
+        {
+          name: parsedInput.name,
+          symbol: parsedInput.symbol,
+          uri: parsedInput.uri,
+        },
+        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
       );
 
       return JSON.stringify({
         status: "success",
         message: "NFT minted successfully",
         mintAddress: result.mint.toString(),
-        name: parsedInput.metadata.name,
+        metadata: {
+          name: parsedInput.name,
+          symbol: parsedInput.symbol,
+          uri: parsedInput.uri,
+        },
         recipient: parsedInput.recipient || result.mint.toString(),
       });
     } catch (error: any) {
@@ -286,7 +240,7 @@ export class SolanaTradeTool extends Tool {
         parsedInput.inputMint
           ? new PublicKey(parsedInput.inputMint)
           : new PublicKey("So11111111111111111111111111111111111111112"),
-        parsedInput.slippageBps,
+        parsedInput.slippageBps
       );
 
       return JSON.stringify({
@@ -366,7 +320,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
       const tx = await this.solanaKit.registerDomain(
         parsedInput.name,
-        parsedInput.spaceKB || 1,
+        parsedInput.spaceKB || 1
       );
 
       return JSON.stringify({
@@ -418,7 +372,6 @@ export class SolanaResolveDomainTool extends Tool {
   }
 }
 
-
 export class SolanaGetDomainTool extends Tool {
   name = "solana_get_domain";
   description = `Retrieve the .sol domain associated for a given account address.
@@ -431,12 +384,11 @@ export class SolanaGetDomainTool extends Tool {
     super();
   }
 
-
   protected async _call(input: string): Promise<string> {
     try {
       const account = new PublicKey(input.trim());
       const domain = await this.solanaKit.getPrimaryDomain(account);
-      
+
       return JSON.stringify({
         status: "success",
         message: "Primary domain retrieved successfully",
@@ -523,7 +475,7 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
           telegram: parsedInput.telegram,
           website: parsedInput.website,
           initialLiquiditySOL: parsedInput.initialLiquiditySOL,
-        },
+        }
       );
 
       return JSON.stringify({
@@ -708,9 +660,7 @@ export class SolanaTokenDataTool extends Tool {
     try {
       const parsedInput = input.trim();
 
-      const tokenData = await this.solanaKit.getTokenDataByAddress(
-        parsedInput
-      );
+      const tokenData = await this.solanaKit.getTokenDataByAddress(parsedInput);
 
       return JSON.stringify({
         status: "success",
