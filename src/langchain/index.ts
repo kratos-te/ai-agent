@@ -572,39 +572,21 @@ export class SolanaTPSCalculatorTool extends Tool {
 
 export class SolanaTokenDataTool extends Tool {
   name = "solana_token_data";
-  description = `Get the token data for a given token mint address, token name or symbol.
+  description = `Get the token data for a given token mint address
 
-  Inputs: Either one of mintAddress, tokenName or symbol is required.
-  mintAddress: string, eg "So11111111111111111111111111111111111111112" (optional)
-  tokenName: string, eg "USD Coin" (optional)
-  symbol: string, eg "USDC" (optional)`;
+  Inputs: mintAddress is required.
+  mintAddress: string, eg "So11111111111111111111111111111111111111112" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.mintAddress && !input.tokenName && !input.symbol) {
-      throw new Error("Either mintAddress, tokenName or symbol is required");
-    }
-    if (
-      input.mintAddress &&
-      typeof input.mintAddress !== "string" &&
-      !PublicKey.isOnCurve(input.mintAddress)
-    ) {
-      throw new Error("mintAddress must be a valid base58 string");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = JSON.parse(input);
-      this.validateInput(parsedInput);
+      const parsedInput = input.trim();
 
-      const tokenData = await this.solanaKit.getTokenData(
-        parsedInput.tokenName,
-        parsedInput.symbol,
-        new PublicKey(parsedInput.mintAddress),
+      const tokenData = await this.solanaKit.getTokenDataByAddress(
+        parsedInput
       );
 
       return JSON.stringify({

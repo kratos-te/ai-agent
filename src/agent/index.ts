@@ -12,7 +12,8 @@ import {
   launchPumpFunToken,
   lendAsset,
   getTPS,
-  fetchTokenData,
+  getTokenDataByAddress,
+  getTokenDataByTicker,
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -35,7 +36,7 @@ export class SolanaAgentKit {
   constructor(
     private_key: string,
     rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string,
+    openai_api_key: string
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
@@ -49,7 +50,7 @@ export class SolanaAgentKit {
   }
 
   async deployToken(
-    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
+    decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS
     // initialSupply?: number
   ) {
     return deploy_token(this, decimals);
@@ -66,7 +67,7 @@ export class SolanaAgentKit {
   async mintNFT(
     collectionMint: PublicKey,
     metadata: Parameters<typeof mintCollectionNFT>[2],
-    recipient?: PublicKey,
+    recipient?: PublicKey
   ) {
     return mintCollectionNFT(this, collectionMint, metadata, recipient);
   }
@@ -83,7 +84,7 @@ export class SolanaAgentKit {
     outputMint: PublicKey,
     inputAmount: number,
     inputMint?: PublicKey,
-    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
+    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS
   ) {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
@@ -96,8 +97,12 @@ export class SolanaAgentKit {
     return getTPS(this);
   }
 
-  async getTokenData(name?: string, symbol?: string, mint?: PublicKey) {
-    return fetchTokenData(name, symbol, mint);
+  async getTokenDataByAddress(mint: string) {
+    return getTokenDataByAddress(new PublicKey(mint));
+  }
+
+  async getTokenDataByTicker(ticker: string) {
+    return getTokenDataByTicker(ticker);
   }
 
   async launchPumpFunToken(
@@ -105,7 +110,7 @@ export class SolanaAgentKit {
     tokenTicker: string,
     description: string,
     imageUrl: string,
-    options?: PumpFunTokenOptions,
+    options?: PumpFunTokenOptions
   ) {
     return launchPumpFunToken(
       this,
@@ -113,7 +118,7 @@ export class SolanaAgentKit {
       tokenTicker,
       description,
       imageUrl,
-      options,
+      options
     );
   }
 }
