@@ -9,6 +9,8 @@ import {
   transfer,
   trade,
   registerDomain,
+  resolveSolDomain,
+  getPrimaryDomain,
   launchPumpFunToken,
   lendAsset,
   getTPS,
@@ -79,6 +81,14 @@ export class SolanaAgentKit {
 
   async registerDomain(name: string, spaceKB?: number) {
     return registerDomain(this, name, spaceKB);
+  }
+
+  async resolveSolDomain(domain:string ){
+    return resolveSolDomain(this, domain)
+  }
+
+  async getPrimaryDomain(account: PublicKey){
+    return getPrimaryDomain(this, account)
   }
 
   async trade(

@@ -392,6 +392,72 @@ export class SolanaRegisterDomainTool extends Tool {
   }
 }
 
+export class SolanaResolveDomainTool extends Tool {
+  name = "solana_resolve_domain";
+  description = `Resolve a .sol domain to a Solana PublicKey.
+
+  Inputs:
+  domain: string, eg "pumpfun.sol" or "pumpfun"(required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const domain = input.trim();
+      const publicKey = await this.solanaKit.resolveSolDomain(domain);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Domain resolved successfully",
+        publicKey: publicKey.toBase58(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+
+export class SolanaGetDomainTool extends Tool {
+  name = "solana_get_domain";
+  description = `Retrieve the .sol domain associated for a given account address.
+
+  Inputs:
+  account: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const account = new PublicKey(input.trim());
+      const domain = await this.solanaKit.getPrimaryDomain(account);
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Primary domain retrieved successfully",
+        domain,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaGetWalletAddressTool extends Tool {
   name = "solana_get_wallet_address";
   description = `Get the wallet address of the agent`;
@@ -712,6 +778,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
     new SolanaFetchPriceTool(solanaKit),
+    new SolanaResolveDomainTool(solanaKit),
+    new SolanaGetDomainTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
     new SolanaTokenDataByTickerTool(solanaKit),
   ];
