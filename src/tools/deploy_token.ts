@@ -17,11 +17,11 @@ import { fromWeb3JsKeypair, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@meta
  */
 export async function deploy_token(
   agent: SolanaAgentKit,
-  decimals: number = 9,
   name: string,
   uri: string,
   symbol: string,
-  initialSupply?: number,
+  decimals: number = 9,
+  initialSupply?: number
 ): Promise<{ mint: PublicKey }> {
   try {
     // Create UMI instance from agent
@@ -31,16 +31,13 @@ export async function deploy_token(
     // Create new token mint
     const mint = generateSigner(umi);
 
-    console.log("Mint address: ", mint.publicKey.toString());
-    console.log("Agent address: ", agent.wallet_address.toString());
-
     let builder = createFungible(umi, {
       name,
       uri,
       symbol,
       sellerFeeBasisPoints: {
         basisPoints: 0n,
-        identifier: '%',
+        identifier: "%",
         decimals: 2,
       },
       decimals,
@@ -48,12 +45,14 @@ export async function deploy_token(
     });
 
     if (initialSupply) {
-      builder = builder.add(mintV1(umi, {
-        mint: mint.publicKey,
-        tokenStandard: TokenStandard.Fungible,
-        tokenOwner: fromWeb3JsPublicKey(agent.wallet_address),
-        amount: initialSupply,
-      }));
+      builder = builder.add(
+        mintV1(umi, {
+          mint: mint.publicKey,
+          tokenStandard: TokenStandard.Fungible,
+          tokenOwner: fromWeb3JsPublicKey(agent.wallet_address),
+          amount: initialSupply,
+        })
+      );
     }
 
     builder.sendAndConfirm(umi, { confirm: { commitment: 'finalized' } });
