@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
 import { toJSON } from "../utils/toJSON";
 import { create_image } from "../tools/create_image";
+import { fetchPrice } from "../tools/fetch_price";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -567,6 +568,71 @@ export class SolanaTPSCalculatorTool extends Tool {
   }
 }
 
+export class SolanaStakeTool extends Tool {
+  name = "solana_stake";
+  description = `This tool can be used to stake your SOL (Solana), also called as SOL staking or liquid staking.
+
+  Inputs ( input is a JSON string ):
+  amount: number, eg 1 or 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input) || Number(input);
+
+      const tx = await this.solanaKit.stake(parsedInput.amount);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Staked successfully",
+        transaction: tx,
+        amount: parsedInput.amount,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+/**
+ * Tool to fetch the price of a token in USDC
+ */
+export class SolanaFetchPriceTool extends Tool {
+  name = "solana_fetch_price";
+  description = `Fetch the price of a given token in USDC.
+  
+  Inputs:
+  - tokenId: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const price = await fetchPrice(this.solanaKit, input.trim());
+      return JSON.stringify({
+        status: "success",
+        tokenId: input.trim(),
+        priceInUSDC: price,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaTokenDataTool extends Tool {
   name = "solana_token_data";
   description = `Get the token data for a given token mint address
@@ -644,6 +710,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaCreateImageTool(solanaKit),
     new SolanaLendAssetTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
+    new SolanaStakeTool(solanaKit),
+    new SolanaFetchPriceTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
     new SolanaTokenDataByTickerTool(solanaKit),
   ];

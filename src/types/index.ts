@@ -69,3 +69,11 @@ export interface JupiterTokenData {
     coingeckoId?: string;
   };
 }
+
+export interface FetchPriceResponse {
+  status: "success" | "error";
+  tokenId?: string;
+  priceInUSDC?: string;
+  message?: string;
+  code?: string;
+}
