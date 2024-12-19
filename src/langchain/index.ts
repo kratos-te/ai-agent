@@ -402,18 +402,10 @@ export class SolanaResolveDomainTool extends Tool {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.domain || typeof input.domain !== "string") {
-      throw new Error("domain is required and must be a string");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = JSON.parse(input);
-      this.validateInput(parsedInput);
-
-      const publicKey = await this.solanaKit.resolveSolDomain(parsedInput.domain);
+      const domain = input.trim();
+      const publicKey = await this.solanaKit.resolveSolDomain(domain);
 
       return JSON.stringify({
         status: "success",
@@ -431,9 +423,9 @@ export class SolanaResolveDomainTool extends Tool {
 }
 
 
-export class SolanaGetPrimaryDomainTool extends Tool {
-  name = "solana_get_primary_domain";
-  description = `Retrieve the primary .sol domain associated with a given Solana public key.
+export class SolanaGetDomainTool extends Tool {
+  name = "solana_get_domain";
+  description = `Retrieve the .sol domain associated for a given account address.
 
   Inputs:
   account: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)
@@ -443,25 +435,12 @@ export class SolanaGetPrimaryDomainTool extends Tool {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.account || typeof input.account !== "string") {
-      throw new Error("account is required and must be a string");
-    }
-    try { 
-      new PublicKey(input.account);
-    } catch { 
-      throw new Error("account is not a valid public key");
-    }
-  }
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = JSON.parse(input);
-      this.validateInput(parsedInput);
-
-      const account = new PublicKey(parsedInput.account);
+      const account = new PublicKey(input.trim());
       const domain = await this.solanaKit.getPrimaryDomain(account);
-
+      
       return JSON.stringify({
         status: "success",
         message: "Primary domain retrieved successfully",
@@ -735,5 +714,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
     new SolanaFetchPriceTool(solanaKit),
+    new SolanaResolveDomainTool(solanaKit),
+    new SolanaGetDomainTool(solanaKit),
   ];
 }
