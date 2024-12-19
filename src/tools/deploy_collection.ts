@@ -1,8 +1,8 @@
 import { SolanaAgentKit } from "../index";
-import { generateSigner, publicKey } from "@metaplex-foundation/umi";
+import { generateSigner, keypairIdentity, publicKey } from "@metaplex-foundation/umi";
 import { createCollection, mplCore, ruleSet } from "@metaplex-foundation/mpl-core";
 import { CollectionOptions, CollectionDeployment } from "../types";
-import { toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+import { fromWeb3JsKeypair, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 /**
@@ -18,6 +18,7 @@ export async function deploy_collection(
   try {
     // Initialize Umi
     const umi = createUmi(agent.connection.rpcEndpoint).use(mplCore());
+    umi.use(keypairIdentity(fromWeb3JsKeypair(agent.wallet)));
 
     // Generate collection signer
     const collectionSigner = generateSigner(umi);

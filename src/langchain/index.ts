@@ -88,7 +88,7 @@ export class SolanaTransferTool extends Tool {
 export class SolanaDeployTokenTool extends Tool {
   name = "solana_deploy_token";
   description =
-    "Deploy a new SPL token. Input should be JSON string with: {decimals?: number, initialSupply?: number}";
+    "Deploy a new SPL token. Input should be JSON string with: {decimals?: number, name: string, uri: string, symbol: string, initialSupply?: number}";
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -118,7 +118,7 @@ export class SolanaDeployTokenTool extends Tool {
       const parsedInput = toJSON(input);
       this.validateInput(parsedInput);
 
-      const result = await this.solanaKit.deployToken(parsedInput.decimals);
+      const result = await this.solanaKit.deployToken(parsedInput.decimals, parsedInput.name, parsedInput.uri, parsedInput.symbol, parsedInput.initialSupply);
 
       return JSON.stringify({
         status: "success",
@@ -442,7 +442,7 @@ export class SolanaGetDomainTool extends Tool {
     try {
       const account = new PublicKey(input.trim());
       const domain = await this.solanaKit.getPrimaryDomain(account);
-      
+
       return JSON.stringify({
         status: "success",
         message: "Primary domain retrieved successfully",

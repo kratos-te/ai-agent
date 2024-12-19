@@ -1,9 +1,9 @@
 import { SolanaAgentKit } from "../index";
-import { generateSigner } from '@metaplex-foundation/umi';
-import { create } from '@metaplex-foundation/mpl-core';
+import { generateSigner, keypairIdentity } from '@metaplex-foundation/umi';
+import { create, mplCore } from '@metaplex-foundation/mpl-core';
 import { fetchCollection } from '@metaplex-foundation/mpl-core';
 import { PublicKey } from "@solana/web3.js";
-import { fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+import { fromWeb3JsKeypair, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { MintCollectionNFTResponse } from '../types';
 
@@ -20,7 +20,6 @@ export async function mintCollectionNFT(
   collectionMint: PublicKey,
   metadata: {
     name: string;
-    symbol: string;
     uri: string;
     sellerFeeBasisPoints?: number;
     creators?: Array<{
@@ -32,7 +31,8 @@ export async function mintCollectionNFT(
 ): Promise<MintCollectionNFTResponse> {
   try {
     // Create UMI instance from agent
-    const umi = createUmi(agent.connection.rpcEndpoint)
+    const umi = createUmi(agent.connection.rpcEndpoint).use(mplCore());
+    umi.use(keypairIdentity(fromWeb3JsKeypair(agent.wallet)));
 
     // Convert collection mint to UMI format
     const umiCollectionMint = fromWeb3JsPublicKey(collectionMint);
@@ -49,7 +49,7 @@ export async function mintCollectionNFT(
       collection: collection,
       name: metadata.name,
       uri: metadata.uri,
-      owner: fromWeb3JsPublicKey(recipient!)
+      owner: fromWeb3JsPublicKey(recipient ?? agent.wallet.publicKey)
     }).sendAndConfirm(umi);
 
     return {
