@@ -8,10 +8,10 @@ import { fromWeb3JsKeypair, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@meta
 /**
  * Deploy a new SPL token
  * @param agent SolanaAgentKit instance
- * @param decimals Number of decimals for the token (default: 9)
  * @param name Name of the token
  * @param uri URI for the token metadata
  * @param symbol Symbol of the token
+ * @param decimals Number of decimals for the token (default: 9)
  * @param initialSupply Initial supply to mint (optional)
  * @returns Object containing token mint address and initial account (if supply was minted)
  */

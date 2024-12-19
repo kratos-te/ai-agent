@@ -104,8 +104,6 @@ export class SolanaDeployTokenTool extends Tool {
     try {
       const parsedInput = JSON.parse(input);
 
-      console.log(parsedInput);
-
       const result = await this.solanaKit.deployToken(
         parsedInput.name,
         parsedInput.uri,
@@ -137,8 +135,7 @@ export class SolanaDeployCollectionTool extends Tool {
   Inputs (input is a JSON string):
   name: string, eg "My Collection" (required)
   uri: string, eg "https://example.com/collection.json" (required)
-  royaltyBasisPoints?: number, eg 500 for 5% (optional)
-  creators?: Array<{address: string, percentage: number}>, eg [{address: "abc123...", percentage: 100}] (optional)`;
+  royaltyBasisPoints?: number, eg 500 for 5% (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -173,9 +170,8 @@ export class SolanaMintNFTTool extends Tool {
     Inputs (input is a JSON string):
     collectionMint: string, eg "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w" (required) - The address of the collection to mint into
     name: string, eg "My NFT" (required)
-    symbol: string, eg "NFT" (required)
     uri: string, eg "https://example.com/nft.json" (required)
-    recipient?: string, eg "9aUn5swQzUTRanaaTwmszxiv89cvFwUCjEBv1vZCoT1u" (optional) - The wallet to receive the NFT, defaults to agent's wallet`;
+    recipient?: string, eg "9aUn5swQzUTRanaaTwmszxiv89cvFwUCjEBv1vZCoT1u" (optional) - The wallet to receive the NFT, defaults to agent's wallet which is ${this.solanaKit.wallet_address.toString()}`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -185,14 +181,16 @@ export class SolanaMintNFTTool extends Tool {
     try {
       const parsedInput = JSON.parse(input);
 
+
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
         {
           name: parsedInput.name,
-          symbol: parsedInput.symbol,
           uri: parsedInput.uri,
         },
-        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
+        parsedInput.recipient
+          ? new PublicKey(parsedInput.recipient)
+          : this.solanaKit.wallet_address
       );
 
       return JSON.stringify({
