@@ -64,7 +64,7 @@ export class SolanaTransferTool extends Tool {
       const tx = await this.solanaKit.transfer(
         recipient,
         parsedInput.amount,
-        mintAddress
+        mintAddress,
       );
 
       return JSON.stringify({
@@ -102,7 +102,7 @@ export class SolanaDeployTokenTool extends Tool {
         input.decimals > 9)
     ) {
       throw new Error(
-        "decimals must be a number between 0 and 9 when provided"
+        "decimals must be a number between 0 and 9 when provided",
       );
     }
     if (
@@ -159,7 +159,7 @@ export class SolanaDeployCollectionTool extends Tool {
         input.royaltyBasisPoints > 10000)
     ) {
       throw new Error(
-        "royaltyBasisPoints must be a number between 0 and 10000 when provided"
+        "royaltyBasisPoints must be a number between 0 and 10000 when provided",
       );
     }
     if (input.creators) {
@@ -169,7 +169,7 @@ export class SolanaDeployCollectionTool extends Tool {
       input.creators.forEach((creator: any, index: number) => {
         if (!creator.address || typeof creator.address !== "string") {
           throw new Error(
-            `creator[${index}].address is required and must be a string`
+            `creator[${index}].address is required and must be a string`,
           );
         }
         if (
@@ -178,7 +178,7 @@ export class SolanaDeployCollectionTool extends Tool {
           creator.percentage > 100
         ) {
           throw new Error(
-            `creator[${index}].percentage must be a number between 0 and 100`
+            `creator[${index}].percentage must be a number between 0 and 100`,
           );
         }
       });
@@ -246,7 +246,9 @@ export class SolanaMintNFTTool extends Tool {
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
         parsedInput.metadata,
-        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
+        parsedInput.recipient
+          ? new PublicKey(parsedInput.recipient)
+          : undefined,
       );
 
       return JSON.stringify({
@@ -290,7 +292,7 @@ export class SolanaTradeTool extends Tool {
         parsedInput.inputMint
           ? new PublicKey(parsedInput.inputMint)
           : new PublicKey("So11111111111111111111111111111111111111112"),
-        parsedInput.slippageBps
+        parsedInput.slippageBps,
       );
 
       return JSON.stringify({
@@ -370,7 +372,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
       const tx = await this.solanaKit.registerDomain(
         parsedInput.name,
-        parsedInput.spaceKB || 1
+        parsedInput.spaceKB || 1,
       );
 
       return JSON.stringify({
@@ -379,6 +381,72 @@ export class SolanaRegisterDomainTool extends Tool {
         transaction: tx,
         domain: `${parsedInput.name}.sol`,
         spaceKB: parsedInput.spaceKB || 1,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaResolveDomainTool extends Tool {
+  name = "solana_resolve_domain";
+  description = `Resolve a .sol domain to a Solana PublicKey.
+
+  Inputs:
+  domain: string, eg "pumpfun.sol" or "pumpfun"(required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const domain = input.trim();
+      const publicKey = await this.solanaKit.resolveSolDomain(domain);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Domain resolved successfully",
+        publicKey: publicKey.toBase58(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+
+export class SolanaGetDomainTool extends Tool {
+  name = "solana_get_domain";
+  description = `Retrieve the .sol domain associated for a given account address.
+
+  Inputs:
+  account: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const account = new PublicKey(input.trim());
+      const domain = await this.solanaKit.getPrimaryDomain(account);
+      
+      return JSON.stringify({
+        status: "success",
+        message: "Primary domain retrieved successfully",
+        domain,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -461,7 +529,7 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
           telegram: parsedInput.telegram,
           website: parsedInput.website,
           initialLiquiditySOL: parsedInput.initialLiquiditySOL,
-        }
+        },
       );
 
       return JSON.stringify({
@@ -631,6 +699,68 @@ export class SolanaFetchPriceTool extends Tool {
   }
 }
 
+export class SolanaTokenDataTool extends Tool {
+  name = "solana_token_data";
+  description = `Get the token data for a given token mint address
+
+  Inputs: mintAddress is required.
+  mintAddress: string, eg "So11111111111111111111111111111111111111112" (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = input.trim();
+
+      const tokenData = await this.solanaKit.getTokenDataByAddress(
+        parsedInput
+      );
+
+      return JSON.stringify({
+        status: "success",
+        tokenData: tokenData,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTokenDataByTickerTool extends Tool {
+  name = "solana_token_data_by_ticker";
+  description = `Get the token data for a given token ticker
+
+  Inputs: ticker is required.
+  ticker: string, eg "USDC" (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const ticker = input.trim();
+      const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
+      return JSON.stringify({
+        status: "success",
+        tokenData: tokenData,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -648,5 +778,9 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
     new SolanaFetchPriceTool(solanaKit),
+    new SolanaResolveDomainTool(solanaKit),
+    new SolanaGetDomainTool(solanaKit),
+    new SolanaTokenDataTool(solanaKit),
+    new SolanaTokenDataByTickerTool(solanaKit),
   ];
 }
