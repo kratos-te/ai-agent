@@ -1,10 +1,22 @@
+<div align="center">
+
 # Solana Agent Kit
+
+</div>
 
 ![Solana Agent Kit Cover 1 (3)](https://github.com/user-attachments/assets/cfa380f6-79d9-474d-9852-3e1976c6de70)
 
-An open-source toolkit for connecting AI agents to Solana protocols. Now, any agent, using any model –– can autonomously perform 15+ Solana Actions — like trade, launch tokens, lend, zk airdrop, blinks, launch tokens on AMM, and more.
+An open-source toolkit for connecting AI agents to Solana protocols. Now, any agent, using any model can autonomously perform 15+ Solana actions:
 
-Anyone –– whether an SF-based AI researcher or a crypto-native builder –– can bring their AI agents, trained with any AI model –– and seamlessly integrate Solana.
+- Trade tokens
+- Launch new tokens 
+- Lend assets
+- Send compressed airdrops
+- Execute blinks
+- Launch tokens on AMMs
+- And more...
+
+Anyone - whether an SF-based AI researcher or a crypto-native builder - can bring their AI agents trained with any model and seamlessly integrate with Solana.
 
 ## 🔧 Core Blockchain Features
 
