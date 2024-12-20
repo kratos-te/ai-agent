@@ -1,4 +1,4 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { BN, Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
@@ -32,6 +32,7 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
+import { sendTx } from "../utils/send_tx";
 
 /**
  * Maps fee tier percentages to their corresponding tick spacing values in the Orca Whirlpool protocol.
@@ -377,9 +378,22 @@ export async function createOrcaSingleSidedWhirlpool(
     });
   txBuilder.addInstruction(liquidityIx);
 
-  const txId = await txBuilder.buildAndExecute({
+  const txPayload = await txBuilder.build({
     maxSupportedTransactionVersion: "legacy"
   });
 
-  return txId;
+  if (txPayload.transaction instanceof Transaction) {
+    try {
+      const txId = await sendTx(
+        agent,
+        txPayload.transaction,
+        [positionMintKeypair, tokenVaultAKeypair, tokenVaultBKeypair],
+      );
+      return txId;
+    } catch (error) {
+        throw new Error(`Failed to create pool: ${JSON.stringify(error)}`);
+    }
+  } else {
+    throw new Error('Failed to create pool: Transaction not created');
+  }
 }
