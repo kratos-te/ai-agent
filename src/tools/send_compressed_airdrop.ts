@@ -21,8 +21,31 @@ import {
 } from "@lightprotocol/compressed-token";
 import { Account, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
+// arbitrary
 const MAX_AIRDROP_RECIPIENTS = 1000;
-const MAX_CONCURRENT = 30;
+const MAX_CONCURRENT_TXS = 30;
+
+/**
+ * Estimate the cost of an airdrop in lamports.
+ * @param numberOfRecipients Number of recipients
+ * @param priorityFeeInLamports Priority fee in lamports
+ * @returns Estimated cost in lamports
+ */
+export const getAirdropCostEstimate = (
+  numberOfRecipients: number,
+  priorityFeeInLamports: number
+) => {
+  const baseFee = 5000;
+  const perRecipientCompressedStateFee = 300;
+
+  const txsNeeded = Math.ceil(numberOfRecipients / 15);
+  const totalPriorityFees = txsNeeded * (baseFee + priorityFeeInLamports);
+
+  return (
+    perRecipientCompressedStateFee * numberOfRecipients + totalPriorityFees
+  );
+};
+
 /**
  * Send airdrop with ZK Compressed Tokens.
  * @param agent             Agent
@@ -183,9 +206,9 @@ async function processAll(
     }
   };
 
-  for (let i = 0; i < instructionSets.length; i += MAX_CONCURRENT) {
+  for (let i = 0; i < instructionSets.length; i += MAX_CONCURRENT_TXS) {
     const batchPromises = instructionSets
-      .slice(i, i + MAX_CONCURRENT)
+      .slice(i, i + MAX_CONCURRENT_TXS)
       .map((instructions, idx) =>
         sendTransactionWithRetry(
           rpc,
