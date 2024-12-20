@@ -1,19 +1,25 @@
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";;
 import bs58 from "bs58";
+import Decimal from "decimal.js";
+import { DEFAULT_OPTIONS } from "../constants";
 import {
-  request_faucet_funds,
-  deploy_token,
   deploy_collection,
+  deploy_token,
   get_balance,
-  mintCollectionNFT,
-  transfer,
-  trade,
-  registerDomain,
+  getTPS,
   resolveSolDomain,
   getPrimaryDomain,
   launchPumpFunToken,
   lendAsset,
-  getTPS,
+  mintCollectionNFT,
+  openbookCreateMarket,
+  raydiumCreateAmmV4,
+  raydiumCreateClmm,
+  raydiumCreateCpmm,
+  registerDomain,
+  request_faucet_funds,
+  trade,
+  transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
@@ -22,9 +28,7 @@ import {
   FEE_TIERS
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
-import { DEFAULT_OPTIONS } from "../constants";
 import { BN } from "@coral-xyz/anchor";
-import Decimal from "decimal.js";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -180,6 +184,90 @@ export class SolanaAgentKit {
       initialPrice,
       maxPrice,
       feeTier
+    )
+  }
+
+  async raydiumCreateAmmV4(
+    marketId: PublicKey,
+
+    baseAmount: BN,
+    quoteAmount: BN,
+
+    startTime: BN,
+  ) {
+    return raydiumCreateAmmV4(
+      this,
+      marketId,
+
+      baseAmount,
+      quoteAmount,
+
+      startTime,
+    )
+  }
+
+  async raydiumCreateClmm(
+    mint1: PublicKey,
+    mint2: PublicKey,
+
+    configId: PublicKey,
+
+    initialPrice: Decimal,
+    startTime: BN,
+  ) {
+    return raydiumCreateClmm(
+      this,
+
+      mint1,
+      mint2,
+
+      configId,
+
+      initialPrice,
+      startTime,
+    )
+  }
+
+  async raydiumCreateCpmm(
+    mint1: PublicKey,
+    mint2: PublicKey,
+
+    configId: PublicKey,
+
+    mintAAmount: BN,
+    mintBAmount: BN,
+
+    startTime: BN,
+  ) {
+    return raydiumCreateCpmm(
+      this,
+
+      mint1,
+      mint2,
+
+      configId,
+
+      mintAAmount,
+      mintBAmount,
+
+      startTime,
+    )
+  }
+
+  async openbookCreateMarket(
+    baseMint: PublicKey,
+    quoteMint: PublicKey,
+
+    lotSize: number = 1,
+    tickSize: number = 0.01,
+  ) {
+    return openbookCreateMarket(
+      this,
+      baseMint,
+      quoteMint,
+
+      lotSize,
+      tickSize,
     )
   }
 }
