@@ -243,7 +243,7 @@ export async function createOrcaSingleSidedWhirlpool(
   const tickUpperInitializableIndex = TickUtil.getInitializableTickIndex(tickUpperIndex, tickSpacing);
   if (!TickUtil.checkTickInBounds(tickLowerInitializableIndex) || !TickUtil.checkTickInBounds(tickUpperInitializableIndex)) throw Error('Prices out of bounds');
   const increasLiquidityQuoteParam: IncreaseLiquidityQuoteParam = {
-    inputTokenAmount: BN(depositTokenAmount),
+    inputTokenAmount: new BN(depositTokenAmount),
     inputTokenMint: depositTokenMint,
     tokenMintA: mintA,
     tokenMintB: mintB,
