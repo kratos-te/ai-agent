@@ -6,7 +6,7 @@ import {
   PublicKey,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { SolanaAgentKit } from "../../agent/index.js";
+import { SolanaAgentKit } from "../agent/index.js";
 import {
   buildAndSignTx,
   calculateComputeUnitPrice,
@@ -81,6 +81,7 @@ export async function sendCompressedAirdrop(
     shouldLog
   );
 }
+
 async function processAll(
   agent: SolanaAgentKit,
   amount: number,

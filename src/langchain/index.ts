@@ -702,15 +702,15 @@ export class SolanaTokenDataByTickerTool extends Tool {
   }
 }
 
-export class SolanaAirdropCompressedTokensTool extends Tool {
-  name = "solana_airdrop_compressed_tokens";
-  description = `Airdrop tokens with zk compression
+export class SolanaCompressedAirdropTool extends Tool {
+  name = "solana_compressed_airdrop";
+  description = `Airdrop SPL tokens with ZK Compression
   
   Inputs: 
   - mintAddress: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
   - amount: number, the amount of tokens to airdrop per recipient, e.g., 42
-  - recipients: string[], the recipient addresses, e.g., ["JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN", "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"]
-  - priorityFeeInLamports: number, the priority fee in lamports, e.g., 10_000. Default is 30_000.
+  - recipients: string[], the recipient addresses, e.g., ["1nc1nerator11111111111111111111111111111111", "1nc1nerator11111111111111111111111111111111"]
+  - priorityFeeInLamports: number, the priority fee in lamports. Default is 30_000.
   `;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -765,6 +765,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaGetDomainTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
     new SolanaTokenDataByTickerTool(solanaKit),
-    new SolanaAirdropCompressedTokensTool(solanaKit),
+    new SolanaCompressedAirdropTool(solanaKit),
   ];
 }

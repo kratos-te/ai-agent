@@ -14,4 +14,4 @@ export * from "./get_tps";
 export * from "./get_token_data";
 export * from "./stake_with_jup";
 export * from "./fetch_price";
-export * from "./airdrop_compressed_tokens";
+export * from "./send_compressed_airdrop";
