@@ -51,15 +51,18 @@ export const getAirdropCostEstimate = (
  * @param agent             Agent
  * @param mintAddress       SPL Mint address
  * @param amount            Amount to send per recipient
+ * @param decimals          Decimals of the token
  * @param recipients        Recipient wallet addresses (no ATAs)
+ * @param priorityFeeInLamports   Priority fee in lamports
  * @param shouldLog         Whether to log progress to stdout. Defaults to false.
  */
 export async function sendCompressedAirdrop(
   agent: SolanaAgentKit,
   mintAddress: PublicKey,
   amount: number,
+  decimals: number,
   recipients: PublicKey[],
-  prioFeeInLamports: number,
+  priorityFeeInLamports: number,
   shouldLog: boolean = false
 ): Promise<string[]> {
   if (recipients.length > MAX_AIRDROP_RECIPIENTS) {
@@ -67,6 +70,18 @@ export async function sendCompressedAirdrop(
       `Max airdrop can be ${MAX_AIRDROP_RECIPIENTS} recipients at a time. For more scale, use open source ZK Compression airdrop tools such as https://github.com/helius-labs/airship.`
     );
   }
+
+
+  const url = agent.connection.rpcEndpoint;
+  if (url.includes("devnet")) {
+    throw new Error("Devnet is not supported for airdrop. Please use mainnet.");
+  }
+  if (!url.includes("helius")) {
+    console.warn(
+      "Warning: Must use RPC with ZK Compression support. Double check with your RPC provider if in doubt."
+    );
+  }
+
   let sourceTokenAccount: Account;
   try {
     sourceTokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -97,10 +112,10 @@ export async function sendCompressedAirdrop(
 
   return await processAll(
     agent,
-    amount,
+    amount * 10 ** decimals,
     mintAddress,
     recipients,
-    prioFeeInLamports,
+    priorityFeeInLamports,
     shouldLog
   );
 }
@@ -110,7 +125,7 @@ async function processAll(
   amount: number,
   mint: PublicKey,
   recipients: PublicKey[],
-  prioFeeInLamports: number,
+  priorityFeeInLamports: number,
   shouldLog: boolean
 ): Promise<string[]> {
   const mintAddress = mint;
@@ -147,7 +162,10 @@ async function processAll(
       const instructions: TransactionInstruction[] = [
         ComputeBudgetProgram.setComputeUnitLimit({ units: 500_000 }),
         ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: calculateComputeUnitPrice(prioFeeInLamports, 500_000),
+          microLamports: calculateComputeUnitPrice(
+            priorityFeeInLamports,
+            500_000
+          ),
         }),
       ];
 
@@ -176,14 +194,6 @@ async function processAll(
   );
 
   const url = agent.connection.rpcEndpoint;
-  if (url.includes("devnet")) {
-    throw new Error("Devnet is not supported for airdrop. Please use mainnet.");
-  }
-  if (!url.includes("helius")) {
-    console.warn(
-      "Warning: Must use RPC with ZK Compression support. Double check with your RPC provider if in doubt."
-    );
-  }
   const rpc = createRpc(url, url, url);
 
   const results = [];

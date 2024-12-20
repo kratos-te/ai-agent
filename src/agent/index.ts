@@ -144,6 +144,7 @@ export class SolanaAgentKit {
   async sendCompressedAirdrop(
     mintAddress: string,
     amount: number,
+    decimals: number,
     recipients: string[],
     priorityFeeInLamports: number,
     shouldLog: boolean
@@ -152,6 +153,7 @@ export class SolanaAgentKit {
       this,
       new PublicKey(mintAddress),
       amount,
+      decimals,
       recipients.map((recipient) => new PublicKey(recipient)),
       priorityFeeInLamports,
       shouldLog
