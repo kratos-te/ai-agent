@@ -1,9 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
-import { BN } from "bn.js";
 import Decimal from "decimal.js";
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../index";
 import { create_image } from "../tools/create_image";
+import { fetchPrice } from "../tools/fetch_price";
+import { BN } from "@coral-xyz/anchor";
+import { FEE_TIERS } from "../tools";
 import { toJSON } from "../utils/toJSON";
 
 export class SolanaBalanceTool extends Tool {
@@ -56,7 +58,6 @@ export class SolanaTransferTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      console.log(parsedInput);
 
       const recipient = new PublicKey(parsedInput.to);
       const mintAddress = parsedInput.mint
@@ -89,38 +90,30 @@ export class SolanaTransferTool extends Tool {
 
 export class SolanaDeployTokenTool extends Tool {
   name = "solana_deploy_token";
-  description =
-    "Deploy a new SPL token. Input should be JSON string with: {decimals?: number, initialSupply?: number}";
+  description = `Deploy a new token on Solana blockchain.
+
+  Inputs (input is a JSON string):
+  name: string, eg "My Token" (required)
+  uri: string, eg "https://example.com/token.json" (required) 
+  symbol: string, eg "MTK" (required)
+  decimals?: number, eg 9 (optional, defaults to 9)
+  initialSupply?: number, eg 1000000 (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (
-      input.decimals !== undefined &&
-      (typeof input.decimals !== "number" ||
-        input.decimals < 0 ||
-        input.decimals > 9)
-    ) {
-      throw new Error(
-        "decimals must be a number between 0 and 9 when provided"
-      );
-    }
-    if (
-      input.initialSupply !== undefined &&
-      (typeof input.initialSupply !== "number" || input.initialSupply <= 0)
-    ) {
-      throw new Error("initialSupply must be a positive number when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
-      const result = await this.solanaKit.deployToken(parsedInput.decimals);
+      const result = await this.solanaKit.deployToken(
+        parsedInput.name,
+        parsedInput.uri,
+        parsedInput.symbol,
+        parsedInput.decimals,
+        parsedInput.initialSupply
+      );
 
       return JSON.stringify({
         status: "success",
@@ -140,57 +133,20 @@ export class SolanaDeployTokenTool extends Tool {
 
 export class SolanaDeployCollectionTool extends Tool {
   name = "solana_deploy_collection";
-  description =
-    "Deploy a new NFT collection. Input should be JSON with: {name: string, uri: string, royaltyBasisPoints?: number, creators?: Array<{address: string, percentage: number}>}";
+  description = `Deploy a new NFT collection on Solana blockchain.
+
+  Inputs (input is a JSON string):
+  name: string, eg "My Collection" (required)
+  uri: string, eg "https://example.com/collection.json" (required)
+  royaltyBasisPoints?: number, eg 500 for 5% (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.name || typeof input.name !== "string") {
-      throw new Error("name is required and must be a string");
-    }
-    if (!input.uri || typeof input.uri !== "string") {
-      throw new Error("uri is required and must be a string");
-    }
-    if (
-      input.royaltyBasisPoints !== undefined &&
-      (typeof input.royaltyBasisPoints !== "number" ||
-        input.royaltyBasisPoints < 0 ||
-        input.royaltyBasisPoints > 10000)
-    ) {
-      throw new Error(
-        "royaltyBasisPoints must be a number between 0 and 10000 when provided"
-      );
-    }
-    if (input.creators) {
-      if (!Array.isArray(input.creators)) {
-        throw new Error("creators must be an array when provided");
-      }
-      input.creators.forEach((creator: any, index: number) => {
-        if (!creator.address || typeof creator.address !== "string") {
-          throw new Error(
-            `creator[${index}].address is required and must be a string`
-          );
-        }
-        if (
-          typeof creator.percentage !== "number" ||
-          creator.percentage < 0 ||
-          creator.percentage > 100
-        ) {
-          throw new Error(
-            `creator[${index}].percentage must be a number between 0 and 100`
-          );
-        }
-      });
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
       const result = await this.solanaKit.deployCollection(parsedInput);
 
@@ -212,50 +168,42 @@ export class SolanaDeployCollectionTool extends Tool {
 
 export class SolanaMintNFTTool extends Tool {
   name = "solana_mint_nft";
-  description =
-    "Mint a new NFT in a collection. Input should be JSON with: {collectionMint: string, metadata: {name: string, symbol: string, uri: string}, recipient?: string}";
+  description = `Mint a new NFT in a collection on Solana blockchain.
+
+    Inputs (input is a JSON string):
+    collectionMint: string, eg "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w" (required) - The address of the collection to mint into
+    name: string, eg "My NFT" (required)
+    uri: string, eg "https://example.com/nft.json" (required)
+    recipient?: string, eg "9aUn5swQzUTRanaaTwmszxiv89cvFwUCjEBv1vZCoT1u" (optional) - The wallet to receive the NFT, defaults to agent's wallet which is ${this.solanaKit.wallet_address.toString()}`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  private validateInput(input: any): void {
-    if (!input.collectionMint || typeof input.collectionMint !== "string") {
-      throw new Error("collectionMint is required and must be a string");
-    }
-    if (!input.metadata || typeof input.metadata !== "object") {
-      throw new Error("metadata is required and must be an object");
-    }
-    if (!input.metadata.name || typeof input.metadata.name !== "string") {
-      throw new Error("metadata.name is required and must be a string");
-    }
-    if (!input.metadata.symbol || typeof input.metadata.symbol !== "string") {
-      throw new Error("metadata.symbol is required and must be a string");
-    }
-    if (!input.metadata.uri || typeof input.metadata.uri !== "string") {
-      throw new Error("metadata.uri is required and must be a string");
-    }
-    if (input.recipient !== undefined && typeof input.recipient !== "string") {
-      throw new Error("recipient must be a string when provided");
-    }
-  }
-
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
-      this.validateInput(parsedInput);
+      const parsedInput = JSON.parse(input);
 
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
-        parsedInput.metadata,
-        parsedInput.recipient ? new PublicKey(parsedInput.recipient) : undefined
+        {
+          name: parsedInput.name,
+          uri: parsedInput.uri,
+        },
+        parsedInput.recipient
+          ? new PublicKey(parsedInput.recipient)
+          : this.solanaKit.wallet_address
       );
 
       return JSON.stringify({
         status: "success",
         message: "NFT minted successfully",
         mintAddress: result.mint.toString(),
-        name: parsedInput.metadata.name,
+        metadata: {
+          name: parsedInput.name,
+          symbol: parsedInput.symbol,
+          uri: parsedInput.uri,
+        },
         recipient: parsedInput.recipient || result.mint.toString(),
       });
     } catch (error: any) {
@@ -304,7 +252,6 @@ export class SolanaTradeTool extends Tool {
         outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
-      console.log(error);
       return JSON.stringify({
         status: "error",
         message: error.message,
@@ -393,6 +340,70 @@ export class SolanaRegisterDomainTool extends Tool {
   }
 }
 
+export class SolanaResolveDomainTool extends Tool {
+  name = "solana_resolve_domain";
+  description = `Resolve a .sol domain to a Solana PublicKey.
+
+  Inputs:
+  domain: string, eg "pumpfun.sol" or "pumpfun"(required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const domain = input.trim();
+      const publicKey = await this.solanaKit.resolveSolDomain(domain);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Domain resolved successfully",
+        publicKey: publicKey.toBase58(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaGetDomainTool extends Tool {
+  name = "solana_get_domain";
+  description = `Retrieve the .sol domain associated for a given account address.
+
+  Inputs:
+  account: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const account = new PublicKey(input.trim());
+      const domain = await this.solanaKit.getPrimaryDomain(account);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Primary domain retrieved successfully",
+        domain,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaGetWalletAddressTool extends Tool {
   name = "solana_get_wallet_address";
   description = `Get the wallet address of the agent`;
@@ -425,7 +436,6 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
   }
 
   private validateInput(input: any): void {
-    console.log(input);
     if (!input.tokenName || typeof input.tokenName !== "string") {
       throw new Error("tokenName is required and must be a string");
     }
@@ -569,6 +579,230 @@ export class SolanaTPSCalculatorTool extends Tool {
     }
   }
 }
+
+export class SolanaStakeTool extends Tool {
+  name = "solana_stake";
+  description = `This tool can be used to stake your SOL (Solana), also called as SOL staking or liquid staking.
+
+  Inputs ( input is a JSON string ):
+  amount: number, eg 1 or 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input) || Number(input);
+
+      const tx = await this.solanaKit.stake(parsedInput.amount);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Staked successfully",
+        transaction: tx,
+        amount: parsedInput.amount,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+/**
+ * Tool to fetch the price of a token in USDC
+ */
+export class SolanaFetchPriceTool extends Tool {
+  name = "solana_fetch_price";
+  description = `Fetch the price of a given token in USDC.
+  
+  Inputs:
+  - tokenId: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const price = await fetchPrice(this.solanaKit, input.trim());
+      return JSON.stringify({
+        status: "success",
+        tokenId: input.trim(),
+        priceInUSDC: price,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTokenDataTool extends Tool {
+  name = "solana_token_data";
+  description = `Get the token data for a given token mint address
+
+  Inputs: mintAddress is required.
+  mintAddress: string, eg "So11111111111111111111111111111111111111112" (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = input.trim();
+
+      const tokenData = await this.solanaKit.getTokenDataByAddress(parsedInput);
+
+      return JSON.stringify({
+        status: "success",
+        tokenData: tokenData,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTokenDataByTickerTool extends Tool {
+  name = "solana_token_data_by_ticker";
+  description = `Get the token data for a given token ticker
+
+  Inputs: ticker is required.
+  ticker: string, eg "USDC" (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const ticker = input.trim();
+      const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
+      return JSON.stringify({
+        status: "success",
+        tokenData: tokenData,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCompressedAirdropTool extends Tool {
+  name = "solana_compressed_airdrop";
+  description = `Airdrop SPL tokens with ZK Compression (also called as airdropping tokens)
+  
+  Inputs (input is a JSON string):
+  mintAddress: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" (required)
+  amount: number, the amount of tokens to airdrop per recipient, e.g., 42 (required)
+  decimals: number, the decimals of the token, e.g., 6 (required)
+  recipients: string[], the recipient addresses, e.g., ["1nc1nerator11111111111111111111111111111111"] (required)
+  priorityFeeInLamports: number, the priority fee in lamports. Default is 30_000. (optional)
+  shouldLog: boolean, whether to log progress to stdout. Default is false. (optional)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const txs = await this.solanaKit.sendCompressedAirdrop(
+        parsedInput.mintAddress,
+        parsedInput.amount,
+        parsedInput.decimals,
+        parsedInput.recipients,
+        parsedInput.priorityFeeInLamports || 30_000,
+        parsedInput.shouldLog || false
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: `Airdropped ${parsedInput.amount} tokens to ${parsedInput.recipients.length} recipients.`,
+        transactionHashes: txs,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCreateSingleSidedWhirlpoolTool extends Tool {
+  name = "create_orca_single_sided_whirlpool";
+  description = `Create a single-sided Whirlpool with liquidity.
+
+  Inputs (input is a JSON string):
+  - depositTokenAmount: number, eg: 1000000000 (required, in units of deposit token including decimals)
+  - depositTokenMint: string, eg: "DepositTokenMintAddress" (required, mint address of deposit token)
+  - otherTokenMint: string, eg: "OtherTokenMintAddress" (required, mint address of other token)
+  - initialPrice: number, eg: 0.001 (required, initial price of deposit token in terms of other token)
+  - maxPrice: number, eg: 5.0 (required, maximum price at which liquidity is added)
+  - feeTier: number, eg: 0.30 (required, fee tier for the pool)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const depositTokenAmount = new BN(inputFormat.depositTokenAmount);
+      const depositTokenMint = new PublicKey(inputFormat.depositTokenMint);
+      const otherTokenMint = new PublicKey(inputFormat.otherTokenMint);
+      const initialPrice = new Decimal(inputFormat.initialPrice);
+      const maxPrice = new Decimal(inputFormat.maxPrice);
+      const feeTier = inputFormat.feeTier;
+
+      if (!feeTier || !(feeTier in FEE_TIERS)) {
+        throw new Error(`Invalid feeTier. Available options: ${Object.keys(FEE_TIERS).join(", ")}`);
+      }
+
+      const txId = await this.solanaKit.createOrcaSingleSidedWhirlpool(
+        depositTokenAmount,
+        depositTokenMint,
+        otherTokenMint,
+        initialPrice,
+        maxPrice,
+        feeTier,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Single-sided Whirlpool created successfully",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
@@ -761,9 +995,17 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaCreateImageTool(solanaKit),
     new SolanaLendAssetTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
+    new SolanaStakeTool(solanaKit),
+    new SolanaFetchPriceTool(solanaKit),
+    new SolanaResolveDomainTool(solanaKit),
+    new SolanaGetDomainTool(solanaKit),
+    new SolanaTokenDataTool(solanaKit),
+    new SolanaTokenDataByTickerTool(solanaKit),
+    new SolanaCompressedAirdropTool(solanaKit),
     new SolanaRaydiumCreateAmmV4(solanaKit),
     new SolanaRaydiumCreateClmm(solanaKit),
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
+    new SolanaCreateSingleSidedWhirlpoolTool(solanaKit),
   ];
 }

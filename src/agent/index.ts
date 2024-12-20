@@ -1,5 +1,4 @@
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import BN from "bn.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";;
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -8,6 +7,8 @@ import {
   deploy_token,
   get_balance,
   getTPS,
+  resolveSolDomain,
+  getPrimaryDomain,
   launchPumpFunToken,
   lendAsset,
   mintCollectionNFT,
@@ -19,8 +20,15 @@ import {
   request_faucet_funds,
   trade,
   transfer,
+  getTokenDataByAddress,
+  getTokenDataByTicker,
+  stakeWithJup,
+  sendCompressedAirdrop,
+  createOrcaSingleSidedWhirlpool,
+  FEE_TIERS
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
+import { BN } from "@coral-xyz/anchor";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -40,7 +48,7 @@ export class SolanaAgentKit {
   constructor(
     private_key: string,
     rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string,
+    openai_api_key: string
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
@@ -54,10 +62,13 @@ export class SolanaAgentKit {
   }
 
   async deployToken(
+    name: string,
+    uri: string,
+    symbol: string,
     decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
-    // initialSupply?: number
+    initialSupply?: number
   ) {
-    return deploy_token(this, decimals);
+    return deploy_token(this, name, uri, symbol, decimals, initialSupply);
   }
 
   async deployCollection(options: CollectionOptions) {
@@ -71,7 +82,7 @@ export class SolanaAgentKit {
   async mintNFT(
     collectionMint: PublicKey,
     metadata: Parameters<typeof mintCollectionNFT>[2],
-    recipient?: PublicKey,
+    recipient?: PublicKey
   ) {
     return mintCollectionNFT(this, collectionMint, metadata, recipient);
   }
@@ -84,11 +95,19 @@ export class SolanaAgentKit {
     return registerDomain(this, name, spaceKB);
   }
 
+  async resolveSolDomain(domain: string) {
+    return resolveSolDomain(this, domain);
+  }
+
+  async getPrimaryDomain(account: PublicKey) {
+    return getPrimaryDomain(this, account);
+  }
+
   async trade(
     outputMint: PublicKey,
     inputAmount: number,
     inputMint?: PublicKey,
-    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
+    slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS
   ) {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
@@ -101,12 +120,20 @@ export class SolanaAgentKit {
     return getTPS(this);
   }
 
+  async getTokenDataByAddress(mint: string) {
+    return getTokenDataByAddress(new PublicKey(mint));
+  }
+
+  async getTokenDataByTicker(ticker: string) {
+    return getTokenDataByTicker(ticker);
+  }
+
   async launchPumpFunToken(
     tokenName: string,
     tokenTicker: string,
     description: string,
     imageUrl: string,
-    options?: PumpFunTokenOptions,
+    options?: PumpFunTokenOptions
   ) {
     return launchPumpFunToken(
       this,
@@ -114,8 +141,50 @@ export class SolanaAgentKit {
       tokenTicker,
       description,
       imageUrl,
-      options,
+      options
     );
+  }
+
+  async stake(amount: number) {
+    return stakeWithJup(this, amount);
+  }
+
+  async sendCompressedAirdrop(
+    mintAddress: string,
+    amount: number,
+    decimals: number,
+    recipients: string[],
+    priorityFeeInLamports: number,
+    shouldLog: boolean
+  ): Promise<string[]> {
+    return await sendCompressedAirdrop(
+      this,
+      new PublicKey(mintAddress),
+      amount,
+      decimals,
+      recipients.map((recipient) => new PublicKey(recipient)),
+      priorityFeeInLamports,
+      shouldLog
+    );
+  }
+
+  async createOrcaSingleSidedWhirlpool(
+    depositTokenAmount: BN,
+    depositTokenMint: PublicKey,
+    otherTokenMint: PublicKey,
+    initialPrice: Decimal,
+    maxPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return createOrcaSingleSidedWhirlpool(
+      this,
+      depositTokenAmount,
+      depositTokenMint,
+      otherTokenMint,
+      initialPrice,
+      maxPrice,
+      feeTier
+    )
   }
 
   async raydiumCreateAmmV4(

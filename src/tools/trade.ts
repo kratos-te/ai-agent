@@ -19,8 +19,6 @@ export async function trade(
   slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
 ): Promise<string> {
   try {
-    // Get quote for the swap
-    console.log(inputMint.toString(), outputMint.toString(), inputAmount, slippageBps);
     const quoteResponse = await (
       await fetch(
         `${JUP_API}/quote?` +
