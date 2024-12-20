@@ -181,7 +181,6 @@ export class SolanaMintNFTTool extends Tool {
     try {
       const parsedInput = JSON.parse(input);
 
-
       const result = await this.solanaKit.mintNFT(
         new PublicKey(parsedInput.collectionMint),
         {
@@ -703,6 +702,46 @@ export class SolanaTokenDataByTickerTool extends Tool {
   }
 }
 
+export class SolanaAirdropCompressedTokensTool extends Tool {
+  name = "solana_airdrop_compressed_tokens";
+  description = `Airdrop tokens with zk compression
+  
+  Inputs: 
+  - mintAddress: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
+  - amount: number, the amount of tokens to airdrop per recipient, e.g., 42
+  - recipients: string[], the recipient addresses, e.g., ["JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN", "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"]
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+      if (parsedInput.recipients.length <= 100) {
+        throw new Error("Recipients array must contain at least 420 addresses");
+      }
+      await this.solanaKit.airdropCompressedTokens(
+        parsedInput.mintAddress,
+        parsedInput.amount,
+        parsedInput.recipients
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: `Airdropped ${parsedInput.amount} tokens to ${parsedInput.recipients.length} recipients.`,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -724,5 +763,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaGetDomainTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
     new SolanaTokenDataByTickerTool(solanaKit),
+    new SolanaAirdropCompressedTokensTool(solanaKit),
   ];
 }

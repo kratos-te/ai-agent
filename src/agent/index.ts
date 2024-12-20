@@ -17,6 +17,8 @@ import {
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
+  createCompressedAirdrop,
+  sendCompressedAirdrop,
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -57,7 +59,7 @@ export class SolanaAgentKit {
     uri: string,
     symbol: string,
     decimals: number = DEFAULT_OPTIONS.TOKEN_DECIMALS,
-    initialSupply?: number,
+    initialSupply?: number
   ) {
     return deploy_token(this, name, uri, symbol, decimals, initialSupply);
   }
@@ -87,11 +89,11 @@ export class SolanaAgentKit {
   }
 
   async resolveSolDomain(domain: string) {
-    return resolveSolDomain(this, domain)
+    return resolveSolDomain(this, domain);
   }
 
   async getPrimaryDomain(account: PublicKey) {
-    return getPrimaryDomain(this, account)
+    return getPrimaryDomain(this, account);
   }
 
   async trade(
@@ -136,9 +138,21 @@ export class SolanaAgentKit {
     );
   }
 
-  async stake(
-    amount: number,
-  ) {
+  async stake(amount: number) {
     return stakeWithJup(this, amount);
+  }
+
+  async airdropCompressedTokens(
+    mintAddress: string,
+    amount: number,
+    recipients: string[]
+  ) {
+    await createCompressedAirdrop(
+      this,
+      new PublicKey(mintAddress),
+      BigInt(amount),
+      recipients.map((recipient) => new PublicKey(recipient))
+    );
+    return await sendCompressedAirdrop(this);
   }
 }
