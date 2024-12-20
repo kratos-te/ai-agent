@@ -1,37 +1,48 @@
 # Solana Agent Kit
 
-A powerful toolkit for interacting with the Solana blockchain, providing easy-to-use functions for token operations, NFT management, and trading. Now integrated with LangChain for enhanced functionality.
+A powerful toolkit for connecting AI agents to Solana protocols, enabling autonomous blockchain interactions through LangChain integration. Built for developers and AI researchers looking to empower their agents with on-chain capabilities.
 
-## Features
+## 🤖 AI Integration Features
 
-- 🪙 Token Operations
+- **LangChain Integration**
+  - Ready-to-use LangChain tools for blockchain operations
+  - Autonomous agent support with React framework
+  - Memory management for persistent interactions
+  - Streaming responses for real-time feedback
 
-  - Deploy new SPL tokens
-  - Transfer SOL and SPL tokens
-  - Check token balances
+- **Autonomous Modes**
+  - Interactive chat mode for guided operations
+  - Autonomous mode for independent agent actions
+  - Configurable action intervals
+  - Built-in error handling and recovery
+
+- **AI Tools**
+  - DALL-E integration for NFT artwork generation
+  - Natural language processing for blockchain commands
+  - Price feed integration for market analysis
+  - Automated decision-making capabilities
+
+## 🔧 Core Blockchain Features
+
+- **Token Operations**
+  - Deploy SPL tokens
+  - Transfer assets
+  - Balance checks
   - Stake SOL
 
-- 🖼️ NFT Management
+- **NFT Management**
+  - Collection deployment
+  - NFT minting
+  - Metadata management
+  - Royalty configuration
 
-  - Deploy NFT collections
-  - Mint NFTs to collections
-  - Manage metadata and royalties
+- **DeFi Integration**
+  - Jupiter Exchange swaps
+  - Raydium pool creation (CPMM, CLMM, AMMv4)
+  - Orca whirlpool integration
+  - Openbook market creation
 
-- 💱 Trading
-
-  - Integrated Jupiter Exchange support
-  - Token swaps with customizable slippage
-  - Direct routing options
-
-- 🏦 Yield Farming
-
-  - Lend idle assets to earn interest with Lulo
-
-- 🔗 LangChain Integration
-  - Utilize LangChain tools for enhanced blockchain interactions
-  - Access a suite of tools for balance checks, transfers, token deployments, and more
-
-## Installation
+## 📦 Installation
 
 ```bash
 npm install solana-agent-kit
