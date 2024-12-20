@@ -1,6 +1,53 @@
+<div align="center">
+
 # Solana Agent Kit
 
-A powerful toolkit for connecting AI agents to Solana protocols, enabling autonomous blockchain interactions through LangChain integration. Built for developers and AI researchers looking to empower their agents with on-chain capabilities.
+</div>
+
+![Solana Agent Kit Cover 1 (3)](https://github.com/user-attachments/assets/cfa380f6-79d9-474d-9852-3e1976c6de70)
+
+An open-source toolkit for connecting AI agents to Solana protocols. Now, any agent, using any model can autonomously perform 15+ Solana actions:
+
+- Trade tokens
+- Launch new tokens 
+- Lend assets
+- Send compressed airdrops
+- Execute blinks
+- Launch tokens on AMMs
+- And more...
+
+Anyone - whether an SF-based AI researcher or a crypto-native builder - can bring their AI agents trained with any model and seamlessly integrate with Solana.
+
+## 🔧 Core Blockchain Features
+
+- **Token Operations**
+  - Deploy SPL tokens by Metaplex
+  - Transfer assets
+  - Balance checks
+  - Stake SOL
+  - Zk compressed Airdrop by Light Protocol and Helius
+
+- **NFT Management via Metaplex**
+  - Collection deployment
+  - NFT minting
+  - Metadata management
+  - Royalty configuration
+
+- **DeFi Integration**
+  - Jupiter Exchange swaps
+  - Launch on Pump via PumpPortal
+  - Raydium pool creation (CPMM, CLMM, AMMv4)
+  - Orca whirlpool integration
+  - Meteora Dynamic AMM, DLMM Pool, and Alpga Vault
+  - Openbook market creation
+  - Register and Resolve SNS
+  - Jito Bundles
+
+- **Solana Blinks**
+   - Lending by Lulo
+   - Send Arcade Games
+   - JupSOL staking
+
 
 ## 🤖 AI Integration Features
 
@@ -21,26 +68,6 @@ A powerful toolkit for connecting AI agents to Solana protocols, enabling autono
   - Natural language processing for blockchain commands
   - Price feed integration for market analysis
   - Automated decision-making capabilities
-
-## 🔧 Core Blockchain Features
-
-- **Token Operations**
-  - Deploy SPL tokens
-  - Transfer assets
-  - Balance checks
-  - Stake SOL
-
-- **NFT Management**
-  - Collection deployment
-  - NFT minting
-  - Metadata management
-  - Royalty configuration
-
-- **DeFi Integration**
-  - Jupiter Exchange swaps
-  - Raydium pool creation (CPMM, CLMM, AMMv4)
-  - Orca whirlpool integration
-  - Openbook market creation
 
 ## 📦 Installation
 
