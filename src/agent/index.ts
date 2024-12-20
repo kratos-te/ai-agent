@@ -18,9 +18,13 @@ import {
   getTokenDataByTicker,
   stakeWithJup,
   sendCompressedAirdrop,
+  createOrcaSingleSidedWhirlpool,
+  FEE_TIERS
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { DEFAULT_OPTIONS } from "../constants";
+import { BN } from "@coral-xyz/anchor";
+import Decimal from "decimal.js";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -158,5 +162,24 @@ export class SolanaAgentKit {
       priorityFeeInLamports,
       shouldLog
     );
+  }
+
+  async createOrcaSingleSidedWhirlpool(
+    depositTokenAmount: BN,
+    depositTokenMint: PublicKey,
+    otherTokenMint: PublicKey,
+    initialPrice: Decimal,
+    maxPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return createOrcaSingleSidedWhirlpool(
+      this,
+      depositTokenAmount,
+      depositTokenMint,
+      otherTokenMint,
+      initialPrice,
+      maxPrice,
+      feeTier
+    )
   }
 }
