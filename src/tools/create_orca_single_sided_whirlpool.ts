@@ -377,7 +377,9 @@ export async function createOrcaSingleSidedWhirlpool(
     });
   txBuilder.addInstruction(liquidityIx);
 
-  const txId = await txBuilder.buildAndExecute();
+  const txId = await txBuilder.buildAndExecute({
+    maxSupportedTransactionVersion: "legacy"
+  });
 
   return txId;
 }
