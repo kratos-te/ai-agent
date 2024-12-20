@@ -17,7 +17,6 @@ import {
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
-  createCompressedAirdrop,
   sendCompressedAirdrop,
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
@@ -142,17 +141,20 @@ export class SolanaAgentKit {
     return stakeWithJup(this, amount);
   }
 
-  async airdropCompressedTokens(
+  async sendCompressedAirdrop(
     mintAddress: string,
     amount: number,
-    recipients: string[]
-  ) {
-    await createCompressedAirdrop(
+    recipients: string[],
+    priorityFeeInLamports: number,
+    shouldLog: boolean
+  ): Promise<string[]> {
+    return await sendCompressedAirdrop(
       this,
       new PublicKey(mintAddress),
-      BigInt(amount),
-      recipients.map((recipient) => new PublicKey(recipient))
+      amount,
+      recipients.map((recipient) => new PublicKey(recipient)),
+      priorityFeeInLamports,
+      shouldLog
     );
-    return await sendCompressedAirdrop(this);
   }
 }

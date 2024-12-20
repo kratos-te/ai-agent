@@ -710,6 +710,7 @@ export class SolanaAirdropCompressedTokensTool extends Tool {
   - mintAddress: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
   - amount: number, the amount of tokens to airdrop per recipient, e.g., 42
   - recipients: string[], the recipient addresses, e.g., ["JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN", "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"]
+  - priorityFeeInLamports: number, the priority fee in lamports, e.g., 10_000. Default is 30_000.
   `;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -719,18 +720,19 @@ export class SolanaAirdropCompressedTokensTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      if (parsedInput.recipients.length <= 100) {
-        throw new Error("Recipients array must contain at least 420 addresses");
-      }
-      await this.solanaKit.airdropCompressedTokens(
+
+      const txs = await this.solanaKit.sendCompressedAirdrop(
         parsedInput.mintAddress,
         parsedInput.amount,
-        parsedInput.recipients
+        parsedInput.recipients,
+        parsedInput.priorityFeeInLamports || 30_000,
+        false // no logging
       );
 
       return JSON.stringify({
         status: "success",
         message: `Airdropped ${parsedInput.amount} tokens to ${parsedInput.recipients.length} recipients.`,
+        transactionHashes: txs,
       });
     } catch (error: any) {
       return JSON.stringify({
