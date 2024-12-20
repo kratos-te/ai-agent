@@ -27,9 +27,9 @@ const MAX_CONCURRENT_TXS = 30;
 
 /**
  * Estimate the cost of an airdrop in lamports.
- * @param numberOfRecipients Number of recipients
- * @param priorityFeeInLamports Priority fee in lamports
- * @returns Estimated cost in lamports
+ * @param numberOfRecipients      Number of recipients
+ * @param priorityFeeInLamports   Priority fee in lamports
+ * @returns                       Estimated cost in lamports
  */
 export const getAirdropCostEstimate = (
   numberOfRecipients: number,
