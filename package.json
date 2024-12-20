@@ -10,6 +10,10 @@
     "test": "ts-node test/index.ts",
     "generate": "ts-node src/utils/keypair.ts"
   },
+  "engines": {
+    "node": ">=23.1.0",
+    "pnpm": ">=8.0.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
