@@ -3,7 +3,7 @@ import { SolanaAgentKit } from "../index";
 
 /**
  * Get the balance of SOL or an SPL token for the agent's wallet
- * @param agent - SolanaAgent instance
+ * @param agent - SolanaAgentKit instance
  * @param token_address - Optional SPL token mint address. If not provided, returns SOL balance
  * @returns Promise resolving to the balance as a number (in UI units) or null if account doesn't exist
  */

@@ -9,7 +9,7 @@ import { SolanaAgentKit } from "../index";
  * to the corresponding Solana PublicKey. The domain can be provided with or without
  * the .sol suffix.
  *
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param domain The .sol domain to resolve. This can be provided with or without the .sol TLD suffix
  * @returns A promise that resolves to the corresponding Solana PublicKey
  * @throws Error if the domain resolution fails

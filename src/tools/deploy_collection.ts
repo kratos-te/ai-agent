@@ -18,7 +18,7 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 /**
  * Deploy a new NFT collection
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param options Collection options including name, URI, royalties, and creators
  * @returns Object containing collection address and metadata
  */

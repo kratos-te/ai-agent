@@ -6,7 +6,7 @@ import { TOKENS } from "../constants";
 
 /**
  * Register a .sol domain name using Bonfida Name Service
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param name Domain name to register (without .sol)
  * @param spaceKB Space allocation in KB (max 10KB)
  * @returns Transaction signature

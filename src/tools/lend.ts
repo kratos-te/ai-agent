@@ -3,7 +3,7 @@ import { SolanaAgentKit } from "../index";
 
 /**
  * Lend tokens for yields using Lulo
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param amount Amount of USDC to lend
  * @returns Transaction signature
  */

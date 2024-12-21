@@ -53,7 +53,7 @@ export class CustomTool extends Tool {
 ### 3. Add Supporting Functions to SolanaAgentKit
 
 ```typescript:src/agent/index.ts
-export class SolanaAgent {
+export class SolanaAgentKit {
   // ... existing code ...
 
   async customFunction(input: string): Promise<string> {

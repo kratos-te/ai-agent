@@ -9,7 +9,7 @@ import {
 
 /**
  * Transfer SOL or SPL tokens to a recipient
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param to Recipient's public key
  * @param amount Amount to transfer
  * @param mint Optional mint address for SPL tokens

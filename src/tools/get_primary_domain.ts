@@ -9,7 +9,7 @@ import { SolanaAgentKit } from "../index";
  * a specified Solana public key. If the primary domain is stale or an error occurs during
  * the resolution, it throws an error.
  *
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param account The Solana public key for which to retrieve the primary domain
  * @returns A promise that resolves to the primary .sol domain as a string
  * @throws Error if the domain is stale or if the domain resolution fails

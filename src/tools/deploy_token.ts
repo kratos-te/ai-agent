@@ -15,7 +15,7 @@ import {
 
 /**
  * Deploy a new SPL token
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param name Name of the token
  * @param uri URI for the token metadata
  * @param symbol Symbol of the token

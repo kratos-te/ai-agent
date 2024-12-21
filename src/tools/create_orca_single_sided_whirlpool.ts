@@ -99,7 +99,7 @@ export const FEE_TIERS = {
  *
  * @example
  * ```typescript
- * agent: SolanaAgentKitKit } from "your-sdk";
+ * import { SolanaAgentKit } from "your-sdk";
  * import { PublicKey } from "@solana/web3.js";
  * import { BN } from "@coral-xyz/anchor";
  * import Decimal from "decimal.js";

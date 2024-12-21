@@ -69,7 +69,7 @@ export async function getPriorityFees(connection: Connection): Promise<{
 
 /**
  * Send a transaction with priority fees
- * @param agent - SolanaAgent instance
+ * @param agent - SolanaAgentKit instance
  * @param tx - Transaction to send
  * @returns Transaction ID
  */

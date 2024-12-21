@@ -8,7 +8,7 @@ import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
 
 /**
  * Swap tokens using Jupiter Exchange
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param outputMint Target token mint address
  * @param inputAmount Amount to swap (in token decimals)
  * @param inputMint Source token mint address (defaults to USDC)

@@ -13,7 +13,7 @@ import { MintCollectionNFTResponse } from "../types";
 
 /**
  * Mint a new NFT as part of an existing collection
- * @param agent SolanaAgent instance
+ * @param agent SolanaAgentKit instance
  * @param collectionMint Address of the collection's master NFT
  * @param metadata NFT metadata object
  * @param recipient Optional recipient address (defaults to wallet address)

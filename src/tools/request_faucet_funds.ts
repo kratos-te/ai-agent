@@ -3,7 +3,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 /**
  * Request SOL from the Solana faucet (devnet/testnet only)
- * @param agent - SolanaAgent instance
+ * @param agent - SolanaAgentKit instance
  * @returns Transaction signature
  * @throws Error if the request fails or times out
  */

@@ -140,7 +140,7 @@ async function signAndSendTransaction(
 
 /**
  * Launch a token on Pump.fun
- * @param agent - SolanaAgent instance
+ * @param agent - SolanaAgentKit instance
  * @param tokenName - Name of the token
  * @param tokenTicker - Ticker of the token
  * @param description - Description of the token
