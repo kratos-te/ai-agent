@@ -1040,6 +1040,12 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaOpenbookCreateMarket(solanaKit),
     new SolanaCreateSingleSidedWhirlpoolTool(solanaKit),
     new SolanaPythFetchPrice(solanaKit),
+    new SolanaResolveDomain(solanaKit),
+    new SolanaGetOwnedDomains(solanaKit),
+    new SolanaGetOwnedTldDomains(solanaKit),
+    new SolanaGetAllTlds(solanaKit),
+    new SolanaGetAllRegisteredDomains(solanaKit),
+    new SolanaGetMainDomain(solanaKit),
   ];
 }
 
