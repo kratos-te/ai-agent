@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 /**
@@ -8,7 +8,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
  * @throws Error if the request fails or times out
  */
 export async function request_faucet_funds(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
 ): Promise<string> {
   const tx = await agent.connection.requestAirdrop(
     agent.wallet_address,

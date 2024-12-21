@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import {
   generateSigner,
   keypairIdentity,
@@ -23,7 +23,7 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
  * @returns Object containing collection address and metadata
  */
 export async function deploy_collection(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   options: CollectionOptions,
 ): Promise<CollectionDeployment> {
   try {

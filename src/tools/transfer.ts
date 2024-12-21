@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
@@ -16,7 +16,7 @@ import {
  * @returns Transaction signature
  */
 export async function transfer(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   to: PublicKey,
   amount: number,
   mint?: PublicKey,

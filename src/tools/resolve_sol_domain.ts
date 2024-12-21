@@ -1,6 +1,6 @@
 import { resolve } from "@bonfida/spl-name-service";
 import { PublicKey } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 /**
  * Resolves a .sol domain to a Solana PublicKey.
@@ -15,7 +15,7 @@ import { SolanaAgent } from "../index";
  * @throws Error if the domain resolution fails
  */
 export async function resolveSolDomain(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   domain: string,
 ): Promise<PublicKey> {
   if (!domain || typeof domain !== "string") {

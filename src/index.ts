@@ -1,7 +1,7 @@
-import { SolanaAgent } from "./agent";
+import { SolanaAgentKit } from "./agent";
 import { createSolanaTools } from "./langchain";
 
-export { SolanaAgent, createSolanaTools };
+export { SolanaAgentKit, createSolanaTools };
 
 // Optional: Export types that users might need
 export * from "./types";

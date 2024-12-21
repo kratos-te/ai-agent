@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../agent";
+import { SolanaAgentKit } from "../agent";
 import { Transaction, Keypair, TransactionInstruction } from "@solana/web3.js";
 import { Connection, ComputeBudgetProgram } from "@solana/web3.js";
 
@@ -74,7 +74,7 @@ export async function getPriorityFees(connection: Connection): Promise<{
  * @returns Transaction ID
  */
 export async function sendTx(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   tx: Transaction,
   otherKeypairs?: Keypair[],
 ) {

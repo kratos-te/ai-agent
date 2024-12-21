@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { generateSigner, keypairIdentity } from "@metaplex-foundation/umi";
 import { create, mplCore } from "@metaplex-foundation/mpl-core";
 import { fetchCollection } from "@metaplex-foundation/mpl-core";
@@ -20,7 +20,7 @@ import { MintCollectionNFTResponse } from "../types";
  * @returns Object containing NFT mint address and token account
  */
 export async function mintCollectionNFT(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   collectionMint: PublicKey,
   metadata: {
     name: string;

@@ -1,6 +1,6 @@
 import { registerDomainNameV2 } from "@bonfida/spl-name-service";
 import { Transaction } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { TOKENS } from "../constants";
 
@@ -12,7 +12,7 @@ import { TOKENS } from "../constants";
  * @returns Transaction signature
  */
 export async function registerDomain(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   name: string,
   spaceKB: number = 1,
 ): Promise<string> {

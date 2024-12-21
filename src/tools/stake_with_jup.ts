@@ -1,5 +1,5 @@
 import { VersionedTransaction } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 /**
  * Stake SOL with Jup validator
@@ -8,7 +8,7 @@ import { SolanaAgent } from "../index";
  * @returns Transaction signature
  */
 export async function stakeWithJup(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   amount: number,
 ): Promise<string> {
   try {

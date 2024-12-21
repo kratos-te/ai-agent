@@ -78,10 +78,10 @@ npm install solana-agent-kit
 ## Quick Start
 
 ```typescript
-import { SolanaAgent, createSolanaTools } from "solana-agent-kit";
+agent: SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 
 // Initialize with private key and optional RPC URL
-const agent = new SolanaAgent(
+const agent = new SolanaAgentKit(
   "your-wallet-private-key-as-base58",
   "https://api.mainnet-beta.solana.com",
   "your-openai-api-key"

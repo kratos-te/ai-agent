@@ -7,10 +7,10 @@ import { MintLayout } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 export async function raydiumCreateClmm(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   mint1: PublicKey,
   mint2: PublicKey,
   configId: PublicKey,

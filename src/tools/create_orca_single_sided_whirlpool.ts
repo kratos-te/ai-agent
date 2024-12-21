@@ -1,5 +1,5 @@
 import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { BN, Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
 import {
@@ -99,7 +99,7 @@ export const FEE_TIERS = {
  *
  * @example
  * ```typescript
- * import { SolanaAgentKit } from "your-sdk";
+ * agent: SolanaAgentKitKit } from "your-sdk";
  * import { PublicKey } from "@solana/web3.js";
  * import { BN } from "@coral-xyz/anchor";
  * import Decimal from "decimal.js";
@@ -125,7 +125,7 @@ export const FEE_TIERS = {
  * ```
  */
 export async function createOrcaSingleSidedWhirlpool(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   depositTokenAmount: BN,
   depositTokenMint: PublicKey,
   otherTokenMint: PublicKey,

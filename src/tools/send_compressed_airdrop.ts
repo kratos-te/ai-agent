@@ -5,7 +5,7 @@ import {
   PublicKey,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import {
   buildAndSignTx,
   calculateComputeUnitPrice,
@@ -56,7 +56,7 @@ export const getAirdropCostEstimate = (
  * @param shouldLog         Whether to log progress to stdout. Defaults to false.
  */
 export async function sendCompressedAirdrop(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   mintAddress: PublicKey,
   amount: number,
   decimals: number,
@@ -119,7 +119,7 @@ export async function sendCompressedAirdrop(
 }
 
 async function processAll(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   amount: number,
   mint: PublicKey,
   recipients: PublicKey[],

@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { generateSigner, keypairIdentity } from "@metaplex-foundation/umi";
@@ -24,7 +24,7 @@ import {
  * @returns Object containing token mint address and initial account (if supply was minted)
  */
 export async function deploy_token(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   name: string,
   uri: string,
   symbol: string,

@@ -1,5 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 /**
  * Get the balance of SOL or an SPL token for the agent's wallet
@@ -8,7 +8,7 @@ import { SolanaAgent } from "../index";
  * @returns Promise resolving to the balance as a number (in UI units) or null if account doesn't exist
  */
 export async function get_balance(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   token_address?: PublicKey,
 ): Promise<number | null> {
   if (!token_address)

@@ -3,7 +3,7 @@ import {
   PublicKey,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
 
 /**
@@ -16,7 +16,7 @@ import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
  * @returns Transaction signature
  */
 export async function trade(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   outputMint: PublicKey,
   inputAmount: number,
   inputMint: PublicKey = TOKENS.USDC,

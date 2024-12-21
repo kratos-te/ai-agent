@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 import OpenAI from "openai";
 
 /**
@@ -10,7 +10,7 @@ import OpenAI from "openai";
  * @returns Object containing the generated image URLs
  */
 export async function create_image(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   prompt: string,
   size: "256x256" | "512x512" | "1024x1024" = "1024x1024",
   n: number = 1,

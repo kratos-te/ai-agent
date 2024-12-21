@@ -21,19 +21,19 @@ Create a new TypeScript file in the `src/tools/` directory for your tool (e.g., 
 
 ```typescript:src/tools/custom_tool.ts
 import { Tool } from "langchain/tools";
-import { SolanaAgent } from "../agent";
+import { SolanaAgentKit } from "../agent";
 
 export class CustomTool extends Tool {
   name = "custom_tool";
   description = "Description of what the custom tool does.";
 
-  constructor(private solanaAgent: SolanaAgent) {
+  constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
   protected async _call(input: string): Promise<string> {
     try {
-      const result = await this.solanaAgent.customFunction(input);
+      const result = await this.solanaKit.customFunction(input);
       return JSON.stringify({
         status: "success",
         message: "Custom tool executed successfully",
@@ -87,7 +87,7 @@ export function createSolanaTools(agent: SolanaAgentKit) {
 ### 6. Usage Example
 
 ```typescript
-import { SolanaAgent, createSolanaTools } from "solana-agent-kit";
+agent: SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 
 const agent = new SolanaAgent(
   "your-wallet-private-key-as-base58",
@@ -118,19 +118,19 @@ Here's a complete example of implementing a tool to fetch token prices:
 
 ```typescript:src/tools/fetch_token_price.ts
 import { Tool } from "langchain/tools";
-import { SolanaAgent } from "../agent";
+import { SolanaAgentKit } from "../agent";
 
 export class FetchTokenPriceTool extends Tool {
   name = "fetch_token_price";
   description = "Fetches the current price of a specified token.";
 
-  constructor(private solanaAgent: SolanaAgent) {
+  constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
   protected async _call(tokenSymbol: string): Promise<string> {
     try {
-      const price = await this.solanaAgent.getTokenPrice(tokenSymbol);
+      const price = await this.solanaKit.getTokenPrice(tokenSymbol);
       return JSON.stringify({
         status: "success",
         message: `Price fetched successfully for ${tokenSymbol}.`,

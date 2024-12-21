@@ -5,10 +5,10 @@ import {
 } from "@raydium-io/raydium-sdk-v2";
 import { MintLayout, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 export async function openbookCreateMarket(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   baseMint: PublicKey,
   quoteMint: PublicKey,
   lotSize: number = 1,

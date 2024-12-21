@@ -42,12 +42,12 @@ import { BN } from "@coral-xyz/anchor";
  * Main class for interacting with Solana blockchain
  * Provides a unified interface for token operations, NFT management, trading and more
  *
- * @class SolanaAgent
+ * @class SolanaAgentKit
  * @property {Connection} connection - Solana RPC connection
  * @property {Keypair} wallet - Wallet keypair for signing transactions
  * @property {PublicKey} wallet_address - Public key of the wallet
  */
-export class SolanaAgent {
+export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;

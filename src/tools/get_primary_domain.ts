@@ -1,6 +1,6 @@
 import { getPrimaryDomain as _getPrimaryDomain } from "@bonfida/spl-name-service";
 import { PublicKey } from "@solana/web3.js";
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 /**
  * Retrieves the primary .sol domain associated with a given Solana public key.
@@ -15,7 +15,7 @@ import { SolanaAgent } from "../index";
  * @throws Error if the domain is stale or if the domain resolution fails
  */
 export async function getPrimaryDomain(
-  agent: SolanaAgent,
+  agent: SolanaAgentKit,
   account: PublicKey,
 ): Promise<string> {
   try {

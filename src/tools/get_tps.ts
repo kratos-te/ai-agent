@@ -1,4 +1,4 @@
-import { SolanaAgent } from "../index";
+import { SolanaAgentKit } from "../index";
 
 export async function getTPS(agent: SolanaAgentKit): Promise<number> {
   const perfSamples = await agent.connection.getRecentPerformanceSamples();
