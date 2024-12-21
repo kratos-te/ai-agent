@@ -1,18 +1,18 @@
 import { registerDomainNameV2 } from "@bonfida/spl-name-service";
 import { Transaction } from "@solana/web3.js";
-import { SolanaAgentKit } from "../index";
+import { SolanaAgent } from "../index";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { TOKENS } from "../constants";
 
 /**
  * Register a .sol domain name using Bonfida Name Service
- * @param agent SolanaAgentKit instance
+ * @param agent SolanaAgent instance
  * @param name Domain name to register (without .sol)
  * @param spaceKB Space allocation in KB (max 10KB)
  * @returns Transaction signature
  */
 export async function registerDomain(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   name: string,
   spaceKB: number = 1,
 ): Promise<string> {

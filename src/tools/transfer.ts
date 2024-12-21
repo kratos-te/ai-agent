@@ -1,29 +1,25 @@
-import { SolanaAgentKit } from "../index";
-import { 
-  PublicKey, 
-  SystemProgram, 
-  Transaction 
-} from "@solana/web3.js";
+import { SolanaAgent } from "../index";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { 
-  getAssociatedTokenAddress, 
+import {
+  getAssociatedTokenAddress,
   createTransferInstruction,
-  getMint
+  getMint,
 } from "@solana/spl-token";
 
 /**
  * Transfer SOL or SPL tokens to a recipient
- * @param agent SolanaAgentKit instance
+ * @param agent SolanaAgent instance
  * @param to Recipient's public key
  * @param amount Amount to transfer
  * @param mint Optional mint address for SPL tokens
  * @returns Transaction signature
  */
 export async function transfer(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   to: PublicKey,
   amount: number,
-  mint?: PublicKey
+  mint?: PublicKey,
 ): Promise<string> {
   try {
     let tx: string;
@@ -34,19 +30,19 @@ export async function transfer(
         SystemProgram.transfer({
           fromPubkey: agent.wallet_address,
           toPubkey: to,
-          lamports: amount * LAMPORTS_PER_SOL
-        })
+          lamports: amount * LAMPORTS_PER_SOL,
+        }),
       );
 
-      tx = await agent.connection.sendTransaction(
-        transaction,
-        [agent.wallet]
-      );
+      tx = await agent.connection.sendTransaction(transaction, [agent.wallet]);
     } else {
       // Transfer SPL token
-      const fromAta = await getAssociatedTokenAddress(mint, agent.wallet_address);
+      const fromAta = await getAssociatedTokenAddress(
+        mint,
+        agent.wallet_address,
+      );
       const toAta = await getAssociatedTokenAddress(mint, to);
-      
+
       // Get mint info to determine decimals
       const mintInfo = await getMint(agent.connection, mint);
       const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
@@ -56,14 +52,11 @@ export async function transfer(
           fromAta,
           toAta,
           agent.wallet_address,
-          adjustedAmount
-        )
+          adjustedAmount,
+        ),
       );
 
-      tx = await agent.connection.sendTransaction(
-        transaction,
-        [agent.wallet]
-      );
+      tx = await agent.connection.sendTransaction(transaction, [agent.wallet]);
     }
 
     return tx;

@@ -1,18 +1,29 @@
-import { SolanaAgentKit } from "../index";
-import { generateSigner, keypairIdentity, publicKey } from "@metaplex-foundation/umi";
-import { createCollection, mplCore, ruleSet } from "@metaplex-foundation/mpl-core";
+import { SolanaAgent } from "../index";
+import {
+  generateSigner,
+  keypairIdentity,
+  publicKey,
+} from "@metaplex-foundation/umi";
+import {
+  createCollection,
+  mplCore,
+  ruleSet,
+} from "@metaplex-foundation/mpl-core";
 import { CollectionOptions, CollectionDeployment } from "../types";
-import { fromWeb3JsKeypair, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+import {
+  fromWeb3JsKeypair,
+  toWeb3JsPublicKey,
+} from "@metaplex-foundation/umi-web3js-adapters";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 /**
  * Deploy a new NFT collection
- * @param agent SolanaAgentKit instance
+ * @param agent SolanaAgent instance
  * @param options Collection options including name, URI, royalties, and creators
  * @returns Object containing collection address and metadata
  */
 export async function deploy_collection(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   options: CollectionOptions,
 ): Promise<CollectionDeployment> {
   try {
@@ -28,11 +39,11 @@ export async function deploy_collection(
       address: publicKey(creator.address),
       percentage: creator.percentage,
     })) || [
-        {
-          address: publicKey(agent.wallet_address.toString()),
-          percentage: 100,
-        },
-      ];
+      {
+        address: publicKey(agent.wallet_address.toString()),
+        percentage: 100,
+      },
+    ];
 
     // Create collection
     const tx = await createCollection(umi, {

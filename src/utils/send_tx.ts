@@ -1,4 +1,4 @@
-import { SolanaAgentKit } from "../agent";
+import { SolanaAgent } from "../agent";
 import { Transaction, Keypair, TransactionInstruction } from "@solana/web3.js";
 import { Connection, ComputeBudgetProgram } from "@solana/web3.js";
 
@@ -41,7 +41,7 @@ export async function getPriorityFees(connection: Connection): Promise<{
     const median =
       sortedFees.length % 2 === 0
         ? ((sortedFees[mid - 1] ?? 0) + (sortedFees[mid] ?? 0)) / 2
-        : sortedFees[mid] ?? 0;
+        : (sortedFees[mid] ?? 0);
 
     // Helper to create priority fee IX based on chosen strategy
     const createPriorityFeeIx = (fee: number) => {
@@ -69,14 +69,14 @@ export async function getPriorityFees(connection: Connection): Promise<{
 
 /**
  * Send a transaction with priority fees
- * @param agent - SolanaAgentKit instance
+ * @param agent - SolanaAgent instance
  * @param tx - Transaction to send
  * @returns Transaction ID
  */
 export async function sendTx(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   tx: Transaction,
-  otherKeypairs?: Keypair[]
+  otherKeypairs?: Keypair[],
 ) {
   tx.recentBlockhash = (await agent.connection.getLatestBlockhash()).blockhash;
   tx.feePayer = agent.wallet_address;
@@ -90,9 +90,8 @@ export async function sendTx(
   await agent.connection.confirmTransaction({
     signature: txid,
     blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
-    lastValidBlockHeight: (
-      await agent.connection.getLatestBlockhash()
-    ).lastValidBlockHeight,
+    lastValidBlockHeight: (await agent.connection.getLatestBlockhash())
+      .lastValidBlockHeight,
   });
   return txid;
 }

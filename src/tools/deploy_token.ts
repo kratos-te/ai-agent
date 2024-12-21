@@ -1,13 +1,21 @@
-import { SolanaAgentKit } from "../index";
+import { SolanaAgent } from "../index";
 import { PublicKey } from "@solana/web3.js";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { generateSigner, keypairIdentity } from "@metaplex-foundation/umi";
-import { createFungible, mintV1, TokenStandard } from "@metaplex-foundation/mpl-token-metadata";
-import { fromWeb3JsKeypair, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+import {
+  createFungible,
+  mintV1,
+  TokenStandard,
+} from "@metaplex-foundation/mpl-token-metadata";
+import {
+  fromWeb3JsKeypair,
+  fromWeb3JsPublicKey,
+  toWeb3JsPublicKey,
+} from "@metaplex-foundation/umi-web3js-adapters";
 
 /**
  * Deploy a new SPL token
- * @param agent SolanaAgentKit instance
+ * @param agent SolanaAgent instance
  * @param name Name of the token
  * @param uri URI for the token metadata
  * @param symbol Symbol of the token
@@ -16,16 +24,16 @@ import { fromWeb3JsKeypair, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@meta
  * @returns Object containing token mint address and initial account (if supply was minted)
  */
 export async function deploy_token(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   name: string,
   uri: string,
   symbol: string,
   decimals: number = 9,
-  initialSupply?: number
+  initialSupply?: number,
 ): Promise<{ mint: PublicKey }> {
   try {
     // Create UMI instance from agent
-    const umi = createUmi(agent.connection.rpcEndpoint)
+    const umi = createUmi(agent.connection.rpcEndpoint);
     umi.use(keypairIdentity(fromWeb3JsKeypair(agent.wallet)));
 
     // Create new token mint
@@ -51,11 +59,11 @@ export async function deploy_token(
           tokenStandard: TokenStandard.Fungible,
           tokenOwner: fromWeb3JsPublicKey(agent.wallet_address),
           amount: initialSupply,
-        })
+        }),
       );
     }
 
-    builder.sendAndConfirm(umi, { confirm: { commitment: 'finalized' } });
+    builder.sendAndConfirm(umi, { confirm: { commitment: "finalized" } });
 
     return {
       mint: toWeb3JsPublicKey(mint.publicKey),

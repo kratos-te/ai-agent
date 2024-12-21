@@ -26,6 +26,7 @@ import {
   sendCompressedAirdrop,
   createOrcaSingleSidedWhirlpool,
   FEE_TIERS,
+  fetchPrice,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -39,14 +40,14 @@ import { BN } from "@coral-xyz/anchor";
 
 /**
  * Main class for interacting with Solana blockchain
- * Provides a unified interface for token operations, NFT management, and trading
+ * Provides a unified interface for token operations, NFT management, trading and more
  *
- * @class SolanaAgentKit
+ * @class SolanaAgent
  * @property {Connection} connection - Solana RPC connection
  * @property {Keypair} wallet - Wallet keypair for signing transactions
  * @property {PublicKey} wallet_address - Public key of the wallet
  */
-export class SolanaAgentKit {
+export class SolanaAgent {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
@@ -143,6 +144,10 @@ export class SolanaAgentKit {
     ticker: string,
   ): Promise<JupiterTokenData | undefined> {
     return getTokenDataByTicker(ticker);
+  }
+
+  async fetchTokenPrice(mint: string) {
+    return fetchPrice(new PublicKey(mint));
   }
 
   async launchPumpFunToken(

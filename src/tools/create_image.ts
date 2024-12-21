@@ -1,16 +1,16 @@
-import { SolanaAgentKit } from "../index";
+import { SolanaAgent } from "../index";
 import OpenAI from "openai";
 
 /**
  * Generate an image using OpenAI's DALL-E
- * @param agent SolanaAgentKit instance
+ * @param agent SolanaAgent instance
  * @param prompt Text description of the image to generate
  * @param size Image size ('256x256', '512x512', or '1024x1024') (default: '1024x1024')
  * @param n Number of images to generate (default: 1)
  * @returns Object containing the generated image URLs
  */
 export async function create_image(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   prompt: string,
   size: "256x256" | "512x512" | "1024x1024" = "1024x1024",
   n: number = 1,

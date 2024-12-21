@@ -55,7 +55,7 @@ async function uploadMetadata(
 }
 
 async function createTokenTransaction(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   mintKeypair: Keypair,
   metadataResponse: any,
   options?: PumpFunTokenOptions,
@@ -140,7 +140,7 @@ async function signAndSendTransaction(
 
 /**
  * Launch a token on Pump.fun
- * @param agent - SolanaAgentKit instance
+ * @param agent - SolanaAgent instance
  * @param tokenName - Name of the token
  * @param tokenTicker - Ticker of the token
  * @param description - Description of the token
@@ -149,7 +149,7 @@ async function signAndSendTransaction(
  * @returns - Signature of the transaction, mint address and metadata URI, if successful, else error
  */
 export async function launchPumpFunToken(
-  agent: SolanaAgentKit,
+  agent: SolanaAgent,
   tokenName: string,
   tokenTicker: string,
   description: string,
