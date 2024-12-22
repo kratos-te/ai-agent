@@ -1,4 +1,4 @@
-agent: SolanaAgentKit } from "../src";
+import { SolanaAgentKit } from "../src";
 import { createSolanaTools } from "../src/langchain";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
@@ -50,7 +50,7 @@ async function initializeAgent() {
       }
     }
 
-    const solanaAgent = new SolanaAgent(
+    const solanaAgent = new SolanaAgentKit(
       process.env.SOLANA_PRIVATE_KEY!,
       process.env.RPC_URL,
       process.env.OPENAI_API_KEY!,
