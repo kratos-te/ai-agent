@@ -207,6 +207,19 @@ import { PublicKey } from "@solana/web3.js";
 })();
 ```
 
+### Fetch Price Data from Pyth
+
+```typescript
+import { pythFetchPrice } from "solana-agent-kit";
+
+const price = await pythFetchPrice(
+  agent,
+  "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43"
+);
+
+console.log("Price in BTC/USD:", price);
+```
+
 ## API Reference
 
 ### Core Functions
@@ -247,6 +260,10 @@ Stake SOL with Jupiter to earn rewards.
 
 Send an SPL token airdrop to many recipients at low cost via ZK Compression.
 
+#### `pythFetchPrice(agent, priceFeedID)`
+
+Fetch price data from Pyth's Hermes service.
+
 ## Dependencies
 
 The toolkit relies on several key Solana and Metaplex libraries:
@@ -258,6 +275,7 @@ The toolkit relies on several key Solana and Metaplex libraries:
 - @metaplex-foundation/umi
 - @lightprotocol/compressed-token
 - @lightprotocol/stateless.js
+- @pythnetwork/price-service-client
 
 ## Contributing
 
