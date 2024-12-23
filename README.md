@@ -180,6 +180,16 @@ import { PublicKey } from "@solana/web3.js";
 })();
 ```
 
+### Fetch Price Data from Pyth
+
+```typescript
+
+const price = await agent.pythFetchPrice(
+  "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43"
+);
+
+console.log("Price in BTC/USD:", price);
+```
 
 ## Dependencies
 
@@ -192,6 +202,7 @@ The toolkit relies on several key Solana and Metaplex libraries:
 - @metaplex-foundation/umi
 - @lightprotocol/compressed-token
 - @lightprotocol/stateless.js
+- @pythnetwork/price-service-client
 
 ## Contributing
 

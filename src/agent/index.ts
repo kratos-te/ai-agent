@@ -25,8 +25,9 @@ import {
   stakeWithJup,
   sendCompressedAirdrop,
   createOrcaSingleSidedWhirlpool,
-  FEE_TIERS,
   fetchPrice,
+  pythFetchPrice,
+  FEE_TIERS,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -85,7 +86,7 @@ export class SolanaAgentKit {
     return deploy_collection(this, options);
   }
 
-  async getBalance(token_address?: PublicKey): Promise<number | null> {
+  async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
   }
 
@@ -276,5 +277,9 @@ export class SolanaAgentKit {
       lotSize,
       tickSize,
     );
+  }
+
+  async pythFetchPrice(priceFeedID: string): Promise<string> {
+    return pythFetchPrice(priceFeedID);
   }
 }

@@ -10,7 +10,7 @@ import { SolanaAgentKit } from "../index";
 export async function get_balance(
   agent: SolanaAgentKit,
   token_address?: PublicKey,
-): Promise<number | null> {
+): Promise<number> {
   if (!token_address)
     return (
       (await agent.connection.getBalance(agent.wallet_address)) /
@@ -19,5 +19,5 @@ export async function get_balance(
 
   const token_account =
     await agent.connection.getTokenAccountBalance(token_address);
-  return token_account.value.uiAmount;
+  return token_account.value.uiAmount || 0;
 }
