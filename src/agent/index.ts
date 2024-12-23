@@ -84,7 +84,7 @@ export class SolanaAgentKit {
     return deploy_collection(this, options);
   }
 
-  async getBalance(token_address?: PublicKey): Promise<number | null> {
+  async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
   }
 
