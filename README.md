@@ -78,7 +78,7 @@ npm install solana-agent-kit
 ## Quick Start
 
 ```typescript
-agent: SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
+import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 
 // Initialize with private key and optional RPC URL
 const agent = new SolanaAgentKit(
