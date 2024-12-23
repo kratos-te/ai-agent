@@ -343,9 +343,10 @@ export class SolanaRegisterDomainTool extends Tool {
 export class SolanaResolveDomainTool extends Tool {
   name = "solana_resolve_domain";
   description = `Resolve a .sol domain to a Solana PublicKey.
+  For other domains, use the solana_resolve_all_domains tool.
 
   Inputs:
-  domain: string, eg "pumpfun.sol" or "pumpfun"(required)
+  domain: string, eg "pumpfun.sol" (required)
   `;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -980,12 +981,12 @@ export class SolanaOpenbookCreateMarket extends Tool {
   }
 }
 
-export class SolanaResolveDomain extends Tool {
-  name = "solana_resolve_domain";
-  description = `Resolve a Solana domain name to its owner's public key
-    Inputs (input is a json string):
-    domain: string (required) - The domain name to resolve (e.g., "mydomain.sol")
-    `;
+export class SolanaResolveAllDomainsTool extends Tool {
+  name = "solana_resolve_all_domains";
+  description = `Resolve a domain name to a public key.
+
+  Input:
+  domain: string, eg "mydomain.blink" or "mydomain.bonk" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -993,8 +994,8 @@ export class SolanaResolveDomain extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
-      const owner = await this.solanaKit.resolveAllDomains(inputFormat.domain);
+      console.log(input)
+      const owner = await this.solanaKit.resolveAllDomains(input);
 
       return JSON.stringify({
         status: "success",
@@ -1010,12 +1011,13 @@ export class SolanaResolveDomain extends Tool {
     }
   }
 }
+
 export class SolanaGetOwnedDomains extends Tool {
   name = "solana_get_owned_domains";
-  description = `Get all domains owned by a specific wallet address
-    Inputs (input is a json string):
-    owner: string (required) - The public key of the domain owner
-    `;
+  description = `Get all domains owned by a specific wallet address.
+
+  Inputs:
+  owner: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1023,8 +1025,7 @@ export class SolanaGetOwnedDomains extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
-      const ownerPubkey = new PublicKey(inputFormat.owner);
+      const ownerPubkey = new PublicKey(input);
       const domains = await this.solanaKit.getOwnedAllDomains(ownerPubkey);
 
       return JSON.stringify({
@@ -1044,10 +1045,10 @@ export class SolanaGetOwnedDomains extends Tool {
 
 export class SolanaGetOwnedTldDomains extends Tool {
   name = "solana_get_owned_tld_domains";
-  description = `Get all domains owned by the agent's wallet for a specific TLD
-    Inputs (input is a json string):
-    tld: string (required) - The top-level domain to search (e.g., "sol")
-    `;
+  description = `Get all domains owned by the agent's wallet for a specific TLD.
+
+  Inputs:
+  tld: string, eg "sol" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1055,9 +1056,8 @@ export class SolanaGetOwnedTldDomains extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
       const domains = await this.solanaKit.getOwnedDomainsForTLD(
-        inputFormat.tld
+        input
       );
 
       return JSON.stringify({
@@ -1074,17 +1074,16 @@ export class SolanaGetOwnedTldDomains extends Tool {
     }
   }
 }
+
 export class SolanaGetAllTlds extends Tool {
   name = "solana_get_all_tlds";
-  description = `Get all active top-level domains (TLDs) in the Solana name service
-    Inputs (input is a json string): {}
-    No additional parameters required`;
+  description = `Get all active top-level domains (TLDs) in the Solana name service`
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  async _call(): Promise<string> {
     try {
       const tlds = await this.solanaKit.getAllDomainsTLDs();
 
@@ -1102,17 +1101,16 @@ export class SolanaGetAllTlds extends Tool {
     }
   }
 }
+
 export class SolanaGetAllRegisteredDomains extends Tool {
   name = "solana_get_all_registered_domains";
-  description = `Get all registered domains across all TLDs in the Solana name service
-    Inputs (input is a json string): {}
-    No additional parameters required`;
+  description = `Get all registered domains across all TLDs in the Solana name service`
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  async _call(input: string): Promise<string> {
+  async _call(): Promise<string> {
     try {
       const domains = await this.solanaKit.getAllRegisteredAllDomains();
 
@@ -1130,12 +1128,13 @@ export class SolanaGetAllRegisteredDomains extends Tool {
     }
   }
 }
+
 export class SolanaGetMainDomain extends Tool {
   name = "solana_get_main_domain";
-  description = `Get the user's main/favorite domain
-    Inputs (input is a json string):
-    owner: string (required) - The public key of the domain owner
-    `;
+  description = `Get the main/favorite domain for a given wallet address.
+
+  Inputs (input is a JSON string):
+  owner: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1163,6 +1162,7 @@ export class SolanaGetMainDomain extends Tool {
     }
   }
 }
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -1190,7 +1190,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
     new SolanaCreateSingleSidedWhirlpoolTool(solanaKit),
-    new SolanaResolveDomain(solanaKit),
+    new SolanaResolveAllDomainsTool(solanaKit),
     new SolanaGetOwnedDomains(solanaKit),
     new SolanaGetOwnedTldDomains(solanaKit),
     new SolanaGetAllTlds(solanaKit),

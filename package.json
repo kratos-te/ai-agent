@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "docs": "typedoc src --out docs",
-    "test": "ts-node test/**/*.ts",
+    "test": "ts-node test/index.ts",
     "generate": "ts-node src/utils/keypair.ts"
   },
   "engines": {
