@@ -26,6 +26,7 @@ import {
   sendCompressedAirdrop,
   createOrcaSingleSidedWhirlpool,
   FEE_TIERS,
+  pythFetchPrice,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -270,6 +271,10 @@ export class SolanaAgentKit {
 
       lotSize,
       tickSize,
-    );
+    )
+  }
+
+  async pythFetchPrice(priceFeedID: string) {
+    return pythFetchPrice(this, priceFeedID);
   }
 }
