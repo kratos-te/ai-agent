@@ -25,7 +25,8 @@ import {
   stakeWithJup,
   sendCompressedAirdrop,
   createOrcaSingleSidedWhirlpool,
-  FEE_TIERS
+  FEE_TIERS,
+  pythFetchPrice
 } from "../tools";
 import { CollectionOptions, PumpFunTokenOptions } from "../types";
 import { BN } from "@coral-xyz/anchor";
@@ -269,5 +270,9 @@ export class SolanaAgentKit {
       lotSize,
       tickSize,
     )
+  }
+
+  async pythFetchPrice(priceFeedID: string) {
+    return pythFetchPrice(this, priceFeedID);
   }
 }
