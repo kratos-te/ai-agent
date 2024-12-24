@@ -218,20 +218,17 @@ export class SolanaAgentKit {
 
   async getOwnedAllDomains(
     owner: PublicKey
-  ): Promise<NameAccountAndDomain[]> {
+  ): Promise<string[]> {
     return getOwnedAllDomains(this, owner);
   }
 
   async getOwnedDomainsForTLD(
     tld: string
-  ):Promise<NameAccountAndDomain[]> {
+  ):Promise<string[]> {
     return getOwnedDomainsForTLD(this, tld);
   }
 
-  async getAllDomainsTLDs(): Promise<Array<{
-    tld: String;
-    parentAccount: PublicKey;
-}>> {
+  async getAllDomainsTLDs(): Promise<String[]> {
     return getAllDomainsTLDs(this);
   }
 

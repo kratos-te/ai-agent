@@ -11,9 +11,10 @@ import { NameAccountAndDomain, TldParser } from "@onsol/tldparser";
 export async function getOwnedAllDomains(
   agent: SolanaAgentKit,
   owner:PublicKey
-): Promise<NameAccountAndDomain[]> {
+): Promise<string[]> {
   try {
-    return new TldParser(agent.connection).getParsedAllUserDomains(owner);
+    let domains = await new TldParser(agent.connection).getParsedAllUserDomains(owner);
+    return domains.map((domain) => domain.domain)
   } catch (error: any) {
     throw new Error(`Failed to fetch owned domains: ${error.message}`);
   }
