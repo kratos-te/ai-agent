@@ -1,9 +1,10 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "Solana Agent Kit by SendAI"
-version: 1.2.0  
-url: "https://github.com/sendaifun/solana-agent-kit"
+title: "Solana Agent Kit"
+version: 1.2.0
+abstract: "Connect any AI Agents to Solana Protocols"  
 type: software
+url: "https://github.com/sendaifun/solana-agent-kit"
 repository-code: "https://github.com/sendaifun/solana-agent-kit"
 keywords:
   - solana
@@ -12,3 +13,8 @@ keywords:
   - agent
   - toolkit
 license: Apache-2.0
+preferred-citation:
+  type: software
+  title: "Solana Agent Kit"
+  abstract: "Connect any AI Agents to Solana Protocols"
+  year: 2024
