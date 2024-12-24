@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Solana Agent Kit by SendAI"
+version: 1.2.0  
+url: "https://github.com/sendaifun/solana-agent-kit"
+type: software
+repository-code: "https://github.com/sendaifun/solana-agent-kit"
+keywords:
+  - solana
+  - blockchain
+  - web3
+  - agent
+  - toolkit
+license: Apache-2.0
