@@ -1,11 +1,10 @@
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, Transaction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { BN, Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
 import {
   PDAUtil,
   ORCA_WHIRLPOOL_PROGRAM_ID,
-  ORCA_WHIRLPOOLS_CONFIG,
   WhirlpoolContext,
   TickUtil,
   PriceMath,
@@ -110,7 +109,7 @@ export const FEE_TIERS = {
  * const otherTokenMint = new PublicKey("OTHER_TOKEN_ADDRESS");
  * const initialPrice = new Decimal(0.001);
  * const maxPrice = new Decimal(5.0);
- * const feeTier = 0.30;
+ * const feeTier = 0.02;
  * 
  * const txId = await createOrcaSingleSidedWhirlpool(
  *   agent,
@@ -133,6 +132,14 @@ export async function createOrcaSingleSidedWhirlpool(
   maxPrice: Decimal,
   feeTier: keyof typeof FEE_TIERS,
 ): Promise<string> {
+  let whirlpoolsConfigAddress: PublicKey;
+  if (agent.connection.rpcEndpoint.includes('mainnet')) {
+    whirlpoolsConfigAddress = new PublicKey('2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ');
+  } else if (agent.connection.rpcEndpoint.includes('devnet')) {
+    whirlpoolsConfigAddress = new PublicKey('FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR');
+  } else {
+    throw new Error('Unsupported network');
+  }
   const wallet = new Wallet(agent.wallet);
   const ctx = WhirlpoolContext.from(agent.connection, wallet, ORCA_WHIRLPOOL_PROGRAM_ID);
   const fetcher = ctx.fetcher;
@@ -163,7 +170,7 @@ export async function createOrcaSingleSidedWhirlpool(
   };
   const feeTierKey = PDAUtil.getFeeTier(
     ORCA_WHIRLPOOL_PROGRAM_ID,
-    ORCA_WHIRLPOOLS_CONFIG,
+    whirlpoolsConfigAddress,
     tickSpacing,
   ).publicKey;
   const initSqrtPrice = PriceMath.tickIndexToSqrtPriceX64(initialTick);
@@ -171,24 +178,24 @@ export async function createOrcaSingleSidedWhirlpool(
   const tokenVaultBKeypair = Keypair.generate();
   const whirlpoolPda = PDAUtil.getWhirlpool(
     ORCA_WHIRLPOOL_PROGRAM_ID,
-    ORCA_WHIRLPOOLS_CONFIG,
+    whirlpoolsConfigAddress,
     mintA,
     mintB,
     FEE_TIERS[feeTier],
   );
   const tokenBadgeA = PDAUtil.getTokenBadge(
     ORCA_WHIRLPOOL_PROGRAM_ID,
-    ORCA_WHIRLPOOLS_CONFIG,
+    whirlpoolsConfigAddress,
     mintA,
   ).publicKey;
   const tokenBadgeB = PDAUtil.getTokenBadge(
     ORCA_WHIRLPOOL_PROGRAM_ID,
-    ORCA_WHIRLPOOLS_CONFIG,
+    whirlpoolsConfigAddress,
     mintB,
   ).publicKey;
   const baseParamsPool = {
     initSqrtPrice,
-    whirlpoolsConfig: ORCA_WHIRLPOOLS_CONFIG,
+    whirlpoolsConfig: whirlpoolsConfigAddress,
     whirlpoolPda,
     tokenMintA: mintA,
     tokenMintB: mintB,
@@ -301,7 +308,7 @@ export async function createOrcaSingleSidedWhirlpool(
     wallet.publicKey,
     undefined,
     ctx.accountResolverOpts.allowPDAOwnerAddress,
-    ctx.accountResolverOpts.createWrappedSolAccountMethod,
+    "ata",
   );
   const { address: tokenOwnerAccountA, ...tokenOwnerAccountAIx } = ataA;
   const { address: tokenOwnerAccountB, ...tokenOwnerAccountBIx } = ataB;
@@ -378,22 +385,18 @@ export async function createOrcaSingleSidedWhirlpool(
     });
   txBuilder.addInstruction(liquidityIx);
 
-  const txPayload = await txBuilder.build({
-    maxSupportedTransactionVersion: "legacy"
-  });
+  const txPayload = await txBuilder.build();
+  const instructions = TransactionMessage.decompile(
+    (txPayload.transaction as VersionedTransaction).message).instructions
 
-  if (txPayload.transaction instanceof Transaction) {
-    try {
-      const txId = await sendTx(
-        agent,
-        txPayload.transaction,
-        [positionMintKeypair, tokenVaultAKeypair, tokenVaultBKeypair],
-      );
-      return txId;
-    } catch (error) {
-        throw new Error(`Failed to create pool: ${JSON.stringify(error)}`);
-    }
-  } else {
-    throw new Error('Failed to create pool: Transaction not created');
+  try {
+    const txId = await sendTx(
+      agent,
+      instructions,
+      [positionMintKeypair, tokenVaultAKeypair, tokenVaultBKeypair],
+    );
+    return txId;
+  } catch (error) {
+      throw new Error(`Failed to create pool: ${JSON.stringify(error)}`);
   }
 }

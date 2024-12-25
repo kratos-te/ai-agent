@@ -751,15 +751,15 @@ export class SolanaCompressedAirdropTool extends Tool {
 
 export class SolanaCreateSingleSidedWhirlpoolTool extends Tool {
   name = "create_orca_single_sided_whirlpool";
-  description = `Create a single-sided Whirlpool with liquidity.
+  description = `Create a single-sided liquidity pools with liquidity on Orca.
 
   Inputs (input is a JSON string):
-  - depositTokenAmount: number, eg: 1000000000 (required, in units of deposit token including decimals)
-  - depositTokenMint: string, eg: "DepositTokenMintAddress" (required, mint address of deposit token)
-  - otherTokenMint: string, eg: "OtherTokenMintAddress" (required, mint address of other token)
-  - initialPrice: number, eg: 0.001 (required, initial price of deposit token in terms of other token)
-  - maxPrice: number, eg: 5.0 (required, maximum price at which liquidity is added)
-  - feeTier: number, eg: 0.30 (required, fee tier for the pool)`;
+  - depositTokenAmount: number, in units of deposit token including decimals, eg: 1000000000 (required)
+  - depositTokenMint: string, mint address of deposit token, eg: "DepositTokenMintAddress" (required)
+  - otherTokenMint: string, mint address of other token, eg: "OtherTokenMintAddress" (required)
+  - initialPrice: number, initial price of deposit token in terms of other token, eg: 0.001, (required)
+  - maxPrice: number, maximum price at which liquidity is added, eg: 5.0 (required)
+  - feeTier: number, fee tier for the pool in %. Possible values on mainnet are: 0.01, 0.02, 0.04, 0.05, 0.16, 0.30, 0.65, 1.0, 2.0 (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -802,7 +802,6 @@ export class SolanaCreateSingleSidedWhirlpoolTool extends Tool {
     }
   }
 }
-
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
