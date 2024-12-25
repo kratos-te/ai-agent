@@ -46,7 +46,6 @@ import {
   PumpFunTokenOptions,
 } from "../types";
 import { BN } from "@coral-xyz/anchor";
-import { NameAccountAndDomain } from "@onsol/tldparser";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -206,7 +205,7 @@ export class SolanaAgentKit {
     otherTokenMint: PublicKey,
     initialPrice: Decimal,
     maxPrice: Decimal,
-    feeTier: keyof typeof FEE_TIERS
+    feeTier: keyof typeof FEE_TIERS,
   ) {
     return createOrcaSingleSidedWhirlpool(
       this,
@@ -215,7 +214,7 @@ export class SolanaAgentKit {
       otherTokenMint,
       initialPrice,
       maxPrice,
-      feeTier
+      feeTier,
     );
   }
 
@@ -223,18 +222,15 @@ export class SolanaAgentKit {
     return resolveAllDomains(this, domain);
   }
 
-  async getOwnedAllDomains(
-    owner: PublicKey
-  ): Promise<string[]> {
+  async getOwnedAllDomains(owner: PublicKey): Promise<string[]> {
     return getOwnedAllDomains(this, owner);
   }
 
-  async getOwnedDomainsForTLD(
-    tld: string
-  ): Promise<string[]> {
+  async getOwnedDomainsForTLD(tld: string): Promise<string[]> {
     return getOwnedDomainsForTLD(this, tld);
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   async getAllDomainsTLDs(): Promise<String[]> {
     return getAllDomainsTLDs(this);
   }
@@ -251,7 +247,7 @@ export class SolanaAgentKit {
     marketId: PublicKey,
     baseAmount: BN,
     quoteAmount: BN,
-    startTime: BN
+    startTime: BN,
   ): Promise<string> {
     return raydiumCreateAmmV4(
       this,
@@ -260,8 +256,8 @@ export class SolanaAgentKit {
       baseAmount,
       quoteAmount,
 
-      startTime
-    );;
+      startTime,
+    );
   }
 
   async raydiumCreateClmm(
@@ -269,7 +265,7 @@ export class SolanaAgentKit {
     mint2: PublicKey,
     configId: PublicKey,
     initialPrice: Decimal,
-    startTime: BN
+    startTime: BN,
   ): Promise<string> {
     return raydiumCreateClmm(
       this,
@@ -287,7 +283,7 @@ export class SolanaAgentKit {
     configId: PublicKey,
     mintAAmount: BN,
     mintBAmount: BN,
-    startTime: BN
+    startTime: BN,
   ): Promise<string> {
     return raydiumCreateCpmm(
       this,
@@ -297,7 +293,7 @@ export class SolanaAgentKit {
       mintAAmount,
       mintBAmount,
 
-      startTime
+      startTime,
     );
   }
 
@@ -305,7 +301,7 @@ export class SolanaAgentKit {
     baseMint: PublicKey,
     quoteMint: PublicKey,
     lotSize: number = 1,
-    tickSize: number = 0.01
+    tickSize: number = 0.01,
   ): Promise<string[]> {
     return openbookCreateMarket(
       this,

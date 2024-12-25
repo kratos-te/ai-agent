@@ -461,7 +461,7 @@ export class SolanaPumpfunTokenLaunchTool extends Tool {
     try {
       // Parse and normalize input
       input = input.trim();
-      let parsedInput = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
 
       this.validateInput(parsedInput);
 
@@ -543,7 +543,7 @@ export class SolanaLendAssetTool extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let amount = JSON.parse(input).amount || input;
+      const amount = JSON.parse(input).amount || input;
 
       const tx = await this.solanaKit.lendAssets(amount);
 
@@ -779,8 +779,8 @@ export class SolanaCreateSingleSidedWhirlpoolTool extends Tool {
       if (!feeTier || !(feeTier in FEE_TIERS)) {
         throw new Error(
           `Invalid feeTier. Available options: ${Object.keys(FEE_TIERS).join(
-            ", "
-          )}`
+            ", ",
+          )}`,
         );
       }
 
@@ -790,7 +790,7 @@ export class SolanaCreateSingleSidedWhirlpoolTool extends Tool {
         otherTokenMint,
         initialPrice,
         maxPrice,
-        feeTier
+        feeTier,
       );
 
       return JSON.stringify({
@@ -825,13 +825,13 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
 
       const tx = await this.solanaKit.raydiumCreateAmmV4(
         new PublicKey(inputFormat.marketId),
         new BN(inputFormat.baseAmount),
         new BN(inputFormat.quoteAmount),
-        new BN(inputFormat.startTime)
+        new BN(inputFormat.startTime),
       );
 
       return JSON.stringify({
@@ -867,7 +867,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
 
       const tx = await this.solanaKit.raydiumCreateClmm(
         new PublicKey(inputFormat.mint1),
@@ -876,7 +876,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
         new PublicKey(inputFormat.configId),
 
         new Decimal(inputFormat.initialPrice),
-        new BN(inputFormat.startTime)
+        new BN(inputFormat.startTime),
       );
 
       return JSON.stringify({
@@ -913,7 +913,7 @@ export class SolanaRaydiumCreateCpmm extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
 
       const tx = await this.solanaKit.raydiumCreateCpmm(
         new PublicKey(inputFormat.mint1),
@@ -924,7 +924,7 @@ export class SolanaRaydiumCreateCpmm extends Tool {
         new BN(inputFormat.mintAAmount),
         new BN(inputFormat.mintBAmount),
 
-        new BN(inputFormat.startTime)
+        new BN(inputFormat.startTime),
       );
 
       return JSON.stringify({
@@ -959,14 +959,14 @@ export class SolanaOpenbookCreateMarket extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      let inputFormat = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
 
       const tx = await this.solanaKit.openbookCreateMarket(
         new PublicKey(inputFormat.baseMint),
         new PublicKey(inputFormat.quoteMint),
 
         inputFormat.lotSize,
-        inputFormat.tickSize
+        inputFormat.tickSize,
       );
 
       return JSON.stringify({
@@ -998,14 +998,14 @@ export class SolanaPythFetchPrice extends Tool {
   async _call(input: string): Promise<string> {
     try {
       const price = await this.solanaKit.pythFetchPrice(input);
-      let response: PythFetchPriceResponse = {
+      const response: PythFetchPriceResponse = {
         status: "success",
         priceFeedID: input,
         price: price,
       };
       return JSON.stringify(response);
     } catch (error: any) {
-      let response: PythFetchPriceResponse = {
+      const response: PythFetchPriceResponse = {
         status: "error",
         priceFeedID: input,
         message: error.message,
@@ -1033,7 +1033,7 @@ export class SolanaResolveAllDomainsTool extends Tool {
     try {
       const owner = await this.solanaKit.resolveAllDomains(input);
 
-      if(!owner) {
+      if (!owner) {
         return JSON.stringify({
           status: "error",
           message: "Domain not found",
@@ -1055,7 +1055,6 @@ export class SolanaResolveAllDomainsTool extends Tool {
     }
   }
 }
-
 
 export class SolanaGetOwnedDomains extends Tool {
   name = "solana_get_owned_domains";
@@ -1088,7 +1087,6 @@ export class SolanaGetOwnedDomains extends Tool {
   }
 }
 
-
 export class SolanaGetOwnedTldDomains extends Tool {
   name = "solana_get_owned_tld_domains";
   description = `Get all domains owned by the agent's wallet for a specific TLD.
@@ -1119,7 +1117,6 @@ export class SolanaGetOwnedTldDomains extends Tool {
   }
 }
 
-
 export class SolanaGetAllTlds extends Tool {
   name = "solana_get_all_tlds";
   description = `Get all active top-level domains (TLDs) in the AllDomains Name Service`;
@@ -1147,7 +1144,6 @@ export class SolanaGetAllTlds extends Tool {
   }
 }
 
-
 export class SolanaGetMainDomain extends Tool {
   name = "solana_get_main_domain";
   description = `Get the main/favorite domain for a given wallet address.
@@ -1162,9 +1158,8 @@ export class SolanaGetMainDomain extends Tool {
   async _call(input: string): Promise<string> {
     try {
       const ownerPubkey = new PublicKey(input.trim());
-      const mainDomain = await this.solanaKit.getMainAllDomainsDomain(
-        ownerPubkey
-      );
+      const mainDomain =
+        await this.solanaKit.getMainAllDomainsDomain(ownerPubkey);
 
       return JSON.stringify({
         status: "success",

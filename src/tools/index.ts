@@ -23,7 +23,6 @@ export * from "./get_main_all_domains_domain";
 export * from "./get_owned_all_domains";
 export * from "./resolve_domain";
 
-
 export * from "./get_all_domains_tlds";
 export * from "./get_all_registered_all_domains";
 export * from "./get_owned_domains_for_tld";

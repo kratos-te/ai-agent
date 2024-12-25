@@ -86,7 +86,7 @@ export async function sendTx(
   }
 
   tx.sign(agent.wallet, ...(otherKeypairs ?? []));
-  let txid = await agent.connection.sendRawTransaction(tx.serialize());
+  const txid = await agent.connection.sendRawTransaction(tx.serialize());
   await agent.connection.confirmTransaction({
     signature: txid,
     blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
