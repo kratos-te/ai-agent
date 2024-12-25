@@ -70,8 +70,6 @@ export async function sendTx(
   instructions: TransactionInstruction[],
   otherKeypairs?: Keypair[]
 ) {
-  console.log(instructions)
-
   const ixComputeBudget = await getComputeBudgetInstructions(agent, instructions, "mid");
   const allInstructions = [
     ixComputeBudget.computeBudgetLimitInstruction,
