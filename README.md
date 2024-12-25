@@ -37,17 +37,21 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Jupiter Exchange swaps
   - Launch on Pump via PumpPortal
   - Raydium pool creation (CPMM, CLMM, AMMv4)
-  - Orca whirlpool integration
+  - Orca Whirlpool integration
   - Meteora Dynamic AMM, DLMM Pool, and Alpga Vault
   - Openbook market creation
   - Register and Resolve SNS
   - Jito Bundles
+  - Pyth Price feeds for fetching Asset Prices
+  - Register/resolve Alldomains
 
 - **Solana Blinks**
-   - Lending by Lulo
+   - Lending by Lulon (Best APR for USDC)
    - Send Arcade Games
    - JupSOL staking
 
+- **Non-Financial Actions**
+  - Gib Work for registering bounties
 
 ## 🤖 AI Integration Features
 
