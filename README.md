@@ -1,3 +1,5 @@
+![NPM Downloads](https://img.shields.io/npm/dw/solana-agent-kit?style=for-the-badge)
+
 <div align="center">
 
 # Solana Agent Kit
