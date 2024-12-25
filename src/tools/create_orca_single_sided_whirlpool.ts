@@ -157,8 +157,9 @@ export async function createOrcaSingleSidedWhirlpool(
   }
   const mintAAccount = await fetcher.getMintInfo(mintA);
   const mintBAccount = await fetcher.getMintInfo(mintB);
-  if (mintAAccount === null || mintBAccount === null)
+  if (mintAAccount === null || mintBAccount === null) {
     throw Error("Mint account not found");
+  }
   const tickSpacing = FEE_TIERS[feeTier];
   const tickIndex = PriceMath.priceToTickIndex(
     initialPrice,
@@ -273,8 +274,9 @@ export async function createOrcaSingleSidedWhirlpool(
   if (
     !TickUtil.checkTickInBounds(tickLowerInitializableIndex) ||
     !TickUtil.checkTickInBounds(tickUpperInitializableIndex)
-  )
+  ) {
     throw Error("Prices out of bounds");
+  }
   const increasLiquidityQuoteParam: IncreaseLiquidityQuoteParam = {
     inputTokenAmount: new BN(depositTokenAmount),
     inputTokenMint: depositTokenMint,
