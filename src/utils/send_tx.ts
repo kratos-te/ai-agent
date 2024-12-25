@@ -1,10 +1,10 @@
 import { SolanaAgentKit } from "../agent";
 import { Keypair, TransactionInstruction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
-import { Connection, ComputeBudgetProgram,  } from "@solana/web3.js";
+import { ComputeBudgetProgram,  } from "@solana/web3.js";
 
 
 const feeTiers = {
-  min: 1,
+  min: 0.01,
   mid: 0.5,
   max: 0.95
 }
