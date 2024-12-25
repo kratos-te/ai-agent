@@ -324,7 +324,7 @@ export class SolanaAgentKit {
     tags: string[],
     tokenMintAddress: string,
     tokenAmount: number,
-    payer?: string
+    payer?: string,
   ): Promise<GibworkCreateTaskReponse> {
     return create_gibwork_task(
       this,
@@ -334,7 +334,7 @@ export class SolanaAgentKit {
       tags,
       new PublicKey(tokenMintAddress),
       tokenAmount,
-      payer ? new PublicKey(payer) : undefined
+      payer ? new PublicKey(payer) : undefined,
     );
   }
 }
