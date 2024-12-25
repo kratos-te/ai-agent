@@ -27,11 +27,11 @@ export async function pythFetchPrice(priceFeedID: string): Promise<string> {
     }
 
     // get price and exponent from price feed
-    let price = new BN(currentPrice[0].getPriceUnchecked().price);
-    let exponent = new BN(currentPrice[0].getPriceUnchecked().expo);
+    const price = new BN(currentPrice[0].getPriceUnchecked().price);
+    const exponent = new BN(currentPrice[0].getPriceUnchecked().expo);
 
     // convert to scaled price
-    let scaledPrice = price.div(new BN(10).pow(exponent));
+    const scaledPrice = price.div(new BN(10).pow(exponent));
 
     return scaledPrice.toString();
   } catch (error: any) {

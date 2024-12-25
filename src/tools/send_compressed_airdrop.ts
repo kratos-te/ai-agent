@@ -18,7 +18,7 @@ import {
   CompressedTokenProgram,
   createTokenPool,
 } from "@lightprotocol/compressed-token";
-import { Account, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
 // arbitrary
 const MAX_AIRDROP_RECIPIENTS = 1000;
@@ -80,9 +80,8 @@ export async function sendCompressedAirdrop(
     );
   }
 
-  let sourceTokenAccount: Account;
   try {
-    sourceTokenAccount = await getOrCreateAssociatedTokenAccount(
+    await getOrCreateAssociatedTokenAccount(
       agent.connection,
       agent.wallet,
       mintAddress,
