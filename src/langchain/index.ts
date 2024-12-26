@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
-import { Tool } from "langchain/tools";
+import { Tool } from "@langchain/core/tools";
 import {
   GibworkCreateTaskReponse,
   PythFetchPriceResponse,
@@ -10,282 +10,203 @@ import { create_image } from "../tools/create_image";
 import { BN } from "@coral-xyz/anchor";
 import { FEE_TIERS } from "../tools";
 import { toJSON } from "../utils/toJSON";
+import { wrapLangChainTool } from "../utils/langchainWrapper";
+import deployTokenAction from "../actions/deployToken";
+import balanceAction from "../actions/balance";
+import transferAction from "../actions/transfer";
+import deployCollectionAction from "../actions/deployCollection";
+import mintNFTAction from "../actions/mintNFT";
+import tradeAction from "../actions/trade";
+import requestFundsAction from "../actions/requestFunds";
 
 export class SolanaBalanceTool extends Tool {
-  name = "solana_balance";
-  description = `Get the balance of a Solana wallet or token account.
-
-  If you want to get the balance of your wallet, you don't need to provide the tokenAddress.
-  If no tokenAddress is provided, the balance will be in SOL.
-
-  Inputs:
-  tokenAddress: string, eg "So11111111111111111111111111111111111111112" (optional)`;
+  private action = balanceAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
-      const tokenAddress = input ? new PublicKey(input) : undefined;
-      const balance = await this.solanaKit.getBalance(tokenAddress);
-
-      return JSON.stringify({
-        status: "success",
-        balance: balance,
-        token: input || "SOL",
-      });
+      // Parse input as JSON if provided, otherwise use empty object
+      const parsedInput = input ? JSON.parse(input) : {};
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaTransferTool extends Tool {
-  name = "solana_transfer";
-  description = `Transfer tokens or SOL to another address ( also called as wallet address ).
-
-  Inputs ( input is a JSON string ):
-  to: string, eg "8x2dR8Mpzuz2YqyZyZjUbYWKSWesBo5jMx2Q9Y86udVk" (required)
-  amount: number, eg 1 (required)
-  mint?: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
+  private action = transferAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
+      // Parse input as JSON
       const parsedInput = JSON.parse(input);
-
-      const recipient = new PublicKey(parsedInput.to);
-      const mintAddress = parsedInput.mint
-        ? new PublicKey(parsedInput.mint)
-        : undefined;
-
-      const tx = await this.solanaKit.transfer(
-        recipient,
-        parsedInput.amount,
-        mintAddress,
-      );
-
-      return JSON.stringify({
-        status: "success",
-        message: "Transfer completed successfully",
-        amount: parsedInput.amount,
-        recipient: parsedInput.to,
-        token: parsedInput.mint || "SOL",
-        transaction: tx,
-      });
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaDeployTokenTool extends Tool {
-  name = "solana_deploy_token";
-  description = `Deploy a new token on Solana blockchain.
-
-  Inputs (input is a JSON string):
-  name: string, eg "My Token" (required)
-  uri: string, eg "https://example.com/token.json" (required)
-  symbol: string, eg "MTK" (required)
-  decimals?: number, eg 9 (optional, defaults to 9)
-  initialSupply?: number, eg 1000000 (optional)`;
+  private action = deployTokenAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
+      // Parse input as JSON
       const parsedInput = JSON.parse(input);
-
-      const result = await this.solanaKit.deployToken(
-        parsedInput.name,
-        parsedInput.uri,
-        parsedInput.symbol,
-        parsedInput.decimals,
-        parsedInput.initialSupply,
-      );
-
-      return JSON.stringify({
-        status: "success",
-        message: "Token deployed successfully",
-        mintAddress: result.mint.toString(),
-        decimals: parsedInput.decimals || 9,
-      });
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaDeployCollectionTool extends Tool {
-  name = "solana_deploy_collection";
-  description = `Deploy a new NFT collection on Solana blockchain.
-
-  Inputs (input is a JSON string):
-  name: string, eg "My Collection" (required)
-  uri: string, eg "https://example.com/collection.json" (required)
-  royaltyBasisPoints?: number, eg 500 for 5% (optional)`;
+  private action = deployCollectionAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
+      // Parse input as JSON
       const parsedInput = JSON.parse(input);
-
-      const result = await this.solanaKit.deployCollection(parsedInput);
-
-      return JSON.stringify({
-        status: "success",
-        message: "Collection deployed successfully",
-        collectionAddress: result.collectionAddress.toString(),
-        name: parsedInput.name,
-      });
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaMintNFTTool extends Tool {
-  name = "solana_mint_nft";
-  description = `Mint a new NFT in a collection on Solana blockchain.
-
-    Inputs (input is a JSON string):
-    collectionMint: string, eg "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w" (required) - The address of the collection to mint into
-    name: string, eg "My NFT" (required)
-    uri: string, eg "https://example.com/nft.json" (required)
-    recipient?: string, eg "9aUn5swQzUTRanaaTwmszxiv89cvFwUCjEBv1vZCoT1u" (optional) - The wallet to receive the NFT, defaults to agent's wallet which is ${this.solanaKit.wallet_address.toString()}`;
+  private action = mintNFTAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
+      // Parse input as JSON
       const parsedInput = JSON.parse(input);
-
-      const result = await this.solanaKit.mintNFT(
-        new PublicKey(parsedInput.collectionMint),
-        {
-          name: parsedInput.name,
-          uri: parsedInput.uri,
-        },
-        parsedInput.recipient
-          ? new PublicKey(parsedInput.recipient)
-          : this.solanaKit.wallet_address,
-      );
-
-      return JSON.stringify({
-        status: "success",
-        message: "NFT minted successfully",
-        mintAddress: result.mint.toString(),
-        metadata: {
-          name: parsedInput.name,
-          symbol: parsedInput.symbol,
-          uri: parsedInput.uri,
-        },
-        recipient: parsedInput.recipient || result.mint.toString(),
-      });
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaTradeTool extends Tool {
-  name = "solana_trade";
-  description = `This tool can be used to swap tokens to another token ( It uses Jupiter Exchange ).
-
-  Inputs ( input is a JSON string ):
-  outputMint: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (required)
-  inputAmount: number, eg 1 or 0.01 (required)
-  inputMint?: string, eg "So11111111111111111111111111111111111111112" (optional)
-  slippageBps?: number, eg 100 (optional)`;
+  private action = tradeAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(input: string): Promise<string> {
+  async _call(input: string): Promise<string> {
     try {
+      // Parse input as JSON
       const parsedInput = JSON.parse(input);
-
-      const tx = await this.solanaKit.trade(
-        new PublicKey(parsedInput.outputMint),
-        parsedInput.inputAmount,
-        parsedInput.inputMint
-          ? new PublicKey(parsedInput.inputMint)
-          : new PublicKey("So11111111111111111111111111111111111111112"),
-        parsedInput.slippageBps,
-      );
-
-      return JSON.stringify({
-        status: "success",
-        message: "Trade executed successfully",
-        transaction: tx,
-        inputAmount: parsedInput.inputAmount,
-        inputToken: parsedInput.inputMint || "SOL",
-        outputToken: parsedInput.outputMint,
-      });
+      
+      // Validate and execute using the action
+      const result = await this.action.handler(this.solanaKit, parsedInput);
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
 }
 
 export class SolanaRequestFundsTool extends Tool {
-  name = "solana_request_funds";
-  description = "Request SOL from Solana faucet (devnet/testnet only)";
+  private action = requestFundsAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
   }
 
-  protected async _call(_input: string): Promise<string> {
+  async _call(_input: string): Promise<string> {
     try {
-      await this.solanaKit.requestFaucetFunds();
-
-      return JSON.stringify({
-        status: "success",
-        message: "Successfully requested faucet funds",
-        network: this.solanaKit.connection.rpcEndpoint.split("/")[2],
-      });
+      // No input needed for this action
+      const result = await this.action.handler(this.solanaKit, {});
+      
+      return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
@@ -1230,7 +1151,7 @@ export class SolanaCreateGibworkTask extends Tool {
 }
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
-  return [
+  const tools = [
     new SolanaBalanceTool(solanaKit),
     new SolanaTransferTool(solanaKit),
     new SolanaDeployTokenTool(solanaKit),
@@ -1264,4 +1185,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaResolveAllDomainsTool(solanaKit),
     new SolanaCreateGibworkTask(solanaKit),
   ];
+
+  // Convert LangChain tools to our Action interface
+  return tools.map(tool => wrapLangChainTool(tool, solanaKit));
 }
