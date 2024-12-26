@@ -68,6 +68,11 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Memory management for persistent interactions
   - Streaming responses for real-time feedback
 
+- **Vercel AI SDK Integration**
+  - Vercel AI SDK for AI agent integration
+  - Framework agnostic support
+  - Quick and easy toolkit setup
+
 - **Autonomous Modes**
   - Interactive chat mode for guided operations
   - Autonomous mode for independent agent actions
@@ -202,6 +207,38 @@ const price = await agent.pythFetchPrice(
 console.log("Price in BTC/USD:", price);
 ```
 
+### Add to your Vercel AI Agent
+
+```typescript
+import {createVercelAITools, SolanaAgentKit} from 'solana-agent-sdk'
+import {createOpenAI} from '@ai-sdk/openai'
+import {streamText} from 'ai'
+
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY!
+})
+
+const solanaAgent = new SolanaAgentKit(
+  process.env.SOLANA_PRIVATE_KEY!,
+  process.env.RPC_URL,
+  process.env.OPENAI_API_KEY!,
+);
+
+const tools = createVercelAITools(solanaAgent)
+
+const response = streamText({
+  tools,
+  model: openai("gpt-4o-mini"),
+  prompt: "What's my SOL balance",
+  maxSteps: 10
+})
+
+for await (const textPart of response.textStream) {
+  process.stdout.write(textPart);
+}
+console.log();
+```
+
 ## Dependencies
 
 The toolkit relies on several key Solana and Metaplex libraries:
@@ -227,4 +264,3 @@ Apache-2 License
 ## Security
 
 This toolkit handles private keys and transactions. Always ensure you're using it in a secure environment and never share your private keys.
-
