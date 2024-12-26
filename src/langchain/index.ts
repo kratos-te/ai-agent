@@ -1231,12 +1231,13 @@ export class SolanaCreateGibworkTask extends Tool {
 
 export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
-  description = `Create a TipLink for transferring SOL.
+  description = `Create a TipLink for transferring SOL or SPL tokens.
 
-  Provide the amount of SOL you want to transfer. The tool will generate a TipLink URL for the recipient to claim the funds.
-
-  Inputs:
-  amountSol: number, e.g., 1 (Amount of SOL to transfer)`;
+  Input should be a JSON string with the following format:
+  {
+    "amountSol": string,     // Amount to transfer as string (e.g., "1")
+    "splmintAddress": string // (Optional) SPL token mint address
+  }`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1244,25 +1245,49 @@ export class SolanaTipLinkTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const amountSol : number = parseFloat(input);
-
-      if (isNaN(amountSol) || amountSol <= 0) {
-        throw new Error("Invalid amount. Please provide a valid amount of SOL.");
+      let parsedInput: { amountSol: string; splmintAddress?: string };
+      try {
+        parsedInput = JSON.parse(input);
+      } catch (e) {
+        throw new Error("Invalid input format. Please provide a valid JSON string.");
+      }
+      const amount = parseFloat(parsedInput.amountSol);
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error("Invalid amount. Please provide a valid positive number as a string.");
       }
 
-      const { url, signature } = await this.solanaKit.createTiplink(amountSol);
+      // Handle optional SPL mint address
+      let splmintPublicKey: PublicKey | undefined;
+      if (parsedInput.splmintAddress) {
+        try {
+          splmintPublicKey = new PublicKey(parsedInput.splmintAddress);
+        } catch (e) {
+          throw new Error("Invalid SPL mint address. Please provide a valid Solana public key.");
+        }
+      }
 
+      // Create TipLink using the imported create_TipLink function
+      const { url, signature } = await this.solanaKit.createTiplink(
+        amount,
+        splmintPublicKey
+      );
+
+      // Return success response
       return JSON.stringify({
         status: "success",
         url,
         signature,
-        message: "TipLink created successfully.",
+        tokenType: splmintPublicKey ? "SPL" : "SOL",
+        amount,
+        message: `TipLink created successfully for ${amount} ${splmintPublicKey ? "tokens" : "SOL"}.`
       });
+
     } catch (error: any) {
+      // Return error response
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
+        code: error.code || "UNKNOWN_ERROR"
       });
     }
   }
