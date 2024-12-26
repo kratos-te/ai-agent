@@ -1232,12 +1232,10 @@ export class SolanaCreateGibworkTask extends Tool {
 export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
   description = `Create a TipLink for transferring SOL or SPL tokens.
-
-  Input format: Provide the amount of SOL as a number, and optionally an SPL mint address separated by a space.
-  Examples:
-    - "1" (for 1 SOL)
-    - "0.5" (for 0.5 SOL)
-    - "1 TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" (for SPL token transfer)`;
+  
+  Inputs (input is a string):
+  amount: number, eg 1 (required)
+  mint?: string, eg "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
