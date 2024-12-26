@@ -35,6 +35,7 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  create_TipLink,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -336,5 +337,8 @@ export class SolanaAgentKit {
       tokenAmount,
       payer ? new PublicKey(payer) : undefined,
     );
+  }
+  async createTiplink(amount: number , splmintAddress?:PublicKey){
+    return create_TipLink(this,amount,splmintAddress)
   }
 }
