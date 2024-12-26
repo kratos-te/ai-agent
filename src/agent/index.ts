@@ -35,6 +35,7 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  rock_paper_scissor,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -336,5 +337,9 @@ export class SolanaAgentKit {
       tokenAmount,
       payer ? new PublicKey(payer) : undefined,
     );
+  }
+
+  async rockPaperScissors(amount: number, choice: "rock" | "paper" | "scissors") {
+    return rock_paper_scissor(this, amount, choice);
   }
 }
