@@ -1233,11 +1233,11 @@ export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
   description = `Create a TipLink for transferring SOL or SPL tokens.
 
-  Input should be a JSON string with the following format:
-  {
-    "amountSol": string,     // Amount to transfer as string (e.g., "1")
-    "splmintAddress": string // (Optional) SPL token mint address
-  }`;
+  Input format: Provide the amount of SOL as a number, and optionally an SPL mint address separated by a space.
+  Examples:
+    - "1" (for 1 SOL)
+    - "0.5" (for 0.5 SOL)
+    - "1 TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" (for SPL token transfer)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1245,22 +1245,19 @@ export class SolanaTipLinkTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      let parsedInput: { amountSol: string; splmintAddress?: string };
-      try {
-        parsedInput = JSON.parse(input);
-      } catch (e) {
-        throw new Error("Invalid input format. Please provide a valid JSON string.");
-      }
-      const amount = parseFloat(parsedInput.amountSol);
+      const parts = input.trim().split(/\s+/);
+      
+      // Parse amount from the first part
+      const amount = parseFloat(parts[0]);
       if (isNaN(amount) || amount <= 0) {
-        throw new Error("Invalid amount. Please provide a valid positive number as a string.");
+        throw new Error("Invalid amount. Please provide a valid positive number.");
       }
 
-      // Handle optional SPL mint address
+      // Check for optional SPL mint address in the second part
       let splmintPublicKey: PublicKey | undefined;
-      if (parsedInput.splmintAddress) {
+      if (parts.length > 1) {
         try {
-          splmintPublicKey = new PublicKey(parsedInput.splmintAddress);
+          splmintPublicKey = new PublicKey(parts[1]);
         } catch (e) {
           throw new Error("Invalid SPL mint address. Please provide a valid Solana public key.");
         }
