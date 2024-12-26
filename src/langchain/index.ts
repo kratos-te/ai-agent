@@ -1229,6 +1229,7 @@ export class SolanaCreateGibworkTask extends Tool {
   }
 }
 
+
 export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
   description = `Create a TipLink for transferring SOL or SPL tokens.
@@ -1243,19 +1244,25 @@ export class SolanaTipLinkTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parts = input.trim().split(/\s+/);
-      
-      // Parse amount from the first part
-      const amount = parseFloat(parts[0]);
+      // Parse the input JSON string
+      let parsedInput: { amountSol: string; splmintAddress?: string };
+      try {
+        parsedInput = JSON.parse(input);
+      } catch (e) {
+        throw new Error("Invalid input format. Please provide a valid JSON string.");
+      }
+
+      // Validate amount
+      const amount = parseFloat(parsedInput.amountSol);
       if (isNaN(amount) || amount <= 0) {
         throw new Error("Invalid amount. Please provide a valid positive number.");
       }
 
-      // Check for optional SPL mint address in the second part
+      // Handle optional SPL mint address
       let splmintPublicKey: PublicKey | undefined;
-      if (parts.length > 1) {
+      if (parsedInput.splmintAddress) {
         try {
-          splmintPublicKey = new PublicKey(parts[1]);
+          splmintPublicKey = new PublicKey(parsedInput.splmintAddress);
         } catch (e) {
           throw new Error("Invalid SPL mint address. Please provide a valid Solana public key.");
         }
