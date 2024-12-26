@@ -1229,14 +1229,12 @@ export class SolanaCreateGibworkTask extends Tool {
   }
 }
 
-
 export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
   description = `Create a TipLink for transferring SOL or SPL tokens.
-  
-  Inputs (input is a string):
-  amount: number, eg 1 (required)
-  mint?: string, eg "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" (optional)`;
+  Input is a JSON string with:
+  - amount: number (required) - Amount to transfer
+  - splmintAddress: string (optional) - SPL token mint address`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1244,48 +1242,30 @@ export class SolanaTipLinkTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      // Parse the input JSON string
-      let parsedInput: { amountSol: string; splmintAddress?: string };
-      try {
-        parsedInput = JSON.parse(input);
-      } catch (e) {
-        throw new Error("Invalid input format. Please provide a valid JSON string.");
+      const parsedInput = JSON.parse(input);
+
+      if (!parsedInput.amount) {
+        throw new Error("Amount is required");
       }
 
-      // Validate amount
-      const amount = parseFloat(parsedInput.amountSol);
-      if (isNaN(amount) || amount <= 0) {
-        throw new Error("Invalid amount. Please provide a valid positive number.");
-      }
+      const amount = parseFloat(parsedInput.amount);
+      const splmintAddress = parsedInput.splmintAddress ? new PublicKey(parsedInput.splmintAddress) : undefined;
 
-      // Handle optional SPL mint address
-      let splmintPublicKey: PublicKey | undefined;
-      if (parsedInput.splmintAddress) {
-        try {
-          splmintPublicKey = new PublicKey(parsedInput.splmintAddress);
-        } catch (e) {
-          throw new Error("Invalid SPL mint address. Please provide a valid Solana public key.");
-        }
-      }
-
-      // Create TipLink using the imported create_TipLink function
       const { url, signature } = await this.solanaKit.createTiplink(
         amount,
-        splmintPublicKey
+        splmintAddress
       );
 
-      // Return success response
       return JSON.stringify({
         status: "success",
         url,
         signature,
-        tokenType: splmintPublicKey ? "SPL" : "SOL",
         amount,
-        message: `TipLink created successfully for ${amount} ${splmintPublicKey ? "tokens" : "SOL"}.`
+        tokenType: splmintAddress ? "SPL" : "SOL",
+        message: `TipLink created successfully`
       });
 
     } catch (error: any) {
-      // Return error response
       return JSON.stringify({
         status: "error",
         message: error.message,
