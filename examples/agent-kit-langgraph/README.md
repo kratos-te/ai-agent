@@ -6,7 +6,7 @@ This example demonstrates how to build an advanced Solana agent using LangGraph 
 
 - Multi-agent architecture using LangGraph's StateGraph
 - Specialized agents for different tasks:
-  - General purpose agent for basic queries
+  - General purpose agent for basic queries (with optional Tavily search integration)
   - Transfer/Swap agent for transaction operations
   - Read agent for blockchain data queries
   - Manager agent for routing and orchestration
@@ -38,6 +38,7 @@ cp .env.example .env
 
 Edit the `.env` file with your configuration:
 - Add your OpenAI API key
+- Add your Tavily API key (optional, enables web search capabilities)
 - Configure any other required environment variables
 
 ## Project Structure
@@ -69,6 +70,7 @@ The example demonstrates a workflow where:
 ## Dependencies
 
 - `@langchain/community`: LangChain community tools and utilities
+  - Includes Tavily search integration for enhanced query responses
 - `@langchain/core`: Core LangChain functionality
 - `@langchain/langgraph`: Graph-based agent workflows
 - `solana-agent-kit`: Solana Agent Kit for blockchain interactions
