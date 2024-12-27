@@ -23,9 +23,9 @@
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.7",
     "@coral-xyz/anchor": "0.29",
-    "@langchain/core": "^0.3.18",
+    "@langchain/core": "^0.3.26",
     "@langchain/groq": "^0.1.2",
-    "@langchain/langgraph": "^0.2.27",
+    "@langchain/langgraph": "^0.2.34",
     "@langchain/openai": "^0.3.13",
     "@lightprotocol/compressed-token": "^0.17.1",
     "@lightprotocol/stateless.js": "^0.17.1",
