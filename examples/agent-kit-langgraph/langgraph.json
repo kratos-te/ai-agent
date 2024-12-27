@@ -1,7 +1,9 @@
 {
+    "node_version": "20",
+    "dockerfile_lines": [],
+    "dependencies": ["."],
   "graphs": {
-    "solana-agent": "./index.ts:graph"
+    "solanaAgent": "./src/index.ts:graph"
   },
-  "env": ".env",
-  "node_version": "20"
-}
+    "env": ".env"
+  }

@@ -8,6 +8,8 @@ export const managerRouter = (state: typeof solanaAgentState.State) => {
     return "generalist";
   } else if (isSolanaWriteQuery) {
     return "transferSwap";
+  } else if (isSolanaReadQuery) {
+    return "read";
   } else {
     return END;
   }
