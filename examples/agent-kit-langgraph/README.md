@@ -2,6 +2,8 @@
 
 This example demonstrates how to build an advanced Solana agent using LangGraph and the Solana Agent Kit. It showcases a multi-agent system that can handle various Solana-related tasks through a directed workflow.
 
+![Solana Agent Kit LangGraph Architecture](./assets/architecture.png)
+
 ## Features
 
 - Multi-agent architecture using LangGraph's StateGraph
