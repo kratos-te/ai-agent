@@ -9,7 +9,7 @@ import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 dotenv.config();
 
 const checkpointer = PostgresSaver.fromConnString(
-    "postgresql://user:password@localhost:5432/db"
+    process.env.POSTGRES_DB_URL!
 );
 
 function validateEnvironment(): void {
