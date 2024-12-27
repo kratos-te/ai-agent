@@ -104,6 +104,10 @@ if (customTool) {
   const result = await customTool._call("your-input");
   console.log(result);
 }
+
+// or alternatively
+const result = await agent.customFunction("your-input"); // assuming you have a `customFunction` method in SolanaAgentKit
+console.log(result);
 ```
 
 ## Best Practices
@@ -168,6 +172,21 @@ export class SolanaAgentKit {
     return mockPrices[tokenSymbol.toUpperCase()];
   }
 }
+```
+
+Then it can be used as such:
+
+```typescript
+import { SolanaAgentKit } from "solana-agent-kit";
+
+const agent = new SolanaAgentKit(
+  "your-wallet-private-key-as-base58",
+  "https://api.mainnet-beta.solana.com",
+  "your-openai-api-key"
+);
+
+const result = await agent.getTokenPrice("SOL");
+console.log(result);
 ```
 
 ## Need Help?
