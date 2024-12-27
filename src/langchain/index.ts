@@ -32,8 +32,51 @@ export class SolanaBalanceTool extends Tool {
 
       return JSON.stringify({
         status: "success",
-        balance: balance,
+        balance,
         token: input || "SOL",
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaBalanceOtherTool extends Tool {
+  name = "solana_balance_other";
+  description = `Get the balance of a Solana wallet or token account different from the agent's wallet.
+
+  If no tokenAddress is provided, the SOL balance of the wallet will be returned.
+
+  Inputs:
+  walletAddress: string, eg "GDEkQF7UMr7RLv1KQKMtm8E2w3iafxJLtyXu3HVQZnME" (required)
+  tokenAddress: string, eg "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const { walletAddress, tokenAddress } = JSON.parse(input);
+
+      const tokenPubKey = tokenAddress
+        ? new PublicKey(tokenAddress)
+        : undefined;
+
+      const balance = await this.solanaKit.getBalanceOther(
+        new PublicKey(walletAddress),
+        tokenPubKey,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        balance,
+        wallet: walletAddress,
+        token: tokenAddress || "SOL",
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -555,7 +598,7 @@ export class SolanaLendAssetTool extends Tool {
         status: "success",
         message: "Asset lent successfully",
         transaction: tx,
-        amount: amount,
+        amount,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -669,7 +712,7 @@ export class SolanaTokenDataTool extends Tool {
 
       return JSON.stringify({
         status: "success",
-        tokenData: tokenData,
+        tokenData,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -698,7 +741,7 @@ export class SolanaTokenDataByTickerTool extends Tool {
       const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
       return JSON.stringify({
         status: "success",
-        tokenData: tokenData,
+        tokenData,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1005,7 +1048,7 @@ export class SolanaPythFetchPrice extends Tool {
       const response: PythFetchPriceResponse = {
         status: "success",
         priceFeedID: input,
-        price: price,
+        price,
       };
       return JSON.stringify(response);
     } catch (error: any) {
@@ -1079,7 +1122,7 @@ export class SolanaGetOwnedDomains extends Tool {
       return JSON.stringify({
         status: "success",
         message: "Owned domains fetched successfully",
-        domains: domains,
+        domains,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1109,7 +1152,7 @@ export class SolanaGetOwnedTldDomains extends Tool {
       return JSON.stringify({
         status: "success",
         message: "TLD domains fetched successfully",
-        domains: domains,
+        domains,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1136,7 +1179,7 @@ export class SolanaGetAllTlds extends Tool {
       return JSON.stringify({
         status: "success",
         message: "TLDs fetched successfully",
-        tlds: tlds,
+        tlds,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1232,6 +1275,7 @@ export class SolanaCreateGibworkTask extends Tool {
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
+    new SolanaBalanceOtherTool(solanaKit),
     new SolanaTransferTool(solanaKit),
     new SolanaDeployTokenTool(solanaKit),
     new SolanaDeployCollectionTool(solanaKit),
