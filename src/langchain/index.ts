@@ -1230,11 +1230,12 @@ export class SolanaCreateGibworkTask extends Tool {
 }
 
 export class SolanaRockPaperScissorsTool extends Tool {
-  name = "rock_paper_scissors_blink";
-  description = `Play rock paper scissors to win the SEND coin.
-  Inputs(convert the input to a json string):
+  name = "rock_paper_scissors";
+  description = `Play rock paper scissors to win SEND coins.
+
+  Inputs (input is a JSON string):
   choice: string, either "rock", "paper", or "scissors" (required)
-  amount: number, amount of SOL to play the game with, either 0.1, 0.01, or 0.005 SOL (required)`;
+  amount: number, amount of SOL to play with - must be 0.1, 0.01, or 0.005 SOL (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1242,7 +1243,7 @@ export class SolanaRockPaperScissorsTool extends Tool {
 
   private validateInput(input: any): void {
     if (input.choice !== undefined) {
-      throw new Error('choice is required.');
+      throw new Error("choice is required.");
     }
     if (
       input.amount !== undefined &&
@@ -1258,9 +1259,12 @@ export class SolanaRockPaperScissorsTool extends Tool {
       this.validateInput(parsedInput);
       const result = await this.solanaKit.rockPaperScissors(
         Number(parsedInput['"amount"']),
-        parsedInput['"choice"'].replace(/^"|"$/g, '') as "rock" | "paper" | "scissors"
+        parsedInput['"choice"'].replace(/^"|"$/g, "") as
+          | "rock"
+          | "paper"
+          | "scissors",
       );
-      
+
       return JSON.stringify({
         status: "success",
         message: result,
