@@ -7,6 +7,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import { Tool } from "@langchain/core/tools";
+import { Action } from "../src/types/action";
 
 dotenv.config();
 
@@ -33,6 +35,52 @@ validateEnvironment();
 
 const WALLET_DATA_FILE = "wallet_data.txt";
 
+// Convert our Action interface to LangChain Tool
+function convertActionToTool(action: Action, solanaAgent: SolanaAgentKit): Tool {
+  class ActionTool extends Tool {
+    name = action.name;
+    description = action.description;
+    
+    async _call(input: string): Promise<string> {
+      try {
+        let parsedInput;
+        try {
+          // Try to parse as JSON first
+          parsedInput = input ? JSON.parse(input) : {};
+        } catch {
+          // If JSON parsing fails, use the raw input string
+          parsedInput = { input };
+        }
+
+        // Validate input against schema if available
+        if (action.schema) {
+          try {
+            parsedInput = action.schema.parse(parsedInput);
+          } catch (validationError: any) {
+            return JSON.stringify({
+              status: "error",
+              message: `Invalid input: ${validationError.message}`,
+              code: "VALIDATION_ERROR"
+            });
+          }
+        }
+        
+        const result = await action.handler(solanaAgent, parsedInput);
+        return JSON.stringify(result);
+      } catch (error: any) {
+        console.error("Action execution error:", error);
+        return JSON.stringify({
+          status: "error",
+          message: error.message,
+          code: error.code || "UNKNOWN_ERROR"
+        });
+      }
+    }
+  }
+  
+  return new ActionTool();
+}
+
 async function initializeAgent() {
   try {
     const llm = new ChatOpenAI({
@@ -56,7 +104,10 @@ async function initializeAgent() {
       process.env.OPENAI_API_KEY!,
     );
 
-    const tools = createSolanaTools(solanaAgent);
+    const actions = createSolanaTools(solanaAgent);
+    // Convert our Actions to LangChain Tools
+    const tools = actions.map(action => convertActionToTool(action, solanaAgent));
+    
     const memory = new MemorySaver();
     const config = { configurable: { thread_id: "Solana Agent Kit!" } };
 
