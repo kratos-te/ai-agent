@@ -1,4 +1,4 @@
-import { SolanaAgentKit } from "../../../src/agent";
+import { SolanaAgentKit } from "solana-agent-kit";
 
 export const agentKit = new SolanaAgentKit(
   process.env.SOLANA_PRIVATE_KEY!,
