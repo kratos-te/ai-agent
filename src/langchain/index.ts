@@ -1299,11 +1299,13 @@ export class SolanaTipLinkTool extends Tool {
       }
 
       const amount = parseFloat(parsedInput.amount);
-      const splmintAddress = parsedInput.splmintAddress ? new PublicKey(parsedInput.splmintAddress) : undefined;
+      const splmintAddress = parsedInput.splmintAddress
+        ? new PublicKey(parsedInput.splmintAddress)
+        : undefined;
 
       const { url, signature } = await this.solanaKit.createTiplink(
         amount,
-        splmintAddress
+        splmintAddress,
       );
 
       return JSON.stringify({
@@ -1312,14 +1314,13 @@ export class SolanaTipLinkTool extends Tool {
         signature,
         amount,
         tokenType: splmintAddress ? "SPL" : "SOL",
-        message: `TipLink created successfully`
+        message: `TipLink created successfully`,
       });
-
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }

@@ -346,7 +346,7 @@ export class SolanaAgentKit {
   ) {
     return rock_paper_scissor(this, amount, choice);
   }
-  async createTiplink(amount: number , splmintAddress?:PublicKey){
-    return create_TipLink(this,amount,splmintAddress)
+  async createTiplink(amount: number, splmintAddress?: PublicKey) {
+    return create_TipLink(this, amount, splmintAddress);
   }
 }
