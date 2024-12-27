@@ -15,13 +15,13 @@ importers:
         specifier: '0.29'
         version: 0.29.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@langchain/core':
-        specifier: ^0.3.18
+        specifier: ^0.3.26
         version: 0.3.26(openai@4.77.0(zod@3.24.1))
       '@langchain/groq':
         specifier: ^0.1.2
         version: 0.1.2(@langchain/core@0.3.26(openai@4.77.0(zod@3.24.1)))
       '@langchain/langgraph':
-        specifier: ^0.2.27
+        specifier: ^0.2.34
         version: 0.2.34(@langchain/core@0.3.26(openai@4.77.0(zod@3.24.1)))
       '@langchain/openai':
         specifier: ^0.3.13

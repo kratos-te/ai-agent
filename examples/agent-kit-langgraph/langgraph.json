@@ -1,0 +1,7 @@
+{
+  "graphs": {
+    "solana-agent": "./index.ts:graph"
+  },
+  "env": ".env",
+  "node_version": "20"
+}
