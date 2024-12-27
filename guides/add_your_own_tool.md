@@ -18,7 +18,7 @@ Extending the **Solana Agent Kit** with custom tools allows you to add specializ
 Create a new TypeScript file in the `src/tools/` directory for your tool (e.g., `custom_tool.ts`).
 
 ### 2. Implement the Tool Class
-
+> `src/langchain/index.ts`
 ```typescript:src/langchain/index.ts
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../agent";
@@ -51,7 +51,7 @@ export class CustomTool extends Tool {
 ```
 
 ### 3. Add Supporting Functions to SolanaAgentKit
-
+> `src/agent/index.ts`
 ```typescript:src/agent/index.ts
 export class SolanaAgentKit {
   // ... existing code ...
@@ -64,7 +64,7 @@ export class SolanaAgentKit {
 ```
 
 ### 4. Export the Tool
-
+> `src/tools/index.ts`
 ```typescript:src/tools/index.ts
 export * from "./request_faucet_funds";
 export * from "./deploy_token";
@@ -72,7 +72,7 @@ export * from "./custom_tool"; // Add your new tool
 ```
 
 ### 5. Integrate with Agent
-
+> `src/langchain/index.ts`
 ```typescript:src/langchain/index.ts
 import { CustomTool } from "../tools/custom_tool";
 
@@ -117,7 +117,7 @@ if (customTool) {
 ## Example: Token Price Fetching Tool
 
 Here's a complete example of implementing a tool to fetch token prices:
-
+> `src/tools/fetch_token_price.ts`
 ```typescript:src/tools/fetch_token_price.ts
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../agent";
@@ -150,7 +150,7 @@ export class FetchTokenPriceTool extends Tool {
 ```
 
 Add the supporting function to SolanaAgentKit:
-
+> `src/agent/index.ts`
 ```typescript:src/agent/index.ts
 export class SolanaAgentKit {
   async getTokenPrice(tokenSymbol: string): Promise<number> {
