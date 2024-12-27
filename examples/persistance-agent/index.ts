@@ -14,7 +14,7 @@ const checkpointer = PostgresSaver.fromConnString(
 
 function validateEnvironment(): void {
     const missingVars: string[] = [];
-    const requiredVars = ["OPENAI_API_KEY", "RPC_URL", "SOLANA_PRIVATE_KEY"];
+    const requiredVars = ["OPENAI_API_KEY", "RPC_URL", "SOLANA_PRIVATE_KEY", "POSTGRES_DB_URL"];
 
     requiredVars.forEach((varName) => {
         if (!process.env[varName]) {
