@@ -18,7 +18,7 @@ export class SolanaBalanceTool extends Tool {
   If you want to get the balance of your wallet, you don't need to provide the tokenAddress.
   If no tokenAddress is provided, the balance will be in SOL.
 
-  Inputs:
+  Inputs ( input is a JSON string ):
   tokenAddress: string, eg "So11111111111111111111111111111111111111112" (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -51,7 +51,7 @@ export class SolanaBalanceOtherTool extends Tool {
 
   If no tokenAddress is provided, the SOL balance of the wallet will be returned.
 
-  Inputs:
+  Inputs ( input is a JSON string ):
   walletAddress: string, eg "GDEkQF7UMr7RLv1KQKMtm8E2w3iafxJLtyXu3HVQZnME" (required)
   tokenAddress: string, eg "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
 
