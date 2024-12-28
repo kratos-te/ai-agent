@@ -24,10 +24,12 @@ import {
   getTokenDataByTicker,
   stakeWithJup,
   sendCompressedAirdrop,
-  createOrcaSingleSidedWhirlpool,
+  orcaCreateSingleSidedLiquidityPool,
+  orcaCreateCLMM,
+  orcaOpenCenteredPositionWithLiquidity,
+  FEE_TIERS,
   fetchPrice,
   pythFetchPrice,
-  FEE_TIERS,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -36,6 +38,7 @@ import {
   resolveAllDomains,
   create_gibwork_task,
 } from "../tools";
+
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -199,7 +202,22 @@ export class SolanaAgentKit {
     );
   }
 
-  async createOrcaSingleSidedWhirlpool(
+  async orcaCreateCLMM(
+    mintA: PublicKey,
+    mintB: PublicKey,
+    initialPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return orcaCreateCLMM(
+      this,
+      mintA,
+      mintB,
+      initialPrice,
+      feeTier,
+    );
+  }
+
+  async orcaCreateSingleSidedLiquidityPool(
     depositTokenAmount: BN,
     depositTokenMint: PublicKey,
     otherTokenMint: PublicKey,
@@ -207,7 +225,7 @@ export class SolanaAgentKit {
     maxPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
-    return createOrcaSingleSidedWhirlpool(
+    return orcaCreateSingleSidedLiquidityPool(
       this,
       depositTokenAmount,
       depositTokenMint,
@@ -215,6 +233,21 @@ export class SolanaAgentKit {
       initialPrice,
       maxPrice,
       feeTier,
+    );
+  }
+
+  async orcaOpenCenteredPositionWithLiquidity(
+    whirlpoolAddress: PublicKey,
+    priceOffsetBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ) {
+    return orcaOpenCenteredPositionWithLiquidity(
+      this,
+      whirlpoolAddress,
+      priceOffsetBps,
+      inputTokenMint,
+      inputAmount,
     );
   }
 

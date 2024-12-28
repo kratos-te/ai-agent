@@ -36,8 +36,8 @@ const WALLET_DATA_FILE = "wallet_data.txt";
 async function initializeAgent() {
   try {
     const llm = new ChatOpenAI({
-      modelName: "gpt-4o",
-      temperature: 0.7,
+      modelName: "gpt-4o-mini",
+      // temperature: 0.7,
     });
 
     let walletDataStr: string | null = null;

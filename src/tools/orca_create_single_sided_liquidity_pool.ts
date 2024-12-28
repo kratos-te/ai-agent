@@ -1,4 +1,9 @@
-import { Keypair, PublicKey, Transaction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import { 
+  Keypair, 
+  PublicKey, 
+  TransactionMessage, 
+  VersionedTransaction 
+} from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { BN, Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
@@ -34,7 +39,7 @@ import {
 import { sendTx } from "../utils/send_tx";
 
 /**
- * Maps fee tier percentages to their corresponding tick spacing values in the Orca Whirlpool protocol.
+ * Maps fee tier bps to their corresponding tick spacing values in the Orca Whirlpool protocol.
  *
  * @remarks
  * Fee tiers determine the percentage of fees collected on swaps, while tick spacing affects
@@ -45,22 +50,22 @@ import { sendTx } from "../utils/send_tx";
  * - [Whirlpool Parameters](https://orca-so.github.io/whirlpools/Architecture%20Overview/Whirlpool%20Parameters)
  *
  * @example
- * const tickSpacing = FEE_TIERS[0.30]; // Returns 64
+ * const tickSpacing = FEE_TIERS[1]; // returns 1
  */
 export const FEE_TIERS = {
-  0.01: 1,
-  0.02: 2,
-  0.04: 4,
-  0.05: 8,
-  0.16: 16,
-  0.3: 64,
-  0.65: 96,
-  1.0: 128,
-  2.0: 256,
+  1: 1,
+  2: 2,
+  4: 4,
+  5: 8,
+  16: 16,
+  30: 64,
+  65: 96,
+  100: 128,
+  200: 256,
 } as const;
 
 /**
- * # Creates a single-sided Whirlpool.
+ * # Creates a single-sided liquidity pool.
  *
  * This function initializes a new Whirlpool (liquidity pool) on Orca and seeds it with liquidity from a single token.
  *
@@ -84,7 +89,7 @@ export const FEE_TIERS = {
  * @param otherTokenMint - The mint address of the other token in the pool, eg. USDC.
  * @param initialPrice - The initial price of the deposit token in terms of the other token.
  * @param maxPrice - The maximum price at which liquidity is added.
- * @param feeTier - The fee tier percentage for the pool, determining tick spacing and fee collection rates.
+ * @param feeTier - The fee tier bps for the pool, determining tick spacing and fee collection rates.
  *
  * @returns A promise that resolves to a transaction ID (`string`) of the transaction creating the pool.
  *
@@ -95,42 +100,15 @@ export const FEE_TIERS = {
  * @remarks
  * This function is designed for single-sided deposits where users only contribute one type of token,
  * and the function manages mint order and necessary calculations.
- *
- * @example
- * ```typescript
- * import { SolanaAgentKit } from "your-sdk";
- * import { PublicKey } from "@solana/web3.js";
- * import { BN } from "@coral-xyz/anchor";
- * import Decimal from "decimal.js";
- *
- * const agent = new SolanaAgentKit(wallet, connection);
- * const depositAmount = new BN(1_000_000_000_000); // 1 million SHARK if SHARK has 6 decimals
- * const depositTokenMint = new PublicKey("DEPOSTI_TOKEN_ADDRESS");
- * const otherTokenMint = new PublicKey("OTHER_TOKEN_ADDRESS");
- * const initialPrice = new Decimal(0.001);
- * const maxPrice = new Decimal(5.0);
- * const feeTier = 0.02;
- * 
- * const txId = await createOrcaSingleSidedWhirlpool(
- *   agent,
- *   depositAmount,
- *   depositTokenMint,
- *   otherTokenMint,
- *   initialPrice,
- *   maxPrice,
- *   feeTier,
- * );
- * console.log(`Single sided whirlpool created in transaction: ${txId}`);
- * ```
  */
-export async function createOrcaSingleSidedWhirlpool(
+export async function orcaCreateSingleSidedLiquidityPool(
   agent: SolanaAgentKit,
   depositTokenAmount: BN,
   depositTokenMint: PublicKey,
   otherTokenMint: PublicKey,
   initialPrice: Decimal,
   maxPrice: Decimal,
-  feeTier: keyof typeof FEE_TIERS,
+  feeTierBps: keyof typeof FEE_TIERS,
 ): Promise<string> {
   let whirlpoolsConfigAddress: PublicKey;
   if (agent.connection.rpcEndpoint.includes('mainnet')) {
@@ -167,7 +145,7 @@ export async function createOrcaSingleSidedWhirlpool(
   if (mintAAccount === null || mintBAccount === null) {
     throw Error("Mint account not found");
   }
-  const tickSpacing = FEE_TIERS[feeTier];
+  const tickSpacing = FEE_TIERS[feeTierBps];
   const tickIndex = PriceMath.priceToTickIndex(
     initialPrice,
     mintAAccount.decimals,
@@ -196,7 +174,7 @@ export async function createOrcaSingleSidedWhirlpool(
     whirlpoolsConfigAddress,
     mintA,
     mintB,
-    FEE_TIERS[feeTier],
+    FEE_TIERS[feeTierBps],
   );
   const tokenBadgeA = PDAUtil.getTokenBadge(
     ORCA_WHIRLPOOL_PROGRAM_ID,
@@ -419,7 +397,8 @@ export async function createOrcaSingleSidedWhirlpool(
 
   const txPayload = await txBuilder.build();
   const instructions = TransactionMessage.decompile(
-    (txPayload.transaction as VersionedTransaction).message).instructions
+    (txPayload.transaction as VersionedTransaction).message,
+  ).instructions;
 
   try {
     const txId = await sendTx(
@@ -429,6 +408,6 @@ export async function createOrcaSingleSidedWhirlpool(
     );
     return txId;
   } catch (error) {
-      throw new Error(`Failed to create pool: ${JSON.stringify(error)}`);
+    throw new Error(`Failed to send transaction: ${JSON.stringify(error)}`);
   }
 }
