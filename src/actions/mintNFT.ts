@@ -61,7 +61,7 @@ const mintNFTAction: Action = {
     collectionMint: z.string().min(32, "Invalid collection mint address"),
     name: z.string().min(1, "Name is required"),
     uri: z.string().url("URI must be a valid URL"),
-    recipient: z.string().min(32, "Invalid recipient address").optional()
+    recipient: z.string().min(32, "Invalid recipient address")
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     const result = await mintCollectionNFT(
