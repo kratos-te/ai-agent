@@ -2,7 +2,7 @@ import * as multisig from "@sqds/multisig";
 import { PublicKey } from "@solana/web3.js";
 import { SolanaAgentKit } from "../../index";
 
-export async function createSquadsMultisig(
+export async function create_squads_multisig(
   agent: SolanaAgentKit,
   creator: PublicKey,
 ): Promise<string> {
