@@ -10,7 +10,7 @@ import {
 import * as multisig from "@sqds/multisig";
 
 /**
- * Transfer SOL or SPL tokens to a recipient
+ * Transfer SOL or SPL tokens to a multisig vault.
  * @param agent SolanaAgentKit instance
  * @param amount Amount to transfer
  * @param vaultIndex Optional vault index, default is 0
