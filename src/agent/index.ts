@@ -359,7 +359,7 @@ export class SolanaAgentKit {
 
   async depositToMultisig(
     amount: number,
-    vaultIndex?: number,
+    vaultIndex: number = 0,
     mint?: PublicKey,
   ): Promise<string> {
     return deposit_to_multisig(this, amount, vaultIndex, mint);
