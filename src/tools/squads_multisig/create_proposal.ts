@@ -15,13 +15,12 @@ import * as multisig from "@sqds/multisig";
 const { Multisig } = multisig.accounts;
 
 /**
- * Transfer SOL or SPL tokens to a recipient from a multisig vault.
- * @param agent - SolanaAgentKit instance.
- * @param amount - Amount to transfer.
- * @param to - Recipient's public key.
- * @param vaultIndex - Optional vault index, default is 0.
- * @param mint - Optional mint address for SPL tokens.
- * @returns Transaction signature.
+ * Creates a proposal for a multisig transaction.
+ *
+ * @param {SolanaAgentKit} agent - The Solana agent kit instance.
+ * @param {number | bigint} [transactionIndex] - Optional transaction index. If not provided, the current transaction index will be used.
+ * @returns {Promise<string>} - The transaction ID of the created proposal.
+ * @throws {Error} - Throws an error if the proposal creation fails.
  */
 export async function create_proposal(
   agent: SolanaAgentKit,
@@ -38,11 +37,10 @@ export async function create_proposal(
     );
     const currentTransactionIndex = Number(multisigInfo.transactionIndex);
     if (!transactionIndex) {
-      transactionIndex = BigInt(currentTransactionIndex - 1);
+      transactionIndex = BigInt(currentTransactionIndex);
     } else if (typeof transactionIndex !== "bigint") {
       transactionIndex = BigInt(transactionIndex);
     }
-
     const multisigTx = multisig.transactions.proposalCreate({
       blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
       feePayer: agent.wallet_address,
