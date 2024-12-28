@@ -207,37 +207,22 @@ const price = await agent.pythFetchPrice(
 console.log("Price in BTC/USD:", price);
 ```
 
-### Add to your Vercel AI Agent
+## Examples
 
-```typescript
-import {createVercelAITools, SolanaAgentKit} from 'solana-agent-sdk'
-import {createOpenAI} from '@ai-sdk/openai'
-import {streamText} from 'ai'
+### LangGraph Multi-Agent System
 
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
-})
+The repository includes an advanced example of building a multi-agent system using LangGraph and Solana Agent Kit. Located in `examples/agent-kit-langgraph`, this example demonstrates:
 
-const solanaAgent = new SolanaAgentKit(
-  process.env.SOLANA_PRIVATE_KEY!,
-  process.env.RPC_URL,
-  process.env.OPENAI_API_KEY!,
-);
+- Multi-agent architecture using LangGraph's StateGraph
+- Specialized agents for different tasks:
+  - General purpose agent for basic queries
+  - Transfer/Swap agent for transaction operations
+  - Read agent for blockchain data queries
+  - Manager agent for routing and orchestration
+- Fully typed TypeScript implementation
+- Environment-based configuration
 
-const tools = createVercelAITools(solanaAgent)
-
-const response = streamText({
-  tools,
-  model: openai("gpt-4o-mini"),
-  prompt: "What's my SOL balance",
-  maxSteps: 10
-})
-
-for await (const textPart of response.textStream) {
-  process.stdout.write(textPart);
-}
-console.log();
-```
+Check out the [LangGraph example](examples/agent-kit-langgraph) for a complete implementation of an advanced Solana agent system.
 
 ## Dependencies
 
