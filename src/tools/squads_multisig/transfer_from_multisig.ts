@@ -57,7 +57,7 @@ export async function transfer_from_multisig(
       });
     } else {
       // Transfer SPL token
-      const fromAta = await getAssociatedTokenAddress(mint, vaultPda);
+      const fromAta = await getAssociatedTokenAddress(mint, vaultPda, true);
       const toAta = await getAssociatedTokenAddress(mint, to, true);
       const mintInfo = await getMint(agent.connection, mint);
       const adjustedAmount = amount * Math.pow(10, mintInfo.decimals);
