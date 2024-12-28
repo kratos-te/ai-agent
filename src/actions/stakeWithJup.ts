@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { VersionedTransaction } from "@solana/web3.js";
+import { stakeWithJup, trade } from "../tools";
 
 const stakeWithJupAction: Action = {
   name: "solana_stake_with_jup",
@@ -38,55 +39,10 @@ const stakeWithJupAction: Action = {
     try {
       const amount = input.amount as number;
       
-      // Get staking transaction from Jupiter
-      const res = await fetch(
-        `https://worker.jup.ag/blinks/swap/So11111111111111111111111111111111111111112/jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v/${amount}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            account: agent.wallet.publicKey.toBase58(),
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        return {
-          status: "error",
-          message: `Failed to get staking transaction: ${res.statusText}`
-        };
-      }
-
-      const data = await res.json();
-
-      // Deserialize and prepare transaction
-      const txn = VersionedTransaction.deserialize(
-        Buffer.from(data.transaction, "base64")
-      );
-
-      const { blockhash } = await agent.connection.getLatestBlockhash();
-      txn.message.recentBlockhash = blockhash;
-
-      // Sign and send transaction
-      txn.sign([agent.wallet]);
-      const signature = await agent.connection.sendTransaction(txn, {
-        preflightCommitment: "confirmed",
-        maxRetries: 3,
-      });
-
-      // Confirm transaction
-      const latestBlockhash = await agent.connection.getLatestBlockhash();
-      await agent.connection.confirmTransaction({
-        signature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
-
+      const res = await stakeWithJup(agent,amount)
       return {
         status: "success",
-        signature,
+        res,
         message: `Successfully staked ${amount} SOL for jupSOL`
       };
     } catch (error: any) {

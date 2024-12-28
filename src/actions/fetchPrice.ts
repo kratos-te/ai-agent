@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
+import { fetchPrice } from "../tools";
 
 const fetchPriceAction: Action = {
   name: "solana_fetch_price",
@@ -34,24 +35,7 @@ const fetchPriceAction: Action = {
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       const tokenId = new PublicKey(input.tokenAddress);
-      const response = await fetch(`https://api.jup.ag/price/v2?ids=${tokenId}`);
-
-      if (!response.ok) {
-        return {
-          status: "error",
-          message: `Failed to fetch price: ${response.statusText}`
-        };
-      }
-
-      const data = await response.json();
-      const price = data.data[tokenId.toBase58()]?.price;
-
-      if (!price) {
-        return {
-          status: "error",
-          message: "Price data not available for the given token"
-        };
-      }
+      const price = await fetchPrice(tokenId);
 
       return {
         status: "success",

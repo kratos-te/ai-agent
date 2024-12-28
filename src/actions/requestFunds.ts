@@ -1,6 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { request_faucet_funds } from "../tools";
 
 const requestFundsAction: Action = {
   name: "solana_request_funds",
@@ -27,7 +28,7 @@ const requestFundsAction: Action = {
   ],
   schema: z.object({}), // No input parameters required
   handler: async (agent: SolanaAgentKit, _input: Record<string, any>) => {
-    await agent.requestFaucetFunds();
+    await request_faucet_funds(agent);
 
     return {
       status: "success",

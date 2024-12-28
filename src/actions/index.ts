@@ -16,15 +16,12 @@ import createGibworkTaskAction from "./createGibworkTask";
 import resolveSolDomainAction from "./resolveSolDomain";
 import pythFetchPriceAction from "./pythFetchPrice";
 import getOwnedDomainsForTLDAction from "./getOwnedDomainsForTLD";
-import createRaydiumCLMMAction from "./createRaydiumCLMM";
 import getPrimaryDomainAction from "./getPrimaryDomain";
 import getAllDomainsTLDsAction from "./getAllDomainsTLDs";
 import getOwnedAllDomainsAction from "./getOwnedAllDomains";
 import createImageAction from "./createImage";
 import getMainAllDomainsDomainAction from "./getMainAllDomainsDomain";
 import getAllRegisteredAllDomainsAction from "./getAllRegisteredAllDomains";
-import createRaydiumCPMMAction from "./createRaydiumCPMM";
-import sendCompressedAirdropAction from "./sendCompressedAirdrop";
 import raydiumCreateCpmmAction from "./raydiumCreateCpmm";
 import raydiumCreateAmmV4Action from "./raydiumCreateAmmV4";
 import createOrcaSingleSidedWhirlpoolAction from "./createOrcaSingleSidedWhirlpool";
@@ -49,15 +46,12 @@ export const actions = [
   resolveSolDomainAction,
   pythFetchPriceAction,
   getOwnedDomainsForTLDAction,
-  createRaydiumCLMMAction,
   getPrimaryDomainAction,
   getAllDomainsTLDsAction,
   getOwnedAllDomainsAction,
   createImageAction,
   getMainAllDomainsDomainAction,
   getAllRegisteredAllDomainsAction,
-  createRaydiumCPMMAction,
-  sendCompressedAirdropAction,
   raydiumCreateCpmmAction,
   raydiumCreateAmmV4Action,
   createOrcaSingleSidedWhirlpoolAction,

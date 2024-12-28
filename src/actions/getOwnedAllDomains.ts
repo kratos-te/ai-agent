@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
+import { getOwnedAllDomains } from "../tools";
 
 const getOwnedAllDomainsAction: Action = {
   name: "solana_get_owned_all_domains",
@@ -40,7 +41,7 @@ const getOwnedAllDomainsAction: Action = {
       const address = new PublicKey(input.address);
 
       // Get owned domains
-      const domains = await agent.getOwnedAllDomains(address);
+      const domains = await getOwnedAllDomains(agent, address);
 
       return {
         status: "success",

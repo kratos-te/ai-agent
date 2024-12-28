@@ -1,6 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { getTPS } from "../tools";
 
 const getTPSAction: Action = {
   name: "solana_get_tps",
@@ -28,27 +29,11 @@ const getTPSAction: Action = {
   schema: z.object({}), // No input parameters required
   handler: async (agent: SolanaAgentKit, _input: Record<string, any>) => {
     try {
-      const perfSamples = await agent.connection.getRecentPerformanceSamples();
-
-      if (
-        !perfSamples.length ||
-        !perfSamples[0]?.numTransactions ||
-        !perfSamples[0]?.samplePeriodSecs
-      ) {
-        return {
-          status: "error",
-          message: "No performance samples available"
-        };
-      }
-
-      const tps = Math.round(
-        perfSamples[0].numTransactions / perfSamples[0].samplePeriodSecs
-      );
-
+      const response = await getTPS(agent);
       return {
         status: "success",
-        tps,
-        message: `Current network TPS: ${tps}`
+        response,
+        message: `Current network TPS: ${response}`
       };
     } catch (error: any) {
       return {

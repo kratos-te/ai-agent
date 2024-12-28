@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { VersionedTransaction, Keypair } from "@solana/web3.js";
+import { launchPumpFunToken } from "../tools";
 
 const launchPumpfunTokenAction: Action = {
   name: "solana_launch_pumpfun_token",
@@ -82,113 +83,14 @@ const launchPumpfunTokenAction: Action = {
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const mintKeypair = Keypair.generate();
-
-      // Upload metadata
-      const formData = new URLSearchParams();
-      formData.append("name", input.tokenName);
-      formData.append("symbol", input.tokenTicker);
-      formData.append("description", input.description);
-      formData.append("showName", "true");
-
-      if (input.twitter) {
-        formData.append("twitter", input.twitter);
-      }
-      if (input.telegram) {
-        formData.append("telegram", input.telegram);
-      }
-      if (input.website) {
-        formData.append("website", input.website);
-      }
-
-      // Fetch and process image
-      const imageResponse = await fetch(input.imageUrl);
-      const imageBlob = await imageResponse.blob();
-      const imageFile = new File([imageBlob], "token_image.png", { type: "image/png" });
-
-      // Create final form data
-      const finalFormData = new FormData();
-      for (const [key, value] of formData.entries()) {
-        finalFormData.append(key, value);
-      }
-      finalFormData.append("file", imageFile);
-
-      // Upload metadata to IPFS
-      const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
-        method: "POST",
-        body: finalFormData,
-      });
-
-      if (!metadataResponse.ok) {
-        throw new Error(`Metadata upload failed: ${metadataResponse.statusText}`);
-      }
-
-      const metadataResult = await metadataResponse.json();
-
-      // Create token transaction
-      const payload = {
-        publicKey: agent.wallet_address.toBase58(),
-        action: "create",
-        tokenMetadata: {
-          name: metadataResult.metadata.name,
-          symbol: metadataResult.metadata.symbol,
-          uri: metadataResult.metadataUri,
-        },
-        mint: mintKeypair.publicKey.toBase58(),
-        denominatedInSol: "true",
-        amount: input.initialLiquiditySOL || 0.0001,
-        slippage: input.slippageBps || 5,
-        priorityFee: input.priorityFee || 0.00005,
-        pool: "pump",
-      };
-
-      const txResponse = await fetch("https://pumpportal.fun/api/trade-local", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!txResponse.ok) {
-        const errorText = await txResponse.text();
-        throw new Error(`Transaction creation failed: ${txResponse.status} - ${errorText}`);
-      }
-
-      // Process and sign transaction
-      const transactionData = await txResponse.arrayBuffer();
-      const tx = VersionedTransaction.deserialize(new Uint8Array(transactionData));
-
-      // Get latest blockhash
-      const { blockhash, lastValidBlockHeight } = await agent.connection.getLatestBlockhash();
-      tx.message.recentBlockhash = blockhash;
-
-      // Sign transaction
-      tx.sign([mintKeypair, agent.wallet]);
-
-      // Send transaction
-      const signature = await agent.connection.sendTransaction(tx, {
-        skipPreflight: false,
-        preflightCommitment: "confirmed",
-        maxRetries: 5,
-      });
-
-      // Wait for confirmation
-      const confirmation = await agent.connection.confirmTransaction({
-        signature,
-        blockhash,
-        lastValidBlockHeight,
-      });
-
-      if (confirmation.value.err) {
-        throw new Error(`Transaction failed: ${confirmation.value.err}`);
-      }
+      const { tokenName, tokenTicker, description, imageUrl } = input;
+      const result = await launchPumpFunToken(agent, tokenName, tokenTicker, description, imageUrl, input);
 
       return {
         status: "success",
-        signature,
-        mint: mintKeypair.publicKey.toBase58(),
-        metadataUri: metadataResult.metadataUri,
+        signature: result.signature,
+        mint: result.mint,
+        metadataUri: result.metadataUri,
         message: "Successfully launched token on Pump.fun"
       };
     } catch (error: any) {

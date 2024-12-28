@@ -2,6 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { transfer } from "../tools";
 
 const transferAction: Action = {
   name: "solana_transfer",
@@ -59,7 +60,7 @@ const transferAction: Action = {
     const recipient = new PublicKey(input.to);
     const mintAddress = input.mint ? new PublicKey(input.mint) : undefined;
 
-    const tx = await agent.transfer(recipient, input.amount, mintAddress);
+    const tx = await transfer(agent,recipient, input.amount, mintAddress);
 
     return {
       status: "success",

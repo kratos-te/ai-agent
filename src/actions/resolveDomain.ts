@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { TldParser } from "@onsol/tldparser";
+import { resolveAllDomains } from "../tools";
 
 const resolveDomainAction: Action = {
   name: "solana_resolve_domain",
@@ -33,20 +34,10 @@ const resolveDomainAction: Action = {
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       const domain = input.domain as string;
-      const tld = await new TldParser(agent.connection).getOwnerFromDomainTld(
-        domain
-      );
-
-      if (!tld) {
-        return {
-          status: "error",
-          message: "Domain not found"
-        };
-      }
-
+      const tld = await resolveAllDomains(agent, domain);
       return {
         status: "success",
-        owner: tld.toBase58(),
+        owner: tld,
         message: `Successfully resolved domain ${domain}`
       };
     } catch (error: any) {

@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
+import { getOwnedDomainsForTLD } from "../tools";
 
 const getOwnedDomainsForTLDAction: Action = {
   name: "solana_get_owned_domains_for_tld",
@@ -40,7 +41,7 @@ const getOwnedDomainsForTLDAction: Action = {
       const tld = input.tld.toLowerCase();
 
       // Get owned domains for TLD
-      const domains = await agent.getOwnedDomainsForTLD(tld);
+      const domains = await getOwnedDomainsForTLD(agent, tld);
 
       return {
         status: "success",

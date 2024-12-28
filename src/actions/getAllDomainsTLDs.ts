@@ -1,6 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { getAllDomainsTLDs } from "../tools";
 
 const getAllDomainsTLDsAction: Action = {
   name: "solana_get_all_domains_tlds",
@@ -30,7 +31,7 @@ const getAllDomainsTLDsAction: Action = {
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       // Get all domain TLDs
-      const tlds = await agent.getAllDomainsTLDs();
+      const tlds = await getAllDomainsTLDs(agent);
 
       return {
         status: "success",

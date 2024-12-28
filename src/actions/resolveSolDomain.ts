@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { resolve } from "@bonfida/spl-name-service";
+import { resolveSolDomain } from "../tools";
 
 const resolveSolDomainAction: Action = {
   name: "solana_resolve_sol_domain",
@@ -38,24 +39,12 @@ const resolveSolDomainAction: Action = {
     try {
       const domain = input.domain as string;
 
-      if (!domain || typeof domain !== "string") {
-        return {
-          status: "error",
-          message: "Invalid domain. Expected a non-empty string."
-        };
-      }
-
-      // Remove .sol suffix if present for consistent handling
-      const cleanDomain = domain.toLowerCase().endsWith(".sol") 
-        ? domain.slice(0, -4) 
-        : domain;
-
-      const ownerAddress = await resolve(agent.connection, cleanDomain);
+      const res = await resolveSolDomain(agent,domain)
 
       return {
         status: "success",
-        owner: ownerAddress.toBase58(),
-        message: `Successfully resolved ${cleanDomain}.sol`
+        owner: res.toString(),
+        message: `Successfully resolved ${res}`
       };
     } catch (error: any) {
       return {

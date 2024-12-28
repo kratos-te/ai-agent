@@ -4,6 +4,7 @@ import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
+import { createOrcaSingleSidedWhirlpool } from "../tools";
 
 // Fee tiers mapping from the original tool
 const FEE_TIERS = {
@@ -79,7 +80,8 @@ const createOrcaSingleSidedWhirlpoolAction: Action = {
       const feeTier = input.feeTier as keyof typeof FEE_TIERS;
 
       // Create the whirlpool
-      const signature = await agent.createOrcaSingleSidedWhirlpool(
+      const signature = await createOrcaSingleSidedWhirlpool(
+        agent,
         depositTokenAmount,
         depositTokenMint,
         otherTokenMint,

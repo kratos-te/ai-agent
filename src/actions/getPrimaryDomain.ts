@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { getPrimaryDomain as _getPrimaryDomain } from "@bonfida/spl-name-service";
 import { PublicKey } from "@solana/web3.js";
+import { getPrimaryDomain } from "../tools";
 
 const getPrimaryDomainAction: Action = {
   name: "solana_get_primary_domain",
@@ -39,22 +40,16 @@ const getPrimaryDomainAction: Action = {
     try {
       const account = new PublicKey(input.account);
 
-      const { reverse, stale } = await _getPrimaryDomain(
-        agent.connection,
+      const response = await getPrimaryDomain(
+        agent,
         account
       );
 
-      if (stale) {
-        return {
-          status: "error",
-          message: `Primary domain is stale for account: ${account.toBase58()}`
-        };
-      }
 
       return {
         status: "success",
-        domain: reverse,
-        message: `Primary domain: ${reverse}`
+        domain: response,
+        message: `Primary domain: ${response}`
       };
     } catch (error: any) {
       return {

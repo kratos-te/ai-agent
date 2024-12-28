@@ -2,6 +2,8 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import OpenAI from "openai";
+import { create } from "domain";
+import { create_image } from "../tools/create_image";
 
 const createImageAction: Action = {
   name: "solana_create_image",
@@ -60,31 +62,17 @@ const createImageAction: Action = {
         };
       }
 
-      const { prompt, model, size, quality, style } = input;
+      const { prompt, model, size } = input;
 
       const openai = new OpenAI({
         apiKey: agent.openai_api_key
       });
 
-      const response = await openai.images.generate({
-        prompt,
-        model,
-        n: 1,
-        size,
-        quality,
-        style
-      });
-
-      if (!response.data || response.data.length === 0) {
-        return {
-          status: "error",
-          message: "No image was generated"
-        };
-      }
+      const response = await create_image(agent, prompt, model, size);
 
       return {
         status: "success",
-        imageUrl: response.data[0].url,
+        imageUrl: response.images[0].url,
         message: "Successfully generated image"
       };
     } catch (error: any) {

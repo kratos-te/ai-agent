@@ -5,6 +5,7 @@ import { Transaction } from "@solana/web3.js";
 import { registerDomainNameV2 } from "@bonfida/spl-name-service";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { TOKENS } from "../constants";
+import { registerDomain } from "../tools";
 
 const registerDomainAction: Action = {
   name: "solana_register_domain",
@@ -48,50 +49,7 @@ const registerDomainAction: Action = {
       const name = input.name as string;
       const spaceKB = (input.spaceKB as number) || 1;
 
-      // Validate space size
-      if (spaceKB > 10) {
-        return {
-          status: "error",
-          message: "Maximum domain size is 10KB"
-        };
-      }
-
-      // Convert KB to bytes
-      const space = spaceKB * 1_000;
-
-      const buyerTokenAccount = await getAssociatedTokenAddressSync(
-        agent.wallet_address,
-        TOKENS.USDC
-      );
-
-      // Create registration instruction
-      const instruction = await registerDomainNameV2(
-        agent.connection,
-        name,
-        space,
-        agent.wallet_address,
-        buyerTokenAccount
-      );
-
-      // Create and sign transaction
-      const transaction = new Transaction().add(...instruction);
-      transaction.recentBlockhash = (
-        await agent.connection.getLatestBlockhash()
-      ).blockhash;
-      transaction.feePayer = agent.wallet_address;
-
-      // Sign and send transaction
-      const signature = await agent.connection.sendTransaction(transaction, [
-        agent.wallet
-      ]);
-
-      // Wait for confirmation
-      const latestBlockhash = await agent.connection.getLatestBlockhash();
-      await agent.connection.confirmTransaction({
-        signature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
+      const signature = await registerDomain(agent, name, spaceKB);
 
       return {
         status: "success",

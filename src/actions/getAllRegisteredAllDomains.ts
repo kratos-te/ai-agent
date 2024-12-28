@@ -1,6 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { getAllRegisteredAllDomains } from "../tools";
 
 const getAllRegisteredAllDomainsAction: Action = {
   name: "solana_get_all_registered_all_domains",
@@ -47,14 +48,12 @@ const getAllRegisteredAllDomainsAction: Action = {
       const offset = input.offset || 0;
 
       // Get all registered domains
-      const domains = await agent.getAllRegisteredAllDomains();
+      const domains = await getAllRegisteredAllDomains(agent);
 
-      // Apply pagination
-      const paginatedDomains = domains.slice(offset, offset + limit);
 
       return {
         status: "success",
-        domains: paginatedDomains,
+        domains: domains.slice(offset, offset + limit),
         total: domains.length,
         message: "Successfully retrieved registered domains"
       };

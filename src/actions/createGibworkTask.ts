@@ -2,6 +2,7 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { create_gibwork_task } from "../tools";
 
 const createGibworkTaskAction: Action = {
   name: "solana_create_gibwork_task",
@@ -62,65 +63,21 @@ const createGibworkTaskAction: Action = {
       const tokenMintAddress = new PublicKey(input.tokenMintAddress);
       const payer = input.payer ? new PublicKey(input.payer) : undefined;
 
-      const apiResponse = await fetch(
-        "https://api2.gib.work/tasks/public/transaction",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: input.title,
-            content: input.content,
-            requirements: input.requirements,
-            tags: input.tags,
-            payer: payer?.toBase58() || agent.wallet.publicKey.toBase58(),
-            token: {
-              mintAddress: tokenMintAddress.toBase58(),
-              amount: input.tokenAmount,
-            },
-          }),
-        }
+      const responseData = await create_gibwork_task(
+        agent,
+        input.title,
+        input.content,
+        input.requirements,
+        input.tags,
+        new PublicKey(input.tokenMintAddress),
+        input.tokenAmount,
+        input.payer ? new PublicKey(input.payer) : undefined
       );
-
-      if (!apiResponse.ok) {
-        return {
-          status: "error",
-          message: `Failed to create task: ${apiResponse.statusText}`
-        };
-      }
-
-      const responseData = await apiResponse.json();
-      if (!responseData.taskId || !responseData.serializedTransaction) {
-        return {
-          status: "error",
-          message: responseData.message || "Invalid response from Gibwork API"
-        };
-      }
-
-      const serializedTransaction = Buffer.from(
-        responseData.serializedTransaction,
-        "base64"
-      );
-      const tx = VersionedTransaction.deserialize(serializedTransaction);
-
-      tx.sign([agent.wallet]);
-      const signature = await agent.connection.sendTransaction(tx, {
-        preflightCommitment: "confirmed",
-        maxRetries: 3,
-      });
-
-      const latestBlockhash = await agent.connection.getLatestBlockhash();
-      await agent.connection.confirmTransaction({
-        signature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
 
       return {
         status: "success",
         taskId: responseData.taskId,
-        signature,
+        signature: responseData.signature,
         message: `Successfully created task: ${input.title}`
       };
     } catch (error: any) {

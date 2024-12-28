@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
 import { TldParser } from "@onsol/tldparser";
+import { getMainAllDomainsDomain } from "../tools";
 
 const getMainAllDomainsDomainAction: Action = {
   name: "solana_get_main_all_domains_domain",
@@ -37,11 +38,7 @@ const getMainAllDomainsDomainAction: Action = {
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const address = new PublicKey(input.address);
-
-      // Get the main domain using TldParser
-      const parser = new TldParser(agent.connection);
-      const mainDomain = await parser.getMainDomain(address);
+      const mainDomain = await getMainAllDomainsDomain(agent, new PublicKey(input.address));
 
       if (!mainDomain) {
         return {
@@ -52,7 +49,7 @@ const getMainAllDomainsDomainAction: Action = {
 
       return {
         status: "success",
-        domain: mainDomain.domain,
+        domain: mainDomain,
         message: "Successfully retrieved main domain"
       };
     } catch (error: any) {

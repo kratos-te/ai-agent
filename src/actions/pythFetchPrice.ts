@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PriceServiceConnection } from "@pythnetwork/price-service-client";
 import BN from "bn.js";
+import { pythFetchPrice } from "../tools";
 
 const pythFetchPriceAction: Action = {
   name: "solana_pyth_fetch_price",
@@ -39,27 +40,7 @@ const pythFetchPriceAction: Action = {
     try {
       const priceFeedId = input.priceFeedId as string;
 
-      // Connect to Hermes service
-      const stableHermesServiceUrl = "https://hermes.pyth.network";
-      const connection = new PriceServiceConnection(stableHermesServiceUrl);
-      const feeds = [priceFeedId];
-
-      const currentPrice = await connection.getLatestPriceFeeds(feeds);
-
-      if (!currentPrice || currentPrice.length === 0) {
-        return {
-          status: "error",
-          message: "Price data not available for the given feed ID"
-        };
-      }
-
-      // Get price and exponent from price feed
-      const price = new BN(currentPrice[0].getPriceUnchecked().price);
-      const exponent = new BN(currentPrice[0].getPriceUnchecked().expo);
-
-      // Convert to scaled price
-      const scaledPrice = price.div(new BN(10).pow(exponent));
-      const priceStr = scaledPrice.toString();
+      const priceStr = await pythFetchPrice(priceFeedId);
 
       return {
         status: "success",

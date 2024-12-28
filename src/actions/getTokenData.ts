@@ -3,6 +3,7 @@ import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
 import { JupiterTokenData } from "../types";
+import { getTokenAddressFromTicker, getTokenDataByAddress } from "../tools";
 
 const getTokenDataAction: Action = {
   name: "solana_get_token_data",
@@ -59,59 +60,20 @@ const getTokenDataAction: Action = {
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       let tokenData: JupiterTokenData | undefined;
-
       if (input.address) {
-        const mint = new PublicKey(input.address);
-        const response = await fetch("https://tokens.jup.ag/tokens?tags=verified", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        const data = (await response.json()) as JupiterTokenData[];
-        tokenData = data.find((token: JupiterTokenData) => token.address === mint.toBase58());
+        tokenData = await getTokenDataByAddress(new PublicKey(input.address));
       } else if (input.ticker) {
-        const response = await fetch(
-          `https://api.dexscreener.com/latest/dex/search?q=${input.ticker}`
-        );
-        const data = await response.json();
-
-        if (!data.pairs || data.pairs.length === 0) {
-          return {
-            status: "error",
-            message: `No token found for ticker: ${input.ticker}`
-          };
+        const address = await getTokenAddressFromTicker(input.ticker);
+        if (address) {
+          tokenData = await getTokenDataByAddress(new PublicKey(address));
         }
-
-        let solanaPairs = data.pairs
-          .filter((pair: any) => pair.chainId === "solana")
-          .sort((a: any, b: any) => (b.fdv || 0) - (a.fdv || 0))
-          .filter(
-            (pair: any) =>
-              pair.baseToken.symbol.toLowerCase() === input.ticker.toLowerCase()
-          );
-
-        if (solanaPairs.length === 0) {
-          return {
-            status: "error",
-            message: `No Solana token found for ticker: ${input.ticker}`
-          };
-        }
-
-        const address = solanaPairs[0].baseToken.address;
-        const jupResponse = await fetch("https://tokens.jup.ag/tokens?tags=verified");
-        const jupData = (await jupResponse.json()) as JupiterTokenData[];
-        tokenData = jupData.find((token: JupiterTokenData) => token.address === address);
       }
-
       if (!tokenData) {
         return {
           status: "error",
           message: "Token not found or not verified"
         };
       }
-
       return {
         status: "success",
         token: {

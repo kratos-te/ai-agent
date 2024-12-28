@@ -2,6 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Action, ActionExample } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { deploy_token } from "../tools";
 
 const deployTokenAction: Action = {
   name: "deploy_token",
@@ -55,19 +56,27 @@ const deployTokenAction: Action = {
     initialSupply: z.number().optional()
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
-    const result = await agent.deployToken(
-      input.name,
-      input.uri,
-      input.symbol,
-      input.decimals,
-      input.initialSupply
-    );
+    try {
+      const result = await deploy_token(
+        agent,
+        input.name,
+        input.uri,
+        input.symbol,
+        input.decimals,
+        input.initialSupply
+      );
 
-    return {
-      mint: result.mint.toString(),
-      status: "success",
-      message: "Token deployed successfully"
-    };
+      return {
+        mint: result.mint.toString(),
+        status: "success",
+        message: "Token deployed successfully"
+      };
+    } catch (error: any) {
+      return {
+        status: "error",
+        message: `Token deployment failed: ${error.message}`
+      };
+    }
   }
 }
 

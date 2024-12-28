@@ -2,6 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { trade } from "../tools";
 
 const tradeAction: Action = {
   name: "solana_trade",
@@ -58,7 +59,7 @@ const tradeAction: Action = {
     slippageBps: z.number().min(0).max(10000).optional()
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
-    const tx = await agent.trade(
+    const tx = await trade(agent,
       new PublicKey(input.outputMint),
       input.inputAmount,
       input.inputMint

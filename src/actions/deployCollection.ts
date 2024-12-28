@@ -2,6 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
+import { deploy_collection } from "../tools";
 
 interface CollectionOptions {
   name: string;
@@ -64,7 +65,7 @@ const deployCollectionAction: Action = {
       royaltyBasisPoints: input.royaltyBasisPoints
     };
 
-    const result = await agent.deployCollection(options);
+    const result = await deploy_collection(agent, options);
 
     return {
       status: "success",

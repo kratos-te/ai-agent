@@ -4,6 +4,7 @@ import { z } from "zod";
 import { OPEN_BOOK_PROGRAM, Raydium, TxVersion } from "@raydium-io/raydium-sdk-v2";
 import { MintLayout, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import { openbookCreateMarket } from "../tools";
 
 const createOpenbookMarketAction: Action = {
   name: "solana_create_openbook_market",
@@ -57,54 +58,18 @@ const createOpenbookMarketAction: Action = {
       const lotSize = input.lotSize || 1;
       const tickSize = input.tickSize || 0.01;
 
-      const raydium = await Raydium.load({
-        owner: agent.wallet,
-        connection: agent.connection,
-      });
 
-      // Get mint info
-      const baseMintInfo = await agent.connection.getAccountInfo(baseMint);
-      const quoteMintInfo = await agent.connection.getAccountInfo(quoteMint);
-
-      if (!baseMintInfo || !quoteMintInfo) {
-        return {
-          status: "error",
-          message: "Failed to fetch mint information"
-        };
-      }
-
-      // Verify token program
-      if (
-        baseMintInfo.owner.toString() !== TOKEN_PROGRAM_ID.toBase58() ||
-        quoteMintInfo.owner.toString() !== TOKEN_PROGRAM_ID.toBase58()
-      ) {
-        return {
-          status: "error",
-          message: "Openbook market only supports TOKEN_PROGRAM_ID mints. For token-2022, please use Raydium CPMM pool instead."
-        };
-      }
-
-      // Create market
-      const { execute } = await raydium.marketV2.create({
-        baseInfo: {
-          mint: baseMint,
-          decimals: MintLayout.decode(baseMintInfo.data).decimals,
-        },
-        quoteInfo: {
-          mint: quoteMint,
-          decimals: MintLayout.decode(quoteMintInfo.data).decimals,
-        },
+      const signatures = await openbookCreateMarket(
+        agent,
+        baseMint,
+        quoteMint,
         lotSize,
-        tickSize,
-        dexProgramId: OPEN_BOOK_PROGRAM,
-        txVersion: TxVersion.V0,
-      });
-
-      const { txIds } = await execute({ sequentially: true });
+        tickSize
+      );
 
       return {
         status: "success",
-        signatures: txIds,
+        signatures,
         message: "Successfully created Openbook market"
       };
     } catch (error: any) {
