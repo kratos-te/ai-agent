@@ -4,7 +4,12 @@ import {
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
-import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
+import {
+  TOKENS,
+  DEFAULT_OPTIONS,
+  JUP_API,
+  JUP_REFERRAL_ADDRESS,
+} from "../constants";
 
 /**
  * Swap tokens using Jupiter Exchange
@@ -13,6 +18,8 @@ import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
  * @param inputAmount Amount to swap (in token decimals)
  * @param inputMint Source token mint address (defaults to USDC)
  * @param slippageBps Slippage tolerance in basis points (default: 300 = 3%)
+ * @param jupReferralAccount Jup Refferral Account, to earn fees on swaps
+ * @param jupFeeBps Jup Refferral Fee, to earn fees on swaps (default: 100 = 1%)
  * @returns Transaction signature
  */
 export async function trade(
@@ -21,6 +28,8 @@ export async function trade(
   inputAmount: number,
   inputMint: PublicKey = TOKENS.USDC,
   slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
+  jupReferralAccount?: PublicKey,
+  jupFeeBps?: number,
 ): Promise<string> {
   try {
     const quoteResponse = await (
@@ -31,11 +40,24 @@ export async function trade(
           `&amount=${inputAmount * LAMPORTS_PER_SOL}` +
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
-          `&maxAccounts=20`,
+          `&maxAccounts=20` +
+          `${jupFeeBps ? `&platformFeeBps=${jupFeeBps}` : ""}`,
       )
     ).json();
 
     // Get serialized transaction
+    let feeAccount;
+    if (jupReferralAccount) {
+      [feeAccount] = await PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("referral_ata"),
+          jupReferralAccount.toBuffer(),
+          TOKENS.SOL.toBuffer(),
+        ],
+        new PublicKey(JUP_REFERRAL_ADDRESS),
+      );
+    }
+
     const { swapTransaction } = await (
       await fetch("https://quote-api.jup.ag/v6/swap", {
         method: "POST",
@@ -48,6 +70,7 @@ export async function trade(
           wrapAndUnwrapSol: true,
           dynamicComputeUnitLimit: true,
           prioritizationFeeLamports: "auto",
+          feeAccount: feeAccount ? feeAccount.toString() : null,
         }),
       })
     ).json();

@@ -133,8 +133,10 @@ export class SolanaAgentKit {
     inputAmount: number,
     inputMint?: PublicKey,
     slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
+    jupReferralAccount?:PublicKey,
+    jupFeeBps?:number,
   ): Promise<string> {
-    return trade(this, outputMint, inputAmount, inputMint, slippageBps);
+    return trade(this, outputMint, inputAmount, inputMint, slippageBps, jupReferralAccount ,jupFeeBps);
   }
 
   async lendAssets(amount: number): Promise<string> {
