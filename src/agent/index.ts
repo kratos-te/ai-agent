@@ -37,6 +37,9 @@ import {
   create_gibwork_task,
   rock_paper_scissor,
   create_TipLink,
+  listNFTForSale,
+  buyNFT,
+  cancelListing,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -348,5 +351,26 @@ export class SolanaAgentKit {
   }
   async createTiplink(amount: number, splmintAddress?: PublicKey) {
     return create_TipLink(this, amount, splmintAddress);
+  }
+
+  async tensorListNFT(
+    nftMint: PublicKey,
+    price: number,
+    expirySeconds?: number
+  ): Promise<string> {
+    return listNFTForSale(this, nftMint, price, expirySeconds);
+  }
+
+  async tensorBuyNFT(
+    nftMint: PublicKey,
+    maxPrice: number
+  ): Promise<string> {
+    return buyNFT(this, nftMint, maxPrice);
+  }
+
+  async tensorCancelListing(
+    nftMint: PublicKey
+  ): Promise<string> {
+    return cancelListing(this, nftMint);
   }
 }

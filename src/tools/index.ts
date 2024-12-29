@@ -40,3 +40,5 @@ export * from "./create_gibwork_task";
 
 export * from "./rock_paper_scissor";
 export * from "./create_tiplinks";
+
+export * from "./tensor_trade";
