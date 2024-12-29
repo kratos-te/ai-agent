@@ -1,7 +1,4 @@
-import {
-  VersionedTransaction,
-  PublicKey
-} from "@solana/web3.js";
+import { VersionedTransaction, PublicKey } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
 import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
 import { getMint } from "@solana/spl-token";
@@ -24,24 +21,24 @@ export async function trade(
   try {
     // Check if input token is native SOL
     const isNativeSol = inputMint.equals(TOKENS.SOL);
-    
+
     // For native SOL, we use LAMPORTS_PER_SOL, otherwise fetch mint info
-    const inputDecimals = isNativeSol 
-      ? 9  // SOL always has 9 decimals
+    const inputDecimals = isNativeSol
+      ? 9 // SOL always has 9 decimals
       : (await getMint(agent.connection, inputMint)).decimals;
 
     // Calculate the correct amount based on actual decimals
     const scaledAmount = inputAmount * Math.pow(10, inputDecimals);
-    
+
     const quoteResponse = await (
       await fetch(
         `${JUP_API}/quote?` +
-        `inputMint=${isNativeSol ? TOKENS.SOL.toString() : inputMint.toString()}` +
-        `&outputMint=${outputMint.toString()}` +
-        `&amount=${scaledAmount}` +
-        `&slippageBps=${slippageBps}` +
-        `&onlyDirectRoutes=true` +
-        `&maxAccounts=20`,
+          `inputMint=${isNativeSol ? TOKENS.SOL.toString() : inputMint.toString()}` +
+          `&outputMint=${outputMint.toString()}` +
+          `&amount=${scaledAmount}` +
+          `&slippageBps=${slippageBps}` +
+          `&onlyDirectRoutes=true` +
+          `&maxAccounts=20`,
       )
     ).json();
 
