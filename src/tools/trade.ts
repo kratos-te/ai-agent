@@ -1,11 +1,10 @@
 import {
   VersionedTransaction,
-  PublicKey,
-  LAMPORTS_PER_SOL,
+  PublicKey
 } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
 import { TOKENS, DEFAULT_OPTIONS, JUP_API } from "../constants";
-
+import { getMint } from "@solana/spl-token";
 /**
  * Swap tokens using Jupiter Exchange
  * @param agent SolanaAgentKit instance
@@ -23,12 +22,17 @@ export async function trade(
   slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
 ): Promise<string> {
   try {
+    const mintInfo = await getMint(agent.connection, inputMint);
+    const inputDecimals = mintInfo.decimals;
+
+    // Calculate the correct amount based on actual decimals
+    const scaledAmount = inputAmount * Math.pow(10, inputDecimals);
     const quoteResponse = await (
       await fetch(
         `${JUP_API}/quote?` +
           `inputMint=${inputMint.toString()}` +
           `&outputMint=${outputMint.toString()}` +
-          `&amount=${inputAmount * LAMPORTS_PER_SOL}` +
+          `&amount=${scaledAmount}` +
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
           `&maxAccounts=20`,
