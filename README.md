@@ -239,6 +239,17 @@ The toolkit relies on several key Solana and Metaplex libraries:
 Contributions are welcome! Please feel free to submit a Pull Request.
 Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to contribute to this project.
 
+## Contributors
+
+<a href="https://github.com/sendaifun/solana-agent-kit/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sendaifun/solana-agent-kit" />
+</a>
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sendaifun/solana-agent-kit&type=Date)](https://star-history.com/#sendaifun/solana-agent-kit&Date)
+
 ## License
 
 Apache-2 License
