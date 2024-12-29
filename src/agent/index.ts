@@ -13,6 +13,7 @@ import {
   lendAsset,
   mintCollectionNFT,
   openbookCreateMarket,
+  manifestCreateMarket,
   raydiumCreateAmmV4,
   raydiumCreateClmm,
   raydiumCreateCpmm,
@@ -313,6 +314,13 @@ export class SolanaAgentKit {
       lotSize,
       tickSize,
     );
+  }
+
+  async manifestCreateMarket(
+    baseMint: PublicKey,
+    quoteMint: PublicKey,
+  ): Promise<string[]> {
+    return manifestCreateMarket(this, baseMint, quoteMint);
   }
 
   async pythFetchPrice(priceFeedID: string): Promise<string> {

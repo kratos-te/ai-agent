@@ -48,6 +48,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Raydium pool creation (CPMM, CLMM, AMMv4)
   - Orca Whirlpool integration
   - Meteora Dynamic AMM, DLMM Pool, and Alpga Vault
+  - Manifest market creation, and limit orders
   - Openbook market creation
   - Register and Resolve SNS
   - Jito Bundles
