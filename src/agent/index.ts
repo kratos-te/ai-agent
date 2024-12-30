@@ -6,6 +6,7 @@ import {
   deploy_collection,
   deploy_token,
   get_balance,
+  get_balance_other,
   getTPS,
   resolveSolDomain,
   getPrimaryDomain,
@@ -24,10 +25,13 @@ import {
   getTokenDataByTicker,
   stakeWithJup,
   sendCompressedAirdrop,
-  createOrcaSingleSidedWhirlpool,
+  orcaCreateSingleSidedLiquidityPool,
+  orcaCreateCLMM,
+  orcaOpenCenteredPositionWithLiquidity,
+  orcaOpenSingleSidedPosition,
+  FEE_TIERS,
   fetchPrice,
   pythFetchPrice,
-  FEE_TIERS,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -35,9 +39,12 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  orcaClosePosition,
+  orcaFetchPositions,
   rock_paper_scissor,
   create_TipLink,
 } from "../tools";
+
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -62,12 +69,12 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
-  public openai_api_key: string;
+  public openai_api_key: string | null;
 
   constructor(
     private_key: string,
     rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string,
+    openai_api_key: string | null = null,
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
@@ -98,6 +105,13 @@ export class SolanaAgentKit {
 
   async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
+  }
+
+  async getBalanceOther(
+    walletAddress: PublicKey,
+    tokenAddress?: PublicKey,
+  ): Promise<number> {
+    return get_balance_other(this, walletAddress, tokenAddress);
   }
 
   async mintNFT(
@@ -201,15 +215,28 @@ export class SolanaAgentKit {
     );
   }
 
-  async createOrcaSingleSidedWhirlpool(
-    depositTokenAmount: BN,
+  async orcaClosePosition(positionMintAddress: PublicKey) {
+    return orcaClosePosition(this, positionMintAddress);
+  }
+
+  async orcaCreateCLMM(
+    mintDeploy: PublicKey,
+    mintPair: PublicKey,
+    initialPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return orcaCreateCLMM(this, mintDeploy, mintPair, initialPrice, feeTier);
+  }
+
+  async orcaCreateSingleSidedLiquidityPool(
+    depositTokenAmount: number,
     depositTokenMint: PublicKey,
     otherTokenMint: PublicKey,
     initialPrice: Decimal,
     maxPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
-    return createOrcaSingleSidedWhirlpool(
+    return orcaCreateSingleSidedLiquidityPool(
       this,
       depositTokenAmount,
       depositTokenMint,
@@ -217,6 +244,42 @@ export class SolanaAgentKit {
       initialPrice,
       maxPrice,
       feeTier,
+    );
+  }
+
+  async orcaFetchPositions() {
+    return orcaFetchPositions(this);
+  }
+
+  async orcaOpenCenteredPositionWithLiquidity(
+    whirlpoolAddress: PublicKey,
+    priceOffsetBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ) {
+    return orcaOpenCenteredPositionWithLiquidity(
+      this,
+      whirlpoolAddress,
+      priceOffsetBps,
+      inputTokenMint,
+      inputAmount,
+    );
+  }
+
+  async orcaOpenSingleSidedPosition(
+    whirlpoolAddress: PublicKey,
+    distanceFromCurrentPriceBps: number,
+    widthBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ): Promise<string> {
+    return orcaOpenSingleSidedPosition(
+      this,
+      whirlpoolAddress,
+      distanceFromCurrentPriceBps,
+      widthBps,
+      inputTokenMint,
+      inputAmount,
     );
   }
 
