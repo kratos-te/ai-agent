@@ -442,6 +442,9 @@ packages:
   '@shikijs/engine-oniguruma@1.24.3':
     resolution: {integrity: sha512-iNnx950gs/5Nk+zrp1LuF+S+L7SKEhn8k9eXgFYPGhVshKppsYwRmW8tpmAMvILIMSDfrgqZ0w+3xWVQB//1Xw==}
 
+  '@shikijs/types@1.24.3':
+    resolution: {integrity: sha512-FPMrJ69MNxhRtldRk69CghvaGlbbN3pKRuvko0zvbfa2dXp4pAngByToqS5OY5jvN8D7LKR4RJE8UvzlCOuViw==}
+
   '@shikijs/types@1.24.4':
     resolution: {integrity: sha512-0r0XU7Eaow0PuDxuWC1bVqmWCgm3XqizIaT7SM42K03vc69LGooT0U8ccSR44xP/hGlNx4FKhtYpV+BU6aaKAA==}
 
@@ -2059,7 +2062,7 @@ snapshots:
   '@gerrit0/mini-shiki@1.24.4':
     dependencies:
       '@shikijs/engine-oniguruma': 1.24.3
-      '@shikijs/types': 1.24.3
+      '@shikijs/types': 1.24.4
       '@shikijs/vscode-textmate': 9.3.1
 
   '@humanwhocodes/config-array@0.13.0':
@@ -2399,11 +2402,16 @@ snapshots:
       - utf-8-validate
 
   '@scure/base@1.2.1': {}
-  
+
   '@shikijs/engine-oniguruma@1.24.3':
     dependencies:
-      '@shikijs/types': 1.24.4
+      '@shikijs/types': 1.24.3
       '@shikijs/vscode-textmate': 9.3.1
+
+  '@shikijs/types@1.24.3':
+    dependencies:
+      '@shikijs/vscode-textmate': 9.3.1
+      '@types/hast': 3.0.4
 
   '@shikijs/types@1.24.4':
     dependencies:
@@ -3754,7 +3762,6 @@ snapshots:
   once@1.4.0:
     dependencies:
       wrappy: 1.0.2
-
 
   openai@4.77.0(zod@3.24.1):
     dependencies:
