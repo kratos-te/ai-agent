@@ -1,7 +1,7 @@
 # SolanaAgentKit 🦜️🔗 LangChain + Next.js Starter Template
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/michaelessiet/solana-agent-nextjs-starter-langchain)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmichaelessiet%2Fsolana-agent-nextjs-starter-langchain)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsendaifun%2Fsolana-agent-kit%2Ftree%2Fmain%2Fexamples%2Fagent-kit-nextjs-langchain&env=OPENAI_API_KEY,RPC_URL,SOLANA_PRIVATE_KEY&project-name=solana-agent-kit&repository-name=sak-yourprojectname)
 
 This template scaffolds a SolanaAgentKit + LangChain.js + Next.js starter app.
 
