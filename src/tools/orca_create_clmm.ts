@@ -1,8 +1,8 @@
-import { 
+import {
   Keypair,
   PublicKey,
   TransactionMessage,
-  VersionedTransaction
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { Wallet } from "@coral-xyz/anchor";
@@ -45,7 +45,7 @@ import { FEE_TIERS } from "./orca_create_single_sided_liquidity_pool";
  *
  * @remarks
  * This function only initializes the CLMM pool and does not add liquidity. For adding liquidity, you can use
- * a separate function after the pool is successfully created. 
+ * a separate function after the pool is successfully created.
  * ```
  */
 export async function orcaCreateCLMM(
@@ -57,12 +57,16 @@ export async function orcaCreateCLMM(
 ): Promise<string> {
   try {
     let whirlpoolsConfigAddress: PublicKey;
-    if (agent.connection.rpcEndpoint.includes('mainnet')) {
-      whirlpoolsConfigAddress = new PublicKey('2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ');
-    } else if (agent.connection.rpcEndpoint.includes('devnet')) {
-      whirlpoolsConfigAddress = new PublicKey('FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR');
+    if (agent.connection.rpcEndpoint.includes("mainnet")) {
+      whirlpoolsConfigAddress = new PublicKey(
+        "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
+      );
+    } else if (agent.connection.rpcEndpoint.includes("devnet")) {
+      whirlpoolsConfigAddress = new PublicKey(
+        "FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR",
+      );
     } else {
-      throw new Error('Unsupported network');
+      throw new Error("Unsupported network");
     }
     const wallet = new Wallet(agent.wallet);
     const ctx = WhirlpoolContext.from(
@@ -71,14 +75,12 @@ export async function orcaCreateCLMM(
       ORCA_WHIRLPOOL_PROGRAM_ID,
     );
     const fetcher = ctx.fetcher;
-    const client = buildWhirlpoolClient(ctx)
+    const client = buildWhirlpoolClient(ctx);
 
-    const correctTokenOrder = PoolUtil.orderMints(
-      mintDeploy,
-      mintPair,
-    ).map((addr) => addr.toString());
-    const isCorrectMintOrder =
-      correctTokenOrder[0] === mintDeploy.toString();
+    const correctTokenOrder = PoolUtil.orderMints(mintDeploy, mintPair).map(
+      (addr) => addr.toString(),
+    );
+    const isCorrectMintOrder = correctTokenOrder[0] === mintDeploy.toString();
     let mintA;
     let mintB;
     if (!isCorrectMintOrder) {
@@ -94,7 +96,12 @@ export async function orcaCreateCLMM(
     }
 
     const tickSpacing = FEE_TIERS[feeTier];
-    const initialTick = PriceMath.priceToInitializableTickIndex(initialPrice, mintAAccount.decimals, mintBAccount.decimals, tickSpacing)
+    const initialTick = PriceMath.priceToInitializableTickIndex(
+      initialPrice,
+      mintAAccount.decimals,
+      mintBAccount.decimals,
+      tickSpacing,
+    );
     const { poolKey, tx: txBuilder } = await client.createPool(
       whirlpoolsConfigAddress,
       mintA,
@@ -102,16 +109,18 @@ export async function orcaCreateCLMM(
       tickSpacing,
       initialTick,
       wallet.publicKey,
-    )
+    );
 
     const txPayload = await txBuilder.build();
-    const txPayloadDecompiled = TransactionMessage.decompile((txPayload.transaction as VersionedTransaction).message);
+    const txPayloadDecompiled = TransactionMessage.decompile(
+      (txPayload.transaction as VersionedTransaction).message,
+    );
     const instructions = txPayloadDecompiled.instructions;
 
     const txId = await sendTx(
       agent,
       instructions,
-      txPayload.signers as Keypair[]
+      txPayload.signers as Keypair[],
     );
     return JSON.stringify({
       transactionId: txId,

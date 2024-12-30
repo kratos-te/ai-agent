@@ -1,4 +1,9 @@
-import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
@@ -52,7 +57,7 @@ export async function orcaOpenSingleSidedPosition(
   distanceFromCurrentPriceBps: number,
   widthBps: number,
   inputTokenMint: PublicKey,
-  inputAmount: Decimal
+  inputAmount: Decimal,
 ): Promise<string> {
   try {
     const wallet = new Wallet(agent.wallet);
@@ -70,7 +75,7 @@ export async function orcaOpenSingleSidedPosition(
     const price = PriceMath.sqrtPriceX64ToPrice(
       whirlpoolData.sqrtPrice,
       mintInfoA.decimals,
-      mintInfoB.decimals
+      mintInfoB.decimals,
     );
 
     const isTokenA = inputTokenMint.equals(mintInfoA.mint);
@@ -85,13 +90,13 @@ export async function orcaOpenSingleSidedPosition(
         upperBoundPrice,
         mintInfoA.decimals,
         mintInfoB.decimals,
-        whirlpoolData.tickSpacing
+        whirlpoolData.tickSpacing,
       );
       lowerTick = PriceMath.priceToInitializableTickIndex(
         lowerBoundPrice,
         mintInfoA.decimals,
         mintInfoB.decimals,
-        whirlpoolData.tickSpacing
+        whirlpoolData.tickSpacing,
       );
     } else {
       lowerBoundPrice = price.mul(1 - distanceFromCurrentPriceBps / 10000);
@@ -100,26 +105,31 @@ export async function orcaOpenSingleSidedPosition(
         upperBoundPrice,
         mintInfoA.decimals,
         mintInfoB.decimals,
-        whirlpoolData.tickSpacing
+        whirlpoolData.tickSpacing,
       );
       upperTick = PriceMath.priceToInitializableTickIndex(
         lowerBoundPrice,
         mintInfoA.decimals,
         mintInfoB.decimals,
-        whirlpoolData.tickSpacing
+        whirlpoolData.tickSpacing,
       );
     }
 
-    const txBuilderTickArrays = await whirlpool.initTickArrayForTicks([lowerTick, upperTick]);
-    let txIds: string = '';
+    const txBuilderTickArrays = await whirlpool.initTickArrayForTicks([
+      lowerTick,
+      upperTick,
+    ]);
+    let txIds: string = "";
     if (txBuilderTickArrays !== null) {
       const txPayloadTickArrays = await txBuilderTickArrays.build();
-      const txPayloadTickArraysDecompiled = TransactionMessage.decompile((txPayloadTickArrays.transaction as VersionedTransaction).message);
+      const txPayloadTickArraysDecompiled = TransactionMessage.decompile(
+        (txPayloadTickArrays.transaction as VersionedTransaction).message,
+      );
       const instructions = txPayloadTickArraysDecompiled.instructions;
       const signers = txPayloadTickArrays.signers as Keypair[];
 
       const tickArrayTxId = await sendTx(agent, instructions, signers);
-      txIds += tickArrayTxId + ',';
+      txIds += tickArrayTxId + ",";
     }
 
     const tokenExtensionCtx: TokenExtensionContextForPool = {
@@ -134,25 +144,28 @@ export async function orcaOpenSingleSidedPosition(
       upperTick,
       Percentage.fromFraction(1, 100),
       whirlpool,
-      tokenExtensionCtx
+      tokenExtensionCtx,
     );
-    const { positionMint, tx: txBuilder } = await whirlpool.openPositionWithMetadata(
-      lowerTick,
-      upperTick,
-      increaseLiquiditQuote,
-      undefined,
-      undefined,
-      undefined,
-      TOKEN_2022_PROGRAM_ID
-    );
+    const { positionMint, tx: txBuilder } =
+      await whirlpool.openPositionWithMetadata(
+        lowerTick,
+        upperTick,
+        increaseLiquiditQuote,
+        undefined,
+        undefined,
+        undefined,
+        TOKEN_2022_PROGRAM_ID,
+      );
 
     const txPayload = await txBuilder.build();
-    const txPayloadDecompiled = TransactionMessage.decompile((txPayload.transaction as VersionedTransaction).message);
+    const txPayloadDecompiled = TransactionMessage.decompile(
+      (txPayload.transaction as VersionedTransaction).message,
+    );
     const instructions = txPayloadDecompiled.instructions;
     const signers = txPayload.signers as Keypair[];
 
     const positionTxId = await sendTx(agent, instructions, signers);
-    txIds += positionTxId; 
+    txIds += positionTxId;
 
     return JSON.stringify({
       transactionIds: txIds,

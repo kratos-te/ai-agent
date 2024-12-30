@@ -16,7 +16,7 @@ export * from "./get_token_data";
 export * from "./stake_with_jup";
 export * from "./fetch_price";
 export * from "./send_compressed_airdrop";
-export * from "./orca_close_position"
+export * from "./orca_close_position";
 export * from "./orca_create_clmm";
 export * from "./orca_create_single_sided_liquidity_pool";
 export * from "./orca_fetch_positions";

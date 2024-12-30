@@ -215,13 +215,8 @@ export class SolanaAgentKit {
     );
   }
 
-  async orcaClosePosition(
-    positionMintAddress: PublicKey,
-  ) {
-    return orcaClosePosition(
-      this,
-      positionMintAddress,
-    );
+  async orcaClosePosition(positionMintAddress: PublicKey) {
+    return orcaClosePosition(this, positionMintAddress);
   }
 
   async orcaCreateCLMM(
@@ -230,13 +225,7 @@ export class SolanaAgentKit {
     initialPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
-    return orcaCreateCLMM(
-      this,
-      mintDeploy,
-      mintPair,
-      initialPrice,
-      feeTier,
-    );
+    return orcaCreateCLMM(this, mintDeploy, mintPair, initialPrice, feeTier);
   }
 
   async orcaCreateSingleSidedLiquidityPool(
@@ -258,11 +247,8 @@ export class SolanaAgentKit {
     );
   }
 
-  async orcaFetchPositions(
-  ) {
-    return orcaFetchPositions(
-      this,
-    );
+  async orcaFetchPositions() {
+    return orcaFetchPositions(this);
   }
 
   async orcaOpenCenteredPositionWithLiquidity(

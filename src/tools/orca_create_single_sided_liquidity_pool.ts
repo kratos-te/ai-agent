@@ -1,8 +1,8 @@
-import { 
-  Keypair, 
-  PublicKey, 
-  TransactionMessage, 
-  VersionedTransaction 
+import {
+  Keypair,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { BN, Wallet } from "@coral-xyz/anchor";
@@ -112,12 +112,16 @@ export async function orcaCreateSingleSidedLiquidityPool(
 ): Promise<string> {
   try {
     let whirlpoolsConfigAddress: PublicKey;
-    if (agent.connection.rpcEndpoint.includes('mainnet')) {
-      whirlpoolsConfigAddress = new PublicKey('2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ');
-    } else if (agent.connection.rpcEndpoint.includes('devnet')) {
-      whirlpoolsConfigAddress = new PublicKey('FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR');
+    if (agent.connection.rpcEndpoint.includes("mainnet")) {
+      whirlpoolsConfigAddress = new PublicKey(
+        "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
+      );
+    } else if (agent.connection.rpcEndpoint.includes("devnet")) {
+      whirlpoolsConfigAddress = new PublicKey(
+        "FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR",
+      );
     } else {
-      throw new Error('Unsupported network');
+      throw new Error("Unsupported network");
     }
     const wallet = new Wallet(agent.wallet);
     const ctx = WhirlpoolContext.from(
@@ -263,7 +267,7 @@ export async function orcaCreateSingleSidedLiquidityPool(
     ) {
       throw Error("Prices out of bounds");
     }
-    depositTokenAmount = isCorrectMintOrder 
+    depositTokenAmount = isCorrectMintOrder
       ? depositTokenAmount * Math.pow(10, mintAAccount.decimals)
       : depositTokenAmount * Math.pow(10, mintBAccount.decimals);
     const increasLiquidityQuoteParam: IncreaseLiquidityQuoteParam = {
@@ -388,7 +392,9 @@ export async function orcaCreateSingleSidedLiquidityPool(
       tickArrayUpper: tickArrayUpperPda.publicKey,
     };
 
-    const liquidityIx = !TokenExtensionUtil.isV2IxRequiredPool(tokenExtensionCtx)
+    const liquidityIx = !TokenExtensionUtil.isV2IxRequiredPool(
+      tokenExtensionCtx,
+    )
       ? increaseLiquidityIx(ctx.program, baseParamsLiquidity)
       : increaseLiquidityV2Ix(ctx.program, {
           ...baseParamsLiquidity,
@@ -404,12 +410,11 @@ export async function orcaCreateSingleSidedLiquidityPool(
       (txPayload.transaction as VersionedTransaction).message,
     ).instructions;
 
-    
-    const txId = await sendTx(
-      agent,
-      instructions,
-      [positionMintKeypair, tokenVaultAKeypair, tokenVaultBKeypair],
-    );
+    const txId = await sendTx(agent, instructions, [
+      positionMintKeypair,
+      tokenVaultAKeypair,
+      tokenVaultBKeypair,
+    ]);
     return txId;
   } catch (error) {
     throw new Error(`Failed to send transaction: ${JSON.stringify(error)}`);

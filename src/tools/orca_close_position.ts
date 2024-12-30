@@ -2,7 +2,7 @@ import {
   Keypair,
   PublicKey,
   TransactionMessage,
-  VersionedTransaction
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { Wallet } from "@coral-xyz/anchor";
@@ -32,7 +32,7 @@ import { Percentage } from "@orca-so/common-sdk";
  * - The function uses Orca’s SDK to interact with the specified Whirlpool and close the liquidity position.
  * - A maximum slippage of 1% is assumed for liquidity provision during the position closing.
  * - The function automatically fetches the associated Whirlpool address and position details using the provided mint address.
- * 
+ *
  * ## Throws
  * An error will be thrown if:
  * - The specified position mint address is invalid or inaccessible.
@@ -54,24 +54,28 @@ export async function orcaClosePosition(
       wallet,
       ORCA_WHIRLPOOL_PROGRAM_ID,
     );
-    const client = buildWhirlpoolClient(ctx)
+    const client = buildWhirlpoolClient(ctx);
 
-    const positionAddress = PDAUtil.getPosition(ORCA_WHIRLPOOL_PROGRAM_ID, positionMintAddress);
+    const positionAddress = PDAUtil.getPosition(
+      ORCA_WHIRLPOOL_PROGRAM_ID,
+      positionMintAddress,
+    );
     const position = await client.getPosition(positionAddress.publicKey);
     const whirlpoolAddress = position.getData().whirlpool;
     const whirlpool = await client.getPool(whirlpoolAddress);
-    const txBuilder = await whirlpool.closePosition(positionAddress.publicKey, Percentage.fromFraction(1, 100));
+    const txBuilder = await whirlpool.closePosition(
+      positionAddress.publicKey,
+      Percentage.fromFraction(1, 100),
+    );
     const txPayload = await txBuilder[0].build();
-    const txPayloadDecompiled = TransactionMessage.decompile((txPayload.transaction as VersionedTransaction).message);
+    const txPayloadDecompiled = TransactionMessage.decompile(
+      (txPayload.transaction as VersionedTransaction).message,
+    );
     const instructions = txPayloadDecompiled.instructions;
     const signers = txPayload.signers as Keypair[];
 
-    const txId = await sendTx(
-      agent,
-      instructions,
-      signers
-    );
-    return txId
+    const txId = await sendTx(agent, instructions, signers);
+    return txId;
   } catch (error) {
     throw new Error(`${error}`);
   }

@@ -1,4 +1,10 @@
-import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
@@ -20,7 +26,7 @@ import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
  * # Opens a Centered Liquidity Position in an Orca Whirlpool
  *
  * This function opens a centered liquidity position in a specified Orca Whirlpool. The user defines
- * a basis point (bps) offset from the cuurent price of the pool to set the lower and upper bounds of the position. 
+ * a basis point (bps) offset from the cuurent price of the pool to set the lower and upper bounds of the position.
  * The user also specifies the token mint and the amount to deposit. The required amount of the other token
  * is calculated automatically.
  *
@@ -69,29 +75,44 @@ export async function orcaOpenCenteredPositionWithLiquidity(
       wallet,
       ORCA_WHIRLPOOL_PROGRAM_ID,
     );
-    const client = buildWhirlpoolClient(ctx)
+    const client = buildWhirlpoolClient(ctx);
 
     const whirlpool = await client.getPool(whirlpoolAddress);
     const whirlpoolData = whirlpool.getData();
-    const mintInfoA = whirlpool.getTokenAInfo()
-    const mintInfoB = whirlpool.getTokenBInfo()
+    const mintInfoA = whirlpool.getTokenAInfo();
+    const mintInfoB = whirlpool.getTokenBInfo();
     const price = PriceMath.sqrtPriceX64ToPrice(
       whirlpoolData.sqrtPrice,
       mintInfoA.decimals,
-      mintInfoB.decimals
-    )
+      mintInfoB.decimals,
+    );
 
-    const lowerPrice = price.mul(1 - priceOffsetBps / 10000)
-    const upperPrice = price.mul(1 + priceOffsetBps / 10000)
-    const lowerTick = PriceMath.priceToInitializableTickIndex(lowerPrice, mintInfoA.decimals, mintInfoB.decimals, whirlpoolData.tickSpacing)
-    const upperTick = PriceMath.priceToInitializableTickIndex(upperPrice, mintInfoA.decimals, mintInfoB.decimals, whirlpoolData.tickSpacing)
+    const lowerPrice = price.mul(1 - priceOffsetBps / 10000);
+    const upperPrice = price.mul(1 + priceOffsetBps / 10000);
+    const lowerTick = PriceMath.priceToInitializableTickIndex(
+      lowerPrice,
+      mintInfoA.decimals,
+      mintInfoB.decimals,
+      whirlpoolData.tickSpacing,
+    );
+    const upperTick = PriceMath.priceToInitializableTickIndex(
+      upperPrice,
+      mintInfoA.decimals,
+      mintInfoB.decimals,
+      whirlpoolData.tickSpacing,
+    );
 
-    const txBuilderTickArrays = await whirlpool.initTickArrayForTicks([lowerTick, upperTick])
-    let instructions: TransactionInstruction[] = []
-    let signers: Keypair[] = []
+    const txBuilderTickArrays = await whirlpool.initTickArrayForTicks([
+      lowerTick,
+      upperTick,
+    ]);
+    let instructions: TransactionInstruction[] = [];
+    let signers: Keypair[] = [];
     if (txBuilderTickArrays !== null) {
       const txPayloadTickArrays = await txBuilderTickArrays.build();
-      const txPayloadTickArraysDecompiled = TransactionMessage.decompile((txPayloadTickArrays.transaction as VersionedTransaction).message);
+      const txPayloadTickArraysDecompiled = TransactionMessage.decompile(
+        (txPayloadTickArrays.transaction as VersionedTransaction).message,
+      );
       const instructionsTickArrays = txPayloadTickArraysDecompiled.instructions;
       instructions = instructions.concat(instructionsTickArrays);
       signers = signers.concat(txPayloadTickArrays.signers as Keypair[]);
@@ -109,32 +130,31 @@ export async function orcaOpenCenteredPositionWithLiquidity(
       upperTick,
       Percentage.fromFraction(1, 100),
       whirlpool,
-      tokenExtensionCtx
-    )
-    const { positionMint, tx: txBuilder } = await whirlpool.openPositionWithMetadata(
-      lowerTick,
-      upperTick,
-      increaseLiquiditQuote,
-      undefined,
-      undefined,
-      undefined,
-      TOKEN_2022_PROGRAM_ID
-    )
+      tokenExtensionCtx,
+    );
+    const { positionMint, tx: txBuilder } =
+      await whirlpool.openPositionWithMetadata(
+        lowerTick,
+        upperTick,
+        increaseLiquiditQuote,
+        undefined,
+        undefined,
+        undefined,
+        TOKEN_2022_PROGRAM_ID,
+      );
 
     const txPayload = await txBuilder.build();
-    const txPayloadDecompiled = TransactionMessage.decompile((txPayload.transaction as VersionedTransaction).message);
+    const txPayloadDecompiled = TransactionMessage.decompile(
+      (txPayload.transaction as VersionedTransaction).message,
+    );
     instructions = instructions.concat(txPayloadDecompiled.instructions);
     signers = signers.concat(txPayload.signers as Keypair[]);
 
-    const txId = await sendTx(
-      agent,
-      instructions,
-      signers
-    );
+    const txId = await sendTx(agent, instructions, signers);
     return JSON.stringify({
       transactionId: txId,
       positionMint: positionMint.toString(),
-    })
+    });
   } catch (error) {
     throw new Error(`${error}`);
   }

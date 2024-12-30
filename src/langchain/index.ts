@@ -798,11 +798,11 @@ export class SolanaCompressedAirdropTool extends Tool {
 
 export class SolanaClosePostition extends Tool {
   name = "orca_close_position";
-  description  = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
+  description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
   
   Inputs (JSON string):
-  - positionMintAddress: string, the address of the position mint that represents the liquidity position.`
+  - positionMintAddress: string, the address of the position mint that represents the liquidity position.`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -811,11 +811,11 @@ export class SolanaClosePostition extends Tool {
   async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const positionMintAddress = new PublicKey(inputFormat.positionMintAddress);
-
-      const txId = await this.solanaKit.orcaClosePosition(
-        positionMintAddress,
+      const positionMintAddress = new PublicKey(
+        inputFormat.positionMintAddress,
       );
+
+      const txId = await this.solanaKit.orcaClosePosition(positionMintAddress);
 
       return JSON.stringify({
         status: "success",
@@ -871,7 +871,8 @@ export class SolanaOrcaCreateCLMM extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "CLMM pool created successfully. Note: No liquidity was added.",
+        message:
+          "CLMM pool created successfully. Note: No liquidity was added.",
         transaction: txId,
       });
     } catch (error: any) {
@@ -883,7 +884,6 @@ export class SolanaOrcaCreateCLMM extends Tool {
     }
   }
 }
-
 
 export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   name = "orca_create_single_sided_liquidity_pool";
@@ -955,8 +955,7 @@ export class SolanaOrcaFetchPositions extends Tool {
 
   async _call(): Promise<string> {
     try {
-
-      const txId = await this.solanaKit.orcaFetchPositions()
+      const txId = await this.solanaKit.orcaFetchPositions();
 
       return JSON.stringify({
         status: "success",
@@ -995,8 +994,10 @@ export class SolanaOrcaOpenCenteredPosition extends Tool {
       const inputTokenMint = new PublicKey(inputFormat.inputTokenMint);
       const inputAmount = new Decimal(inputFormat.inputAmount);
 
-      if (priceOffsetBps < 0 ) {
-        throw new Error("Invalid distanceFromCurrentPriceBps. It must be equal or greater than 0.");
+      if (priceOffsetBps < 0) {
+        throw new Error(
+          "Invalid distanceFromCurrentPriceBps. It must be equal or greater than 0.",
+        );
       }
 
       const txId = await this.solanaKit.orcaOpenCenteredPositionWithLiquidity(
@@ -1040,13 +1041,16 @@ export class SolanaOrcaOpenSingleSidedPosition extends Tool {
     try {
       const inputFormat = JSON.parse(input);
       const whirlpoolAddress = new PublicKey(inputFormat.whirlpoolAddress);
-      const distanceFromCurrentPriceBps = inputFormat.distanceFromCurrentPriceBps;
+      const distanceFromCurrentPriceBps =
+        inputFormat.distanceFromCurrentPriceBps;
       const widthBps = inputFormat.widthBps;
       const inputTokenMint = new PublicKey(inputFormat.inputTokenMint);
       const inputAmount = new Decimal(inputFormat.inputAmount);
 
       if (distanceFromCurrentPriceBps < 0 || widthBps < 0) {
-        throw new Error("Invalid distanceFromCurrentPriceBps or width. It must be equal or greater than 0.");
+        throw new Error(
+          "Invalid distanceFromCurrentPriceBps or width. It must be equal or greater than 0.",
+        );
       }
 
       const txId = await this.solanaKit.orcaOpenSingleSidedPosition(
@@ -1520,9 +1524,9 @@ export class SolanaRockPaperScissorsTool extends Tool {
       const result = await this.solanaKit.rockPaperScissors(
         Number(parsedInput['"amount"']),
         parsedInput['"choice"'].replace(/^"|"$/g, "") as
-        | "rock"
-        | "paper"
-        | "scissors",
+          | "rock"
+          | "paper"
+          | "scissors",
       );
 
       return JSON.stringify({

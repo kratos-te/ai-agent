@@ -58,18 +58,18 @@ export async function orcaFetchPositions(
       wallet,
       ORCA_WHIRLPOOL_PROGRAM_ID,
     );
-    const client = buildWhirlpoolClient(ctx)
+    const client = buildWhirlpoolClient(ctx);
 
     const positions = await getAllPositionAccountsByOwner({
-      ctx, 
-      owner: agent.wallet.publicKey
-    })
+      ctx,
+      owner: agent.wallet.publicKey,
+    });
     const positionDatas = [
       ...positions.positions.entries(),
-      ...positions.positionsWithTokenExtensions.entries()
+      ...positions.positionsWithTokenExtensions.entries(),
     ];
     const result: PositionDataMap = {};
-    for (const [_, positionData] of positionDatas) {
+    for (const [, positionData] of positionDatas) {
       const positionMintAddress = positionData.positionMint;
       const whirlpoolAddress = positionData.whirlpool;
       const whirlpool = await client.getPool(whirlpoolAddress);
@@ -78,16 +78,34 @@ export async function orcaFetchPositions(
       const currentTick = whirlpoolData.tickCurrentIndex;
       const mintA = whirlpool.getTokenAInfo();
       const mintB = whirlpool.getTokenBInfo();
-      const currentPrice = PriceMath.sqrtPriceX64ToPrice(sqrtPrice, mintA.decimals, mintB.decimals);
-      const lowerTick = positionData.tickLowerIndex
-      const upperTick = positionData.tickUpperIndex
-      const lowerPrice = PriceMath.tickIndexToPrice(lowerTick, mintA.decimals, mintB.decimals);
-      const upperPrice = PriceMath.tickIndexToPrice(upperTick, mintA.decimals, mintB.decimals);
-      const centerPosition  = (lowerPrice.add(upperPrice)).div(2);
+      const currentPrice = PriceMath.sqrtPriceX64ToPrice(
+        sqrtPrice,
+        mintA.decimals,
+        mintB.decimals,
+      );
+      const lowerTick = positionData.tickLowerIndex;
+      const upperTick = positionData.tickUpperIndex;
+      const lowerPrice = PriceMath.tickIndexToPrice(
+        lowerTick,
+        mintA.decimals,
+        mintB.decimals,
+      );
+      const upperPrice = PriceMath.tickIndexToPrice(
+        upperTick,
+        mintA.decimals,
+        mintB.decimals,
+      );
+      const centerPosition = lowerPrice.add(upperPrice).div(2);
 
-      const positionInRange = (currentTick > lowerTick && currentTick < upperTick) ? true : false;
+      const positionInRange =
+        currentTick > lowerTick && currentTick < upperTick ? true : false;
       const distanceFromCenterBps = Math.ceil(
-        currentPrice.sub(centerPosition).abs().div(centerPosition).mul(10000).toNumber()
+        currentPrice
+          .sub(centerPosition)
+          .abs()
+          .div(centerPosition)
+          .mul(10000)
+          .toNumber(),
       );
 
       result[positionMintAddress.toString()] = {
