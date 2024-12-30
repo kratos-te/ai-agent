@@ -1,9 +1,9 @@
 import { SolanaAgentKit } from "../index";
-import { TCompSDK } from "@tensor-oss/tcomp-sdk";
+import { TensorSwapSDK } from "@tensor-oss/tensorswap-sdk";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
 import { BN } from "bn.js";
-import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAccount } from '@solana/spl-token';
+import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID,getAccount } from '@solana/spl-token';
 
 export async function listNFTForSale(
   agent: SolanaAgentKit,
@@ -12,6 +12,10 @@ export async function listNFTForSale(
   expirySeconds?: number
 ): Promise<string> {
   try {
+    if (!PublicKey.isOnCurve(nftMint)) {
+      throw new Error('Invalid NFT mint address');
+    }
+
     const mintInfo = await agent.connection.getAccountInfo(nftMint);
     if (!mintInfo) {
       throw new Error(`NFT mint ${nftMint.toString()} does not exist`);
@@ -27,10 +31,12 @@ export async function listNFTForSale(
         agent.connection,
         ata
       );
-      console.log("Token Account:", tokenAccount);
+      
+      if (!tokenAccount || tokenAccount.amount <= 0) {
+        throw new Error(`You don't own this NFT (${nftMint.toString()})`);
+      }
     } catch (e) {
-      console.error("Token account error:", e);
-      throw new Error(`No token account found for mint ${nftMint.toString()}`);
+      throw new Error(`No token account found for mint ${nftMint.toString()}. Make sure you own this NFT.`);
     }
 
     const provider = new AnchorProvider(
@@ -39,15 +45,17 @@ export async function listNFTForSale(
       AnchorProvider.defaultOptions()
     );
     
-    const tcompSdk = new TCompSDK({ provider });
+    const tensorSwapSdk = new TensorSwapSDK({ provider });
     const priceInLamports = new BN(price * 1e9);
-    const expiry = expirySeconds ? new BN(expirySeconds) : null;
+    const nftSource = await getAssociatedTokenAddress(nftMint, agent.wallet_address);
 
-    const { tx } = await tcompSdk.listCore({
-      asset: nftMint,
+    const { tx } = await tensorSwapSdk.list({
+      nftMint,
+      nftSource,
       owner: agent.wallet_address,
-      amount: priceInLamports,
-      expireInSec: expiry
+      price: priceInLamports,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      payer: agent.wallet_address
     });
 
     const transaction = new Transaction();
@@ -70,17 +78,20 @@ export async function buyNFT(
     AnchorProvider.defaultOptions()
   );
   
-  const tcompSdk = new TCompSDK({ provider });
+  const tensorSwapSdk = new TensorSwapSDK({ provider });
   const maxPriceInLamports = new BN(maxPrice * 1e9);
+  const nftBuyerAcc = await getAssociatedTokenAddress(nftMint, agent.wallet_address);
 
-  const { tx } = await tcompSdk.buyCore({
-    asset: nftMint,
-    buyer: agent.wallet_address,
-    maxAmount: maxPriceInLamports,
+  const { tx } = await tensorSwapSdk.buySingleListingT22({
+    nftMint,
+    nftBuyerAcc,
     owner: agent.wallet_address,
-    rentDest: agent.wallet_address,
-    payer: agent.wallet_address,
-    makerBroker: null
+    buyer: agent.wallet_address,
+    maxPrice: maxPriceInLamports,
+    takerBroker: null,
+    compute: null,
+    priorityMicroLamports: null,
+    transferHook: null
   });
 
   const transaction = new Transaction();
@@ -98,12 +109,21 @@ export async function cancelListing(
     AnchorProvider.defaultOptions()
   );
   
-  const tcompSdk = new TCompSDK({ provider });
-
-  const { tx } = await tcompSdk.delistCore({
-    asset: nftMint,
+  const tensorSwapSdk = new TensorSwapSDK({ provider });
+  const nftDest = await getAssociatedTokenAddress(
+    nftMint, 
+    agent.wallet_address,
+    false,
+    TOKEN_PROGRAM_ID
+  );
+  
+  const { tx } = await tensorSwapSdk.delist({
+    nftMint,
+    nftDest,
     owner: agent.wallet_address,
-    rentDest: agent.wallet_address
+    tokenProgram: TOKEN_PROGRAM_ID,
+    payer: agent.wallet_address,
+    authData: null
   });
 
   const transaction = new Transaction();
