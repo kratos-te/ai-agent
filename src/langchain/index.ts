@@ -1434,6 +1434,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
     new SolanaManifestCreateMarket(solanaKit),
+    new SolanaLimitOrderTool(solanaKit),
     new SolanaCreateSingleSidedWhirlpoolTool(solanaKit),
     new SolanaPythFetchPrice(solanaKit),
     new SolanaResolveDomainTool(solanaKit),
