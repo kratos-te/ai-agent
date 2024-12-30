@@ -25,10 +25,13 @@ import {
   getTokenDataByTicker,
   stakeWithJup,
   sendCompressedAirdrop,
-  createOrcaSingleSidedWhirlpool,
+  orcaCreateSingleSidedLiquidityPool,
+  orcaCreateCLMM,
+  orcaOpenCenteredPositionWithLiquidity,
+  orcaOpenSingleSidedPosition,
+  FEE_TIERS,
   fetchPrice,
   pythFetchPrice,
-  FEE_TIERS,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -36,9 +39,12 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  orcaClosePosition,
+  orcaFetchPositions,
   rock_paper_scissor,
   create_TipLink,
 } from "../tools";
+
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -209,15 +215,28 @@ export class SolanaAgentKit {
     );
   }
 
-  async createOrcaSingleSidedWhirlpool(
-    depositTokenAmount: BN,
+  async orcaClosePosition(positionMintAddress: PublicKey) {
+    return orcaClosePosition(this, positionMintAddress);
+  }
+
+  async orcaCreateCLMM(
+    mintDeploy: PublicKey,
+    mintPair: PublicKey,
+    initialPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return orcaCreateCLMM(this, mintDeploy, mintPair, initialPrice, feeTier);
+  }
+
+  async orcaCreateSingleSidedLiquidityPool(
+    depositTokenAmount: number,
     depositTokenMint: PublicKey,
     otherTokenMint: PublicKey,
     initialPrice: Decimal,
     maxPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
-    return createOrcaSingleSidedWhirlpool(
+    return orcaCreateSingleSidedLiquidityPool(
       this,
       depositTokenAmount,
       depositTokenMint,
@@ -225,6 +244,42 @@ export class SolanaAgentKit {
       initialPrice,
       maxPrice,
       feeTier,
+    );
+  }
+
+  async orcaFetchPositions() {
+    return orcaFetchPositions(this);
+  }
+
+  async orcaOpenCenteredPositionWithLiquidity(
+    whirlpoolAddress: PublicKey,
+    priceOffsetBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ) {
+    return orcaOpenCenteredPositionWithLiquidity(
+      this,
+      whirlpoolAddress,
+      priceOffsetBps,
+      inputTokenMint,
+      inputAmount,
+    );
+  }
+
+  async orcaOpenSingleSidedPosition(
+    whirlpoolAddress: PublicKey,
+    distanceFromCurrentPriceBps: number,
+    widthBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ): Promise<string> {
+    return orcaOpenSingleSidedPosition(
+      this,
+      whirlpoolAddress,
+      distanceFromCurrentPriceBps,
+      widthBps,
+      inputTokenMint,
+      inputAmount,
     );
   }
 
