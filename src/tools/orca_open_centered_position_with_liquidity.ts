@@ -14,6 +14,7 @@ import {
 
 import { sendTx } from "../utils/send_tx";
 import { Percentage } from "@orca-so/common-sdk";
+import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 /**
  * # Opens a Centered Liquidity Position in an Orca Whirlpool
@@ -71,18 +72,19 @@ export async function orcaOpenCenteredPositionWithLiquidity(
     const client = buildWhirlpoolClient(ctx)
 
     const whirlpool = await client.getPool(whirlpoolAddress);
+    const whirlpoolData = whirlpool.getData();
     const mintInfoA = whirlpool.getTokenAInfo()
     const mintInfoB = whirlpool.getTokenBInfo()
     const price = PriceMath.sqrtPriceX64ToPrice(
-      whirlpool.getData().sqrtPrice,
+      whirlpoolData.sqrtPrice,
       mintInfoA.decimals,
       mintInfoB.decimals
     )
 
     const lowerPrice = price.mul(1 - priceOffsetBps / 10000)
     const upperPrice = price.mul(1 + priceOffsetBps / 10000)
-    const lowerTick = PriceMath.priceToTickIndex(lowerPrice, mintInfoA.decimals, mintInfoB.decimals)
-    const upperTick = PriceMath.priceToTickIndex(upperPrice, mintInfoA.decimals, mintInfoB.decimals)
+    const lowerTick = PriceMath.priceToInitializableTickIndex(lowerPrice, mintInfoA.decimals, mintInfoB.decimals, whirlpoolData.tickSpacing)
+    const upperTick = PriceMath.priceToInitializableTickIndex(upperPrice, mintInfoA.decimals, mintInfoB.decimals, whirlpoolData.tickSpacing)
 
     const txBuilderTickArrays = await whirlpool.initTickArrayForTicks([lowerTick, upperTick])
     let instructions: TransactionInstruction[] = []
@@ -112,7 +114,11 @@ export async function orcaOpenCenteredPositionWithLiquidity(
     const { positionMint, tx: txBuilder } = await whirlpool.openPositionWithMetadata(
       lowerTick,
       upperTick,
-      increaseLiquiditQuote
+      increaseLiquiditQuote,
+      undefined,
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     )
 
     const txPayload = await txBuilder.build();

@@ -27,6 +27,7 @@ import {
   orcaCreateSingleSidedLiquidityPool,
   orcaCreateCLMM,
   orcaOpenCenteredPositionWithLiquidity,
+  orcaOpenSingleSidedPosition,
   FEE_TIERS,
   fetchPrice,
   pythFetchPrice,
@@ -37,6 +38,8 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  orcaClosePosition,
+  orcaFetchPositions,
 } from "../tools";
 
 import {
@@ -202,23 +205,32 @@ export class SolanaAgentKit {
     );
   }
 
+  async orcaClosePosition(
+    positionMintAddress: PublicKey,
+  ) {
+    return orcaClosePosition(
+      this,
+      positionMintAddress,
+    );
+  }
+
   async orcaCreateCLMM(
-    mintA: PublicKey,
-    mintB: PublicKey,
+    mintDeploy: PublicKey,
+    mintPair: PublicKey,
     initialPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
     return orcaCreateCLMM(
       this,
-      mintA,
-      mintB,
+      mintDeploy,
+      mintPair,
       initialPrice,
       feeTier,
     );
   }
 
   async orcaCreateSingleSidedLiquidityPool(
-    depositTokenAmount: BN,
+    depositTokenAmount: number,
     depositTokenMint: PublicKey,
     otherTokenMint: PublicKey,
     initialPrice: Decimal,
@@ -236,6 +248,13 @@ export class SolanaAgentKit {
     );
   }
 
+  async orcaFetchPositions(
+  ) {
+    return orcaFetchPositions(
+      this,
+    );
+  }
+
   async orcaOpenCenteredPositionWithLiquidity(
     whirlpoolAddress: PublicKey,
     priceOffsetBps: number,
@@ -246,6 +265,23 @@ export class SolanaAgentKit {
       this,
       whirlpoolAddress,
       priceOffsetBps,
+      inputTokenMint,
+      inputAmount,
+    );
+  }
+
+  async orcaOpenSingleSidedPosition(
+    whirlpoolAddress: PublicKey,
+    distanceFromCurrentPriceBps: number,
+    widthBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ): Promise<string> {
+    return orcaOpenSingleSidedPosition(
+      this,
+      whirlpoolAddress,
+      distanceFromCurrentPriceBps,
+      widthBps,
       inputTokenMint,
       inputAmount,
     );

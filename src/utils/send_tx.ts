@@ -54,7 +54,6 @@ export async function getComputeBudgetInstructions(agent: SolanaAgentKit, instru
       computeBudgetPriorityFeeInstructions
     };
   } catch (error) {
-    console.error("Error getting compute budget instructions fees:", error);
     throw error;
   }
 }
@@ -82,7 +81,7 @@ export async function sendTx(
       instructions: allInstructions,
     }).compileToV0Message();
     const transaction = new VersionedTransaction(messageV0);
-    transaction.sign([agent.wallet, ...(otherKeypairs ?? [])]);
+    transaction.sign([agent.wallet, ...(otherKeypairs ?? [])] as Signer[]);
 
     const timeoutMs = 90000;
     const startTime = Date.now();
@@ -94,7 +93,7 @@ export async function sendTx(
           transaction, 
           {
           maxRetries: 0,
-          skipPreflight: true,
+          skipPreflight: false,
         });
 
         const statuses = await agent.connection.getSignatureStatuses([signature]);
@@ -114,11 +113,9 @@ export async function sendTx(
       }
       throw new Error("Transaction timeout");
     } catch (error) {
-      console.log("Error sending transaction:", error);
       throw error;
     }
   } catch (error) {
-    console.log("Error sending transaction:", error);
     throw error;
   }
 }

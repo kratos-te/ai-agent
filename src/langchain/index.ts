@@ -10,6 +10,7 @@ import { create_image } from "../tools/create_image";
 import { BN } from "@coral-xyz/anchor";
 import { FEE_TIERS } from "../tools";
 import { toJSON } from "../utils/toJSON";
+import { s } from "@raydium-io/raydium-sdk-v2/lib/api-0eb57ba2";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -754,13 +755,49 @@ export class SolanaCompressedAirdropTool extends Tool {
   }
 }
 
+export class SolanaClosePostition extends Tool {
+  name = "orca_close_position";
+  description  = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
+  details using the provided mint address and closes the position with a 1% slippage.
+  
+  Inputs (JSON string):
+  - positionMintAddress: string, the address of the position mint that represents the liquidity position.`
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const positionMintAddress = new PublicKey(inputFormat.positionMintAddress);
+
+      const txId = await this.solanaKit.orcaClosePosition(
+        positionMintAddress,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Liquidity position closed successfully.",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaOrcaCreateCLMM extends Tool {
   name = "orca_create_clmm";
-  description = `Create a Concentrated Liquidity Market Maker (CLMM) pool on Orca, the most efficient and capital-optimized CLMM on Solana. This function initializes a CLMM pool but does not add liquidity. You can add liquidity later using a centered position or a single-sided position. Single-sided positions are ideal for directional price expectations, acting as sort of a limit call. Centered positions are ideal for generating yield. The tighter, the better.
+  description = `Create a Concentrated Liquidity Market Maker (CLMM) pool on Orca, the most efficient and capital-optimized CLMM on Solana. This function initializes a CLMM pool but does not add liquidity. You can add liquidity later using a centered position or a single-sided position.
 
   Inputs (JSON string):
-  - mintA: string, mint address of the first token, e.g., "MintAAddress" (required).
-  - mintB: string, mint address of the second token, e.g., "MintBAddress" (required).
+  - mintDeploy: string, the mint of the token you want to deploy (required).
+  - mintPair: string, The mint of the token you want to pair the deployed mint with (required).
   - initialPrice: number, initial price of mintA in terms of mintB, e.g., 0.001 (required).
   - feeTier: number, fee tier in bps. Options: 1, 2, 4, 5, 16, 30, 65, 100, 200 (required).`;
 
@@ -771,8 +808,8 @@ export class SolanaOrcaCreateCLMM extends Tool {
   async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const mintA = new PublicKey(inputFormat.mintA);
-      const mintB = new PublicKey(inputFormat.mintB);
+      const mintA = new PublicKey(inputFormat.mintDeploy);
+      const mintB = new PublicKey(inputFormat.mintPair);
       const initialPrice = new Decimal(inputFormat.initialPrice);
       const feeTier = inputFormat.feeTier;
 
@@ -828,7 +865,7 @@ export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const depositTokenAmount = new BN(inputFormat.depositTokenAmount);
+      const depositTokenAmount = inputFormat.depositTokenAmount;
       const depositTokenMint = new PublicKey(inputFormat.depositTokenMint);
       const otherTokenMint = new PublicKey(inputFormat.otherTokenMint);
       const initialPrice = new Decimal(inputFormat.initialPrice);
@@ -867,9 +904,37 @@ export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   }
 }
 
+export class SolanaOrcaFetchPositions extends Tool {
+  name = "orca_fetch_positions";
+  description = `Fetch all the liquidity positions in an Orca Whirlpool by owner. Returns an object with positiont mint addresses as keys and position status details as values.`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(): Promise<string> {
+    try {
+
+      const txId = await this.solanaKit.orcaFetchPositions()
+
+      return JSON.stringify({
+        status: "success",
+        message: "Liquidity positions fetched.",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaOrcaOpenCenteredPosition extends Tool {
   name = "orca_open_centered_position_with_liquidity";
-  description = `Add liquidity to a CLMM by opening a position in an Orca Whirlpool, the most efficient CLMM on Solana for precise liquidity management. A tighter range concentrates more liquidity, increasing yield potential. This function calculates the required amount of the other token based on the input token and desired offset. Centered positions are ideal for optimizing returns within defined ranges.
+  description = `Add liquidity to a CLMM by opening a centered position in an Orca Whirlpool, the most efficient liquidity pool on Solana.
 
   Inputs (JSON string):
   - whirlpoolAddress: string, address of the Orca Whirlpool (required).
@@ -889,8 +954,8 @@ export class SolanaOrcaOpenCenteredPosition extends Tool {
       const inputTokenMint = new PublicKey(inputFormat.inputTokenMint);
       const inputAmount = new Decimal(inputFormat.inputAmount);
 
-      if (priceOffsetBps <= 0 || priceOffsetBps > 10_000) {
-        throw new Error("Invalid priceOffsetBps. It must be greater than 0 and less than or equal to 10,000.");
+      if (priceOffsetBps < 0 ) {
+        throw new Error("Invalid distanceFromCurrentPriceBps. It must be equal or greater than 0.");
       }
 
       const txId = await this.solanaKit.orcaOpenCenteredPositionWithLiquidity(
@@ -903,6 +968,57 @@ export class SolanaOrcaOpenCenteredPosition extends Tool {
       return JSON.stringify({
         status: "success",
         message: "Centered liquidity position opened successfully.",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaOrcaOpenSingleSidedPosition extends Tool {
+  name = "orca_open_single_sided_position";
+  description = `Add liquidity to a CLMM by opening a single-sided position in an Orca Whirlpool, the most efficient liquidity pool on Solana.
+
+  Inputs (JSON string):
+  - whirlpoolAddress: string, address of the Orca Whirlpool (required).
+  - distanceFromCurrentPriceBps: number, distance in basis points from the current price for the position (required).
+  - widthBps: number, width of the position in basis points (required).
+  - inputTokenMint: string, mint address of the deposit token (required).
+  - inputAmount: number, amount of the deposit token, e.g., 100.0 (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const whirlpoolAddress = new PublicKey(inputFormat.whirlpoolAddress);
+      const distanceFromCurrentPriceBps = inputFormat.distanceFromCurrentPriceBps;
+      const widthBps = inputFormat.widthBps;
+      const inputTokenMint = new PublicKey(inputFormat.inputTokenMint);
+      const inputAmount = new Decimal(inputFormat.inputAmount);
+
+      if (distanceFromCurrentPriceBps < 0 || widthBps < 0) {
+        throw new Error("Invalid distanceFromCurrentPriceBps or width. It must be equal or greater than 0.");
+      }
+
+      const txId = await this.solanaKit.orcaOpenSingleSidedPosition(
+        whirlpoolAddress,
+        distanceFromCurrentPriceBps,
+        widthBps,
+        inputTokenMint,
+        inputAmount,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Single-sided liquidity position opened successfully.",
         transaction: txId,
       });
     } catch (error: any) {
@@ -1357,9 +1473,12 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateClmm(solanaKit),
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
+    new SolanaClosePostition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),
+    new SolanaOrcaFetchPositions(solanaKit),
     new SolanaOrcaOpenCenteredPosition(solanaKit),
+    new SolanaOrcaOpenSingleSidedPosition(solanaKit),
     new SolanaPythFetchPrice(solanaKit),
     new SolanaResolveDomainTool(solanaKit),
     new SolanaGetOwnedDomains(solanaKit),

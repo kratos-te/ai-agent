@@ -1,4 +1,9 @@
-import { Keypair, PublicKey, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import { 
+  Keypair,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction
+} from "@solana/web3.js";
 import { SolanaAgentKit } from "../agent";
 import { Wallet } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
@@ -9,7 +14,6 @@ import {
   PoolUtil,
   buildWhirlpoolClient,
 } from "@orca-so/whirlpools-sdk";
-
 import { sendTx } from "../utils/send_tx";
 import { FEE_TIERS } from "./orca_create_single_sided_liquidity_pool";
 
@@ -28,9 +32,9 @@ import { FEE_TIERS } from "./orca_create_single_sided_liquidity_pool";
  * adjusts the input order as needed and inverts the initial price accordingly.
  *
  * @param agent - The `SolanaAgentKit` instance representing the wallet and connection details.
- * @param mintA - The mint address of the first token in the pool (e.g., SHARK).
- * @param mintB - The mint address of the second token in the pool (e.g., USDC).
- * @param initialPrice - The initial price of `mintA` in terms of `mintB`.
+ * @param mintDeploy - The mint of the token you want to deploy (e.g., SHARK).
+ * @param mintPair - The mint of the token you want to pair the deployed mint with (e.g., USDC).
+ * @param initialPrice - The initial price of `mintDeploy` in terms of `mintPair`.
  * @param feeTier - The fee tier bps for the pool, determining tick spacing and fee collection rates.
  *
  * @returns A promise that resolves to a transaction ID (`string`) of the transaction creating the pool.
@@ -46,8 +50,8 @@ import { FEE_TIERS } from "./orca_create_single_sided_liquidity_pool";
  */
 export async function orcaCreateCLMM(
   agent: SolanaAgentKit,
-  mintA: PublicKey,
-  mintB: PublicKey,
+  mintDeploy: PublicKey,
+  mintPair: PublicKey,
   initialPrice: Decimal,
   feeTier: keyof typeof FEE_TIERS,
 ): Promise<string> {
@@ -70,14 +74,18 @@ export async function orcaCreateCLMM(
     const client = buildWhirlpoolClient(ctx)
 
     const correctTokenOrder = PoolUtil.orderMints(
-      mintA,
-      mintB,
+      mintDeploy,
+      mintPair,
     ).map((addr) => addr.toString());
     const isCorrectMintOrder =
-      correctTokenOrder[0] === mintA.toString();
+      correctTokenOrder[0] === mintDeploy.toString();
+    let mintA;
+    let mintB;
     if (!isCorrectMintOrder) {
-      [mintA, mintB] = [mintB, mintA];
+      [mintA, mintB] = [mintPair, mintDeploy];
       initialPrice = new Decimal(1 / initialPrice.toNumber());
+    } else {
+      [mintA, mintB] = [mintDeploy, mintPair];
     }
     const mintAAccount = await fetcher.getMintInfo(mintA);
     const mintBAccount = await fetcher.getMintInfo(mintB);
@@ -85,9 +93,8 @@ export async function orcaCreateCLMM(
       throw Error("Mint account not found");
     }
 
-    const initialTick = PriceMath.priceToTickIndex(initialPrice, mintAAccount.decimals, mintBAccount.decimals)
     const tickSpacing = FEE_TIERS[feeTier];
-
+    const initialTick = PriceMath.priceToInitializableTickIndex(initialPrice, mintAAccount.decimals, mintBAccount.decimals, tickSpacing)
     const { poolKey, tx: txBuilder } = await client.createPool(
       whirlpoolsConfigAddress,
       mintA,
