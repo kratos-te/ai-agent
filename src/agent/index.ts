@@ -22,6 +22,8 @@ import {
   request_faucet_funds,
   trade,
   limitOrder,
+  cancelAllOrders,
+  withdrawAll,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
@@ -160,6 +162,14 @@ export class SolanaAgentKit {
     price: number,
   ): Promise<string> {
     return limitOrder(this, marketId, quantity, side, price);
+  }
+
+  async cancelAllOrders(marketId: PublicKey): Promise<string> {
+    return cancelAllOrders(this, marketId);
+  }
+
+  async withdrawAll(marketId: PublicKey): Promise<string> {
+    return withdrawAll(this, marketId);
   }
 
   async lendAssets(amount: number): Promise<string> {

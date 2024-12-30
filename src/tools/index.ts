@@ -7,6 +7,8 @@ export * from "./mint_nft";
 export * from "./transfer";
 export * from "./trade";
 export * from "./limit_order";
+export * from "./cancel_all_orders";
+export * from "./withdraw_all";
 export * from "./register_domain";
 export * from "./resolve_sol_domain";
 export * from "./get_primary_domain";
