@@ -43,6 +43,8 @@ import {
   orcaFetchPositions,
   rock_paper_scissor,
   create_TipLink,
+  listNFTForSale,
+  cancelListing,
 } from "../tools";
 
 import {
@@ -410,5 +412,16 @@ export class SolanaAgentKit {
   }
   async createTiplink(amount: number, splmintAddress?: PublicKey) {
     return create_TipLink(this, amount, splmintAddress);
+  }
+
+  async tensorListNFT(
+    nftMint: PublicKey,
+    price: number,
+  ): Promise<string> {
+    return listNFTForSale(this, nftMint, price);
+  }
+
+  async tensorCancelListing(nftMint: PublicKey): Promise<string> {
+    return cancelListing(this, nftMint);
   }
 }
