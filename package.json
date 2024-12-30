@@ -22,8 +22,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.7",
+    "@cks-systems/manifest-sdk": "^0.1.73",
     "@coral-xyz/anchor": "0.29",
-    "@cks-systems/manifest-sdk": "^0.1.59",
     "@langchain/core": "^0.3.26",
     "@langchain/groq": "^0.1.2",
     "@langchain/langgraph": "^0.2.34",

@@ -9,8 +9,8 @@ import {
   ManifestClient,
   WrapperPlaceOrderParamsExternal,
 } from "@cks-systems/manifest-sdk";
+import { OrderType } from "@cks-systems/manifest-sdk/client/ts/src/wrapper/types/OrderType";
 import { sleep } from "openai/core";
-import { OrderType } from "@cks-systems/manifest-sdk/dist/types/src/manifest";
 
 /**
  * Place limit orders using Manifest

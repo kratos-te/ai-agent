@@ -38,7 +38,7 @@
   resolved "https://registry.yarnpkg.com/@cfworker/json-schema/-/json-schema-4.0.3.tgz#30fc6b72322c74ceb27014a779de0ccdfa0dfb9e"
   integrity sha512-ZykIcDTVv5UNmKWSTLAs3VukO6NDJkkSKxrgUTDPBkAlORVT3H9n5DbRjRl8xIotklscHdbLIa0b9+y3mQq73g==
 
-"@cks-systems/manifest-sdk@^0.1.59":
+"@cks-systems/manifest-sdk@^0.1.73":
   version "0.1.73"
   resolved "https://registry.yarnpkg.com/@cks-systems/manifest-sdk/-/manifest-sdk-0.1.73.tgz#17c7b2f71c2711989cf210815d78b189e40fe481"
   integrity sha512-IcRM7k3YZ/jK5nJwE3xGp2Xg7Um4/XCeqrLs5yB3+IjS7W089Qs/prJXdRGKbFwCLkMt9ds6pElHufQr8an0Iw==
