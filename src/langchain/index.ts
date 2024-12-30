@@ -1302,9 +1302,9 @@ export class SolanaRockPaperScissorsTool extends Tool {
       const result = await this.solanaKit.rockPaperScissors(
         Number(parsedInput['"amount"']),
         parsedInput['"choice"'].replace(/^"|"$/g, "") as
-          | "rock"
-          | "paper"
-          | "scissors",
+        | "rock"
+        | "paper"
+        | "scissors",
       );
 
       return JSON.stringify({
