@@ -1332,8 +1332,7 @@ export class SolanaListNFTForSaleTool extends Tool {
 
   Inputs (input is a JSON string):
   nftMint: string, the mint address of the NFT (required)
-  price: number, price in SOL (required)
-  expirySeconds: number, expiry time in seconds (optional)`;
+  price: number, price in SOL (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1342,25 +1341,26 @@ export class SolanaListNFTForSaleTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      
+
       // Validate NFT ownership first
-      const nftAccount = await this.solanaKit.connection.getTokenAccountsByOwner(
-        this.solanaKit.wallet_address,
-        { mint: new PublicKey(parsedInput.nftMint) }
-      );
-      
+      const nftAccount =
+        await this.solanaKit.connection.getTokenAccountsByOwner(
+          this.solanaKit.wallet_address,
+          { mint: new PublicKey(parsedInput.nftMint) },
+        );
+
       if (nftAccount.value.length === 0) {
         return JSON.stringify({
           status: "error",
-          message: "NFT not found in wallet. Please make sure you own this NFT.",
-          code: "NFT_NOT_FOUND"
+          message:
+            "NFT not found in wallet. Please make sure you own this NFT.",
+          code: "NFT_NOT_FOUND",
         });
       }
 
       const tx = await this.solanaKit.tensorListNFT(
         new PublicKey(parsedInput.nftMint),
         parsedInput.price,
-        parsedInput.expirySeconds
       );
 
       return JSON.stringify({
@@ -1368,13 +1368,13 @@ export class SolanaListNFTForSaleTool extends Tool {
         message: "NFT listed for sale successfully",
         transaction: tx,
         price: parsedInput.price,
-        nftMint: parsedInput.nftMint
+        nftMint: parsedInput.nftMint,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -1395,10 +1395,10 @@ export class SolanaBuyNFTTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      
+
       const tx = await this.solanaKit.tensorBuyNFT(
         new PublicKey(parsedInput.nftMint),
-        parsedInput.maxPrice
+        parsedInput.maxPrice,
       );
 
       return JSON.stringify({
@@ -1406,13 +1406,13 @@ export class SolanaBuyNFTTool extends Tool {
         message: "NFT purchased successfully",
         transaction: tx,
         maxPrice: parsedInput.maxPrice,
-        nftMint: parsedInput.nftMint
+        nftMint: parsedInput.nftMint,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -1432,22 +1432,22 @@ export class SolanaCancelNFTListingTool extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-      
+
       const tx = await this.solanaKit.tensorCancelListing(
-        new PublicKey(parsedInput.nftMint)
+        new PublicKey(parsedInput.nftMint),
       );
 
       return JSON.stringify({
         status: "success",
         message: "NFT listing cancelled successfully",
         transaction: tx,
-        nftMint: parsedInput.nftMint
+        nftMint: parsedInput.nftMint,
       });
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }

@@ -356,21 +356,15 @@ export class SolanaAgentKit {
   async tensorListNFT(
     nftMint: PublicKey,
     price: number,
-    expirySeconds?: number
   ): Promise<string> {
-    return listNFTForSale(this, nftMint, price, expirySeconds);
+    return listNFTForSale(this, nftMint, price);
   }
 
-  async tensorBuyNFT(
-    nftMint: PublicKey,
-    maxPrice: number
-  ): Promise<string> {
+  async tensorBuyNFT(nftMint: PublicKey, maxPrice: number): Promise<string> {
     return buyNFT(this, nftMint, maxPrice);
   }
 
-  async tensorCancelListing(
-    nftMint: PublicKey
-  ): Promise<string> {
+  async tensorCancelListing(nftMint: PublicKey): Promise<string> {
     return cancelListing(this, nftMint);
   }
 }
