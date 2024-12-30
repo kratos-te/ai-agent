@@ -295,8 +295,7 @@ export class SolanaAgentKit {
     return getOwnedDomainsForTLD(this, tld);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  async getAllDomainsTLDs(): Promise<String[]> {
+  async getAllDomainsTLDs(): Promise<string[]> {
     return getAllDomainsTLDs(this);
   }
 
