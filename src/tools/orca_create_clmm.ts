@@ -118,7 +118,6 @@ export async function orcaCreateCLMM(
       whirlpoolAddress: poolKey.toString(),
     });
   } catch (error) {
-    console.log(error)
     throw new Error(`${error}`);
   }
 }

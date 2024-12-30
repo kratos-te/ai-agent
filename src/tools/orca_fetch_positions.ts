@@ -98,7 +98,6 @@ export async function orcaFetchPositions(
     }
     return JSON.stringify(result);
   } catch (error) {
-    console.log(error)
     throw new Error(`${error}`);
   }
 }

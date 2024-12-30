@@ -61,7 +61,6 @@ export async function orcaOpenSingleSidedPosition(
       wallet,
       ORCA_WHIRLPOOL_PROGRAM_ID,
     );
-    // ctx.accountResolverOpts.createWrappedSolAccountMethod = "ata";
     const client = buildWhirlpoolClient(ctx);
 
     const whirlpool = await client.getPool(whirlpoolAddress);
@@ -151,9 +150,6 @@ export async function orcaOpenSingleSidedPosition(
     const txPayloadDecompiled = TransactionMessage.decompile((txPayload.transaction as VersionedTransaction).message);
     const instructions = txPayloadDecompiled.instructions;
     const signers = txPayload.signers as Keypair[];
-    for (const signer of signers) {
-      console.log(signer.publicKey.toBase58());
-    }
 
     const positionTxId = await sendTx(agent, instructions, signers);
     txIds += positionTxId; 
@@ -163,7 +159,6 @@ export async function orcaOpenSingleSidedPosition(
       positionMint: positionMint.toString(),
     });
   } catch (error) {
-    console.log(error);
     throw new Error(`${error}`);
   }
 }

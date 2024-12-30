@@ -6,6 +6,7 @@ import {
   deploy_collection,
   deploy_token,
   get_balance,
+  get_balance_other,
   getTPS,
   resolveSolDomain,
   getPrimaryDomain,
@@ -40,6 +41,8 @@ import {
   create_gibwork_task,
   orcaClosePosition,
   orcaFetchPositions,
+  rock_paper_scissor,
+  create_TipLink,
 } from "../tools";
 
 import {
@@ -66,12 +69,12 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
-  public openai_api_key: string;
+  public openai_api_key: string | null;
 
   constructor(
     private_key: string,
     rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string,
+    openai_api_key: string | null = null,
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
@@ -102,6 +105,13 @@ export class SolanaAgentKit {
 
   async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
+  }
+
+  async getBalanceOther(
+    walletAddress: PublicKey,
+    tokenAddress?: PublicKey,
+  ): Promise<number> {
+    return get_balance_other(this, walletAddress, tokenAddress);
   }
 
   async mintNFT(
@@ -405,5 +415,15 @@ export class SolanaAgentKit {
       tokenAmount,
       payer ? new PublicKey(payer) : undefined,
     );
+  }
+
+  async rockPaperScissors(
+    amount: number,
+    choice: "rock" | "paper" | "scissors",
+  ) {
+    return rock_paper_scissor(this, amount, choice);
+  }
+  async createTiplink(amount: number, splmintAddress?: PublicKey) {
+    return create_TipLink(this, amount, splmintAddress);
   }
 }

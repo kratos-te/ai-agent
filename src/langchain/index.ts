@@ -9,8 +9,6 @@ import {
 import { create_image } from "../tools/create_image";
 import { BN } from "@coral-xyz/anchor";
 import { FEE_TIERS } from "../tools";
-import { toJSON } from "../utils/toJSON";
-import { s } from "@raydium-io/raydium-sdk-v2/lib/api-0eb57ba2";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -19,7 +17,7 @@ export class SolanaBalanceTool extends Tool {
   If you want to get the balance of your wallet, you don't need to provide the tokenAddress.
   If no tokenAddress is provided, the balance will be in SOL.
 
-  Inputs:
+  Inputs ( input is a JSON string ):
   tokenAddress: string, eg "So11111111111111111111111111111111111111112" (optional)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -33,8 +31,51 @@ export class SolanaBalanceTool extends Tool {
 
       return JSON.stringify({
         status: "success",
-        balance: balance,
+        balance,
         token: input || "SOL",
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaBalanceOtherTool extends Tool {
+  name = "solana_balance_other";
+  description = `Get the balance of a Solana wallet or token account different from the agent's wallet.
+
+  If no tokenAddress is provided, the SOL balance of the wallet will be returned.
+
+  Inputs ( input is a JSON string ):
+  walletAddress: string, eg "GDEkQF7UMr7RLv1KQKMtm8E2w3iafxJLtyXu3HVQZnME" (required)
+  tokenAddress: string, eg "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const { walletAddress, tokenAddress } = JSON.parse(input);
+
+      const tokenPubKey = tokenAddress
+        ? new PublicKey(tokenAddress)
+        : undefined;
+
+      const balance = await this.solanaKit.getBalanceOther(
+        new PublicKey(walletAddress),
+        tokenPubKey,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        balance,
+        wallet: walletAddress,
+        token: tokenAddress || "SOL",
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -319,7 +360,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
+      const parsedInput = JSON.parse(input);
       this.validateInput(parsedInput);
 
       const tx = await this.solanaKit.registerDomain(
@@ -556,7 +597,7 @@ export class SolanaLendAssetTool extends Tool {
         status: "success",
         message: "Asset lent successfully",
         transaction: tx,
-        amount: amount,
+        amount,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -670,7 +711,7 @@ export class SolanaTokenDataTool extends Tool {
 
       return JSON.stringify({
         status: "success",
-        tokenData: tokenData,
+        tokenData,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -699,7 +740,7 @@ export class SolanaTokenDataByTickerTool extends Tool {
       const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
       return JSON.stringify({
         status: "success",
-        tokenData: tokenData,
+        tokenData,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1224,7 +1265,7 @@ export class SolanaPythFetchPrice extends Tool {
       const response: PythFetchPriceResponse = {
         status: "success",
         priceFeedID: input,
-        price: price,
+        price,
       };
       return JSON.stringify(response);
     } catch (error: any) {
@@ -1298,7 +1339,7 @@ export class SolanaGetOwnedDomains extends Tool {
       return JSON.stringify({
         status: "success",
         message: "Owned domains fetched successfully",
-        domains: domains,
+        domains,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1328,7 +1369,7 @@ export class SolanaGetOwnedTldDomains extends Tool {
       return JSON.stringify({
         status: "success",
         message: "TLD domains fetched successfully",
-        domains: domains,
+        domains,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1355,7 +1396,7 @@ export class SolanaGetAllTlds extends Tool {
       return JSON.stringify({
         status: "success",
         message: "TLDs fetched successfully",
-        tlds: tlds,
+        tlds,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -1448,9 +1489,107 @@ export class SolanaCreateGibworkTask extends Tool {
   }
 }
 
+export class SolanaRockPaperScissorsTool extends Tool {
+  name = "rock_paper_scissors";
+  description = `Play rock paper scissors to win SEND coins.
+
+  Inputs (input is a JSON string):
+  choice: string, either "rock", "paper", or "scissors" (required)
+  amount: number, amount of SOL to play with - must be 0.1, 0.01, or 0.005 SOL (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  private validateInput(input: any): void {
+    if (input.choice !== undefined) {
+      throw new Error("choice is required.");
+    }
+    if (
+      input.amount !== undefined &&
+      (typeof input.spaceKB !== "number" || input.spaceKB <= 0)
+    ) {
+      throw new Error("amount must be a positive number when provided");
+    }
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+      this.validateInput(parsedInput);
+      const result = await this.solanaKit.rockPaperScissors(
+        Number(parsedInput['"amount"']),
+        parsedInput['"choice"'].replace(/^"|"$/g, "") as
+        | "rock"
+        | "paper"
+        | "scissors",
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: result,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTipLinkTool extends Tool {
+  name = "solana_tiplink";
+  description = `Create a TipLink for transferring SOL or SPL tokens.
+  Input is a JSON string with:
+  - amount: number (required) - Amount to transfer
+  - splmintAddress: string (optional) - SPL token mint address`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      if (!parsedInput.amount) {
+        throw new Error("Amount is required");
+      }
+
+      const amount = parseFloat(parsedInput.amount);
+      const splmintAddress = parsedInput.splmintAddress
+        ? new PublicKey(parsedInput.splmintAddress)
+        : undefined;
+
+      const { url, signature } = await this.solanaKit.createTiplink(
+        amount,
+        splmintAddress,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        url,
+        signature,
+        amount,
+        tokenType: splmintAddress ? "SPL" : "SOL",
+        message: `TipLink created successfully`,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
+    new SolanaBalanceOtherTool(solanaKit),
     new SolanaTransferTool(solanaKit),
     new SolanaDeployTokenTool(solanaKit),
     new SolanaDeployCollectionTool(solanaKit),
@@ -1487,5 +1626,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaGetMainDomain(solanaKit),
     new SolanaResolveAllDomainsTool(solanaKit),
     new SolanaCreateGibworkTask(solanaKit),
+    new SolanaRockPaperScissorsTool(solanaKit),
+    new SolanaTipLinkTool(solanaKit),
   ];
 }

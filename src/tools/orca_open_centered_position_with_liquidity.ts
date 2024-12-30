@@ -136,7 +136,6 @@ export async function orcaOpenCenteredPositionWithLiquidity(
       positionMint: positionMint.toString(),
     })
   } catch (error) {
-    console.log(error)
     throw new Error(`${error}`);
   }
 }

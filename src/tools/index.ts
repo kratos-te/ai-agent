@@ -2,6 +2,7 @@ export * from "./request_faucet_funds";
 export * from "./deploy_token";
 export * from "./deploy_collection";
 export * from "./get_balance";
+export * from "./get_balance_other";
 export * from "./mint_nft";
 export * from "./transfer";
 export * from "./trade";
@@ -42,3 +43,6 @@ export * from "./openbook_create_market";
 export * from "./pyth_fetch_price";
 
 export * from "./create_gibwork_task";
+
+export * from "./rock_paper_scissor";
+export * from "./create_tiplinks";
