@@ -1700,7 +1700,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaOpenbookCreateMarket(solanaKit),
     new SolanaManifestCreateMarket(solanaKit),
     new SolanaLimitOrderTool(solanaKit),
-    new SolanaCreateSingleSidedWhirlpoolTool(solanaKit),
     new SolanaClosePostition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),
