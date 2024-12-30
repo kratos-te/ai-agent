@@ -1380,43 +1380,6 @@ export class SolanaListNFTForSaleTool extends Tool {
   }
 }
 
-export class SolanaBuyNFTTool extends Tool {
-  name = "solana_buy_nft";
-  description = `Buy an NFT listed on Tensor Trade.
-
-  Inputs (input is a JSON string):
-  nftMint: string, the mint address of the NFT (required)
-  maxPrice: number, maximum price willing to pay in SOL (required)`;
-
-  constructor(private solanaKit: SolanaAgentKit) {
-    super();
-  }
-
-  protected async _call(input: string): Promise<string> {
-    try {
-      const parsedInput = JSON.parse(input);
-
-      const tx = await this.solanaKit.tensorBuyNFT(
-        new PublicKey(parsedInput.nftMint),
-        parsedInput.maxPrice,
-      );
-
-      return JSON.stringify({
-        status: "success",
-        message: "NFT purchased successfully",
-        transaction: tx,
-        maxPrice: parsedInput.maxPrice,
-        nftMint: parsedInput.nftMint,
-      });
-    } catch (error: any) {
-      return JSON.stringify({
-        status: "error",
-        message: error.message,
-        code: error.code || "UNKNOWN_ERROR",
-      });
-    }
-  }
-}
 
 export class SolanaCancelNFTListingTool extends Tool {
   name = "solana_cancel_nft_listing";
@@ -1490,7 +1453,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRockPaperScissorsTool(solanaKit),
     new SolanaTipLinkTool(solanaKit),
     new SolanaListNFTForSaleTool(solanaKit),
-    new SolanaBuyNFTTool(solanaKit),
     new SolanaCancelNFTListingTool(solanaKit),
   ];
 }

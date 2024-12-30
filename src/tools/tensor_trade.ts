@@ -72,44 +72,6 @@ export async function listNFTForSale(
   }
 }
 
-export async function buyNFT(
-  agent: SolanaAgentKit,
-  nftMint: PublicKey,
-  maxPrice: number,
-): Promise<string> {
-  const provider = new AnchorProvider(
-    agent.connection,
-    new Wallet(agent.wallet),
-    AnchorProvider.defaultOptions(),
-  );
-
-  const tensorSwapSdk = new TensorSwapSDK({ provider });
-  const maxPriceInLamports = new BN(maxPrice * 1e9);
-  const nftBuyerAcc = await getAssociatedTokenAddress(
-    nftMint,
-    agent.wallet_address,
-  );
-
-  const { tx } = await tensorSwapSdk.buySingleListingT22({
-    nftMint,
-    nftBuyerAcc,
-    owner: agent.wallet_address,
-    buyer: agent.wallet_address,
-    maxPrice: maxPriceInLamports,
-    takerBroker: null,
-    compute: null,
-    priorityMicroLamports: null,
-    transferHook: null,
-  });
-
-  const transaction = new Transaction();
-  transaction.add(...tx.ixs);
-  return await agent.connection.sendTransaction(transaction, [
-    agent.wallet,
-    ...tx.extraSigners,
-  ]);
-}
-
 export async function cancelListing(
   agent: SolanaAgentKit,
   nftMint: PublicKey,

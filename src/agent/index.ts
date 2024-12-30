@@ -38,7 +38,6 @@ import {
   rock_paper_scissor,
   create_TipLink,
   listNFTForSale,
-  buyNFT,
   cancelListing,
 } from "../tools";
 import {
@@ -358,10 +357,6 @@ export class SolanaAgentKit {
     price: number,
   ): Promise<string> {
     return listNFTForSale(this, nftMint, price);
-  }
-
-  async tensorBuyNFT(nftMint: PublicKey, maxPrice: number): Promise<string> {
-    return buyNFT(this, nftMint, maxPrice);
   }
 
   async tensorCancelListing(nftMint: PublicKey): Promise<string> {
