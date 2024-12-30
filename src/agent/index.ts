@@ -20,6 +20,7 @@ import {
   registerDomain,
   request_faucet_funds,
   trade,
+  limitOrder,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
@@ -136,6 +137,15 @@ export class SolanaAgentKit {
     slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
   ): Promise<string> {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
+  }
+
+  async limitOrder(
+    marketId: PublicKey,
+    quantity: number,
+    side: string,
+    price: number,
+  ): Promise<string> {
+    return limitOrder(this, marketId, quantity, side, price);
   }
 
   async lendAssets(amount: number): Promise<string> {
