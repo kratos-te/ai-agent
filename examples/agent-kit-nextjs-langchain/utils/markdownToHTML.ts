@@ -26,6 +26,5 @@ marked.setOptions(markedOptions);
 // Basic markdown to HTML conversion with sanitization
 export default function markdownToHtml(markdown: string) {
 	const rawHtml = marked.parse(markdown);
-	console.log(rawHtml);
-	return DOMPurify.sanitize(rawHtml);
+	return DOMPurify.sanitize(rawHtml as string);
 }
