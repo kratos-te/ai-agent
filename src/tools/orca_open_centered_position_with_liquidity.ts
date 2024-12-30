@@ -20,15 +20,15 @@ import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
  * # Opens a Centered Liquidity Position in an Orca Whirlpool
  *
  * This function opens a centered liquidity position in a specified Orca Whirlpool. The user defines
- * a basis point (bps) offset from the center price to set the lower and upper bounds of the position.
+ * a basis point (bps) offset from the cuurent price of the pool to set the lower and upper bounds of the position. 
  * The user also specifies the token mint and the amount to deposit. The required amount of the other token
  * is calculated automatically.
  *
  * ## Parameters
  * - `agent`: The `SolanaAgentKit` instance representing the wallet and connection details.
  * - `whirlpoolAddress`: The address of the Orca Whirlpool where the position will be opened.
- * - `priceOffsetBps`: The basis point (bps) offset (on one side) from the center price. For example,
- *   500 bps (5%) creates a range from 95% to 105% of the center price.
+ * - `priceOffsetBps`: The basis point (bps) offset (on one side) from the current price fo the pool. For example,
+ *   500 bps (5%) creates a range from 95% to 105% of the current pool price.
  * - `inputTokenMint`: The mint address of the token being deposited (e.g., USDC or another token).
  * - `inputAmount`: The amount of the input token to deposit, specified as a `Decimal` value.
  *
@@ -50,7 +50,7 @@ import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
  *
  * @param agent - The `SolanaAgentKit` instance representing the wallet and connection.
  * @param whirlpoolAddress - The address of the Orca Whirlpool.
- * @param priceOffsetBps - The basis point offset (one side) from the center price.
+ * @param priceOffsetBps - The basis point offset (one side) from the current pool price.
  * @param inputTokenMint - The mint address of the token to deposit.
  * @param inputAmount - The amount of the input token to deposit.
  * @returns A promise resolving to the transaction ID (`string`).

@@ -979,7 +979,7 @@ export class SolanaOrcaOpenCenteredPosition extends Tool {
 
   Inputs (JSON string):
   - whirlpoolAddress: string, address of the Orca Whirlpool (required).
-  - priceOffsetBps: number, bps offset (one side) from the center price, e.g., 500 for 5% (required).
+  - priceOffsetBps: number, bps offset (one side) from the current pool price, e.g., 500 for 5% (required).
   - inputTokenMint: string, mint address of the deposit token (required).
   - inputAmount: number, amount of the deposit token, e.g., 100.0 (required).`;
 
