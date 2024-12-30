@@ -9,7 +9,6 @@ import {
 import { create_image } from "../tools/create_image";
 import { BN } from "@coral-xyz/anchor";
 import { FEE_TIERS } from "../tools";
-import { toJSON } from "../utils/toJSON";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -361,7 +360,7 @@ export class SolanaRegisterDomainTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
+      const parsedInput = JSON.parse(input);
       this.validateInput(parsedInput);
 
       const tx = await this.solanaKit.registerDomain(
@@ -1298,7 +1297,7 @@ export class SolanaRockPaperScissorsTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = toJSON(input);
+      const parsedInput = JSON.parse(input);
       this.validateInput(parsedInput);
       const result = await this.solanaKit.rockPaperScissors(
         Number(parsedInput['"amount"']),
