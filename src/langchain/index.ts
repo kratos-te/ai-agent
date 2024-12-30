@@ -32,10 +32,10 @@ export class SolanaBalanceTool extends Tool {
     try {
       // Parse input as JSON if provided, otherwise use empty object
       const parsedInput = input ? JSON.parse(input) : {};
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -60,10 +60,10 @@ export class SolanaTransferTool extends Tool {
     try {
       // Parse input as JSON
       const parsedInput = JSON.parse(input);
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -88,10 +88,10 @@ export class SolanaDeployTokenTool extends Tool {
     try {
       // Parse input as JSON
       const parsedInput = JSON.parse(input);
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -116,10 +116,10 @@ export class SolanaDeployCollectionTool extends Tool {
     try {
       // Parse input as JSON
       const parsedInput = JSON.parse(input);
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -144,10 +144,10 @@ export class SolanaMintNFTTool extends Tool {
     try {
       // Parse input as JSON
       const parsedInput = JSON.parse(input);
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -172,10 +172,10 @@ export class SolanaTradeTool extends Tool {
     try {
       // Parse input as JSON
       const parsedInput = JSON.parse(input);
-      
+
       // Validate and execute using the action
       const result = await this.action.handler(this.solanaKit, parsedInput);
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -200,7 +200,7 @@ export class SolanaRequestFundsTool extends Tool {
     try {
       // No input needed for this action
       const result = await this.action.handler(this.solanaKit, {});
-      
+
       return JSON.stringify(result);
     } catch (error: any) {
       return JSON.stringify({
@@ -1151,7 +1151,7 @@ export class SolanaCreateGibworkTask extends Tool {
 }
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
-  const tools = [
+  return [
     new SolanaBalanceTool(solanaKit),
     new SolanaTransferTool(solanaKit),
     new SolanaDeployTokenTool(solanaKit),
@@ -1185,7 +1185,4 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaResolveAllDomainsTool(solanaKit),
     new SolanaCreateGibworkTask(solanaKit),
   ];
-
-  // Convert LangChain tools to our Action interface
-  return tools.map(tool => wrapLangChainTool(tool, solanaKit));
 }
