@@ -1,8 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import OpenAI from "openai";
-import { create } from "domain";
 import { create_image } from "../tools/create_image";
 
 const createImageAction: Action = {
@@ -13,9 +11,10 @@ const createImageAction: Action = {
     "make image",
     "generate artwork",
     "create picture",
-    "generate picture"
+    "generate picture",
   ],
-  description: "Create an AI-generated image based on a text prompt using OpenAI's DALL-E models",
+  description:
+    "Create an AI-generated image based on a text prompt using OpenAI's DALL-E models",
   examples: [
     [
       {
@@ -24,56 +23,56 @@ const createImageAction: Action = {
           model: "dall-e-3",
           size: "1024x1024",
           quality: "standard",
-          style: "natural"
+          style: "natural",
         },
         output: {
           status: "success",
           imageUrl: "https://example.com/image.png",
-          message: "Successfully generated image"
+          message: "Successfully generated image",
         },
-        explanation: "Generate an image of a sunset landscape using DALL-E 3"
-      }
-    ]
+        explanation: "Generate an image of a sunset landscape using DALL-E 3",
+      },
+    ],
   ],
   schema: z.object({
-    prompt: z.string()
+    prompt: z
+      .string()
       .min(1)
       .max(1000)
       .describe("The text description of the image to generate"),
-    model: z.enum(["dall-e-3"])
+    model: z
+      .enum(["dall-e-3"])
       .default("dall-e-3")
       .describe("The AI model to use for generation"),
-    size: z.enum(["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"])
+    size: z
+      .enum(["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"])
       .default("1024x1024")
       .describe("The size of the generated image"),
-    quality: z.enum(["standard", "hd"])
+    quality: z
+      .enum(["standard", "hd"])
       .default("standard")
       .describe("The quality level of the generated image"),
-    style: z.enum(["natural", "vivid"])
+    style: z
+      .enum(["natural", "vivid"])
       .default("natural")
-      .describe("The style of the generated image")
+      .describe("The style of the generated image"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       if (!agent.openai_api_key) {
         return {
           status: "error",
-          message: "OpenAI API key not found in agent configuration"
+          message: "OpenAI API key not found in agent configuration",
         };
       }
 
       const { prompt, model, size } = input;
-
-      const openai = new OpenAI({
-        apiKey: agent.openai_api_key
-      });
-
       const response = await create_image(agent, prompt, model, size);
 
       return {
         status: "success",
         imageUrl: response.images[0].url,
-        message: "Successfully generated image"
+        message: "Successfully generated image",
       };
     } catch (error: any) {
       // Handle specific OpenAI error types
@@ -82,21 +81,21 @@ const createImageAction: Action = {
         if (status === 429) {
           return {
             status: "error",
-            message: "Rate limit exceeded. Please try again later."
+            message: "Rate limit exceeded. Please try again later.",
           };
         }
         return {
           status: "error",
-          message: `OpenAI API error: ${data.error?.message || error.message}`
+          message: `OpenAI API error: ${data.error?.message || error.message}`,
         };
       }
 
       return {
         status: "error",
-        message: `Failed to generate image: ${error.message}`
+        message: `Failed to generate image: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default createImageAction; 
+export default createImageAction;

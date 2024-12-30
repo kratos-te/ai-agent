@@ -1,7 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { PublicKey } from "@solana/web3.js";
 import { getOwnedDomainsForTLD } from "../tools";
 
 const getOwnedDomainsForTLDAction: Action = {
@@ -12,29 +11,32 @@ const getOwnedDomainsForTLDAction: Action = {
     "fetch wallet domains by tld",
     "get owned names by extension",
     "list my domains by tld",
-    "get address domains for tld"
+    "get address domains for tld",
   ],
-  description: "Get all domains owned by a specific wallet address for a given top-level domain (TLD)",
+  description:
+    "Get all domains owned by a specific wallet address for a given top-level domain (TLD)",
   examples: [
     [
       {
         input: {
-          tld: "sol"
+          tld: "sol",
         },
         output: {
           status: "success",
           domains: ["solana.sol", "wallet.sol", "user.sol"],
           total: 3,
-          message: "Successfully retrieved owned domains for .sol"
+          message: "Successfully retrieved owned domains for .sol",
         },
-        explanation: "Get all .sol domain names owned by a specific wallet address"
-      }
-    ]
+        explanation:
+          "Get all .sol domain names owned by a specific wallet address",
+      },
+    ],
   ],
   schema: z.object({
-    tld: z.string()
+    tld: z
+      .string()
       .min(1)
-      .describe("The top-level domain to filter by (e.g., 'sol', 'abc')")
+      .describe("The top-level domain to filter by (e.g., 'sol', 'abc')"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -47,15 +49,15 @@ const getOwnedDomainsForTLDAction: Action = {
         status: "success",
         domains,
         total: domains.length,
-        message: `Successfully retrieved ${domains.length} owned domain${domains.length === 1 ? '' : 's'} for .${tld}`
+        message: `Successfully retrieved ${domains.length} owned domain${domains.length === 1 ? "" : "s"} for .${tld}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to get owned domains: ${error.message}`
+        message: `Failed to get owned domains: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default getOwnedDomainsForTLDAction; 
+export default getOwnedDomainsForTLDAction;

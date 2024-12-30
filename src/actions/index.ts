@@ -58,4 +58,4 @@ export const actions = [
   launchPumpfunTokenAction,
 ];
 
-export type { Action, ActionExample, Handler } from "../types/action"; 
+export type { Action, ActionExample, Handler } from "../types/action";

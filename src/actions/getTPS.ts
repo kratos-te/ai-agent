@@ -10,9 +10,10 @@ const getTPSAction: Action = {
     "check network speed",
     "network performance",
     "transaction throughput",
-    "network tps"
+    "network tps",
   ],
-  description: "Get the current transactions per second (TPS) of the Solana network",
+  description:
+    "Get the current transactions per second (TPS) of the Solana network",
   examples: [
     [
       {
@@ -20,11 +21,11 @@ const getTPSAction: Action = {
         output: {
           status: "success",
           tps: 3500,
-          message: "Current network TPS: 3500"
+          message: "Current network TPS: 3500",
         },
-        explanation: "Get the current TPS of the Solana network"
-      }
-    ]
+        explanation: "Get the current TPS of the Solana network",
+      },
+    ],
   ],
   schema: z.object({}), // No input parameters required
   handler: async (agent: SolanaAgentKit, _input: Record<string, any>) => {
@@ -33,15 +34,15 @@ const getTPSAction: Action = {
       return {
         status: "success",
         response,
-        message: `Current network TPS: ${response}`
+        message: `Current network TPS: ${response}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to get TPS: ${error.message}`
+        message: `Failed to get TPS: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default getTPSAction; 
+export default getTPSAction;

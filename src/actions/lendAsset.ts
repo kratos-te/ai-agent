@@ -1,7 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { VersionedTransaction } from "@solana/web3.js";
 import { lendAsset } from "../tools";
 
 const lendAssetAction: Action = {
@@ -12,28 +11,26 @@ const lendAssetAction: Action = {
     "earn yield",
     "lend with lulo",
     "deposit usdc",
-    "lending"
+    "lending",
   ],
   description: "Lend USDC tokens to earn yield using Lulo protocol",
   examples: [
     [
       {
         input: {
-          amount: 100
+          amount: 100,
         },
         output: {
           status: "success",
           signature: "4xKpN2...",
-          message: "Successfully lent 100 USDC"
+          message: "Successfully lent 100 USDC",
         },
-        explanation: "Lend 100 USDC to earn yield on Lulo"
-      }
-    ]
+        explanation: "Lend 100 USDC to earn yield on Lulo",
+      },
+    ],
   ],
   schema: z.object({
-    amount: z.number()
-      .positive()
-      .describe("Amount of USDC to lend")
+    amount: z.number().positive().describe("Amount of USDC to lend"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -44,15 +41,15 @@ const lendAssetAction: Action = {
       return {
         status: "success",
         signature: response,
-        message: `Successfully lent ${amount} USDC`
+        message: `Successfully lent ${amount} USDC`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Lending failed: ${error.message}`
+        message: `Lending failed: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default lendAssetAction; 
+export default lendAssetAction;

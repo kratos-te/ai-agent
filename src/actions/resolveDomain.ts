@@ -1,7 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { TldParser } from "@onsol/tldparser";
 import { resolveAllDomains } from "../tools";
 
 const resolveDomainAction: Action = {
@@ -11,25 +10,25 @@ const resolveDomainAction: Action = {
     "lookup domain",
     "get domain owner",
     "check domain",
-    "find domain owner"
+    "find domain owner",
   ],
   description: "Resolve a Solana domain name to get its owner's public key",
   examples: [
     [
       {
         input: {
-          domain: "example.sol"
+          domain: "example.sol",
         },
         output: {
           status: "success",
-          owner: "7nxQB..."
+          owner: "7nxQB...",
         },
-        explanation: "Resolve a .sol domain name to get the owner's public key"
-      }
-    ]
+        explanation: "Resolve a .sol domain name to get the owner's public key",
+      },
+    ],
   ],
   schema: z.object({
-    domain: z.string().min(1).describe("The domain name to resolve")
+    domain: z.string().min(1).describe("The domain name to resolve"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -38,15 +37,15 @@ const resolveDomainAction: Action = {
       return {
         status: "success",
         owner: tld,
-        message: `Successfully resolved domain ${domain}`
+        message: `Successfully resolved domain ${domain}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to resolve domain: ${error.message}`
+        message: `Failed to resolve domain: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default resolveDomainAction; 
+export default resolveDomainAction;

@@ -1,7 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { create_gibwork_task } from "../tools";
 
 const createGibworkTaskAction: Action = {
@@ -12,9 +12,10 @@ const createGibworkTaskAction: Action = {
     "create gig",
     "post task",
     "create work",
-    "new task on gibwork"
+    "new task on gibwork",
   ],
-  description: "Create a new task on the Gibwork platform with payment in SPL tokens",
+  description:
+    "Create a new task on the Gibwork platform with payment in SPL tokens",
   examples: [
     [
       {
@@ -24,45 +25,38 @@ const createGibworkTaskAction: Action = {
           requirements: "Experience with Rust and React",
           tags: ["solana", "rust", "react"],
           tokenMintAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-          tokenAmount: 100
+          tokenAmount: 100,
         },
         output: {
           status: "success",
           taskId: "task_123",
           signature: "3YKpM1...",
-          message: "Successfully created task: Build a Solana dApp"
+          message: "Successfully created task: Build a Solana dApp",
         },
-        explanation: "Create a new task on Gibwork with 100 USDC payment"
-      }
-    ]
+        explanation: "Create a new task on Gibwork with 100 USDC payment",
+      },
+    ],
   ],
   schema: z.object({
-    title: z.string()
-      .min(1)
-      .describe("Title of the task"),
-    content: z.string()
-      .min(1)
-      .describe("Description of the task"),
-    requirements: z.string()
+    title: z.string().min(1).describe("Title of the task"),
+    content: z.string().min(1).describe("Description of the task"),
+    requirements: z
+      .string()
       .min(1)
       .describe("Requirements to complete the task"),
-    tags: z.array(z.string())
+    tags: z
+      .array(z.string())
       .min(1)
       .describe("List of tags associated with the task"),
-    tokenMintAddress: z.string()
-      .describe("Token mint address for payment"),
-    tokenAmount: z.number()
-      .positive()
-      .describe("Payment amount for the task"),
-    payer: z.string()
+    tokenMintAddress: z.string().describe("Token mint address for payment"),
+    tokenAmount: z.number().positive().describe("Payment amount for the task"),
+    payer: z
+      .string()
       .optional()
-      .describe("Optional payer address (defaults to wallet address)")
+      .describe("Optional payer address (defaults to wallet address)"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const tokenMintAddress = new PublicKey(input.tokenMintAddress);
-      const payer = input.payer ? new PublicKey(input.payer) : undefined;
-
       const responseData = await create_gibwork_task(
         agent,
         input.title,
@@ -71,22 +65,22 @@ const createGibworkTaskAction: Action = {
         input.tags,
         new PublicKey(input.tokenMintAddress),
         input.tokenAmount,
-        input.payer ? new PublicKey(input.payer) : undefined
+        input.payer ? new PublicKey(input.payer) : undefined,
       );
 
       return {
         status: "success",
         taskId: responseData.taskId,
         signature: responseData.signature,
-        message: `Successfully created task: ${input.title}`
+        message: `Successfully created task: ${input.title}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to create task: ${error.message}`
+        message: `Failed to create task: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default createGibworkTaskAction; 
+export default createGibworkTaskAction;

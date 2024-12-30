@@ -27,48 +27,58 @@ const createOrcaSingleSidedWhirlpoolAction: Action = {
     "initialize orca whirlpool",
     "create orca concentrated pool",
     "setup orca concentrated liquidity",
-    "create orca trading pair"
+    "create orca trading pair",
   ],
-  description: "Create a new single-sided whirlpool on Orca with concentrated liquidity",
+  description:
+    "Create a new single-sided whirlpool on Orca with concentrated liquidity",
   examples: [
     [
       {
         input: {
           depositTokenAmount: "1000000000000", // 1 million tokens with 6 decimals
-          depositTokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  // USDC
-          otherTokenMint: "So11111111111111111111111111111111111111112",   // SOL
+          depositTokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+          otherTokenMint: "So11111111111111111111111111111111111111112", // SOL
           initialPrice: "0.001",
           maxPrice: "5.0",
-          feeTier: 0.3
+          feeTier: 0.3,
         },
         output: {
           status: "success",
           signature: "2ZE7Rz...",
-          message: "Successfully created Orca single-sided whirlpool"
+          message: "Successfully created Orca single-sided whirlpool",
         },
-        explanation: "Create a USDC/SOL whirlpool with 1M USDC initial liquidity"
-      }
-    ]
+        explanation:
+          "Create a USDC/SOL whirlpool with 1M USDC initial liquidity",
+      },
+    ],
   ],
   schema: z.object({
-    depositTokenAmount: z.string()
+    depositTokenAmount: z
+      .string()
       .min(1)
-      .describe("The amount of deposit token to provide as liquidity (including decimals)"),
-    depositTokenMint: z.string()
+      .describe(
+        "The amount of deposit token to provide as liquidity (including decimals)",
+      ),
+    depositTokenMint: z
+      .string()
       .min(1)
       .describe("The mint address of the token being deposited"),
-    otherTokenMint: z.string()
+    otherTokenMint: z
+      .string()
       .min(1)
       .describe("The mint address of the other token in the pool"),
-    initialPrice: z.string()
+    initialPrice: z
+      .string()
       .min(1)
       .describe("Initial price of deposit token in terms of the other token"),
-    maxPrice: z.string()
+    maxPrice: z
+      .string()
       .min(1)
       .describe("Maximum price at which liquidity is added"),
-    feeTier: z.number()
+    feeTier: z
+      .number()
       .refine((val) => val in FEE_TIERS, "Invalid fee tier")
-      .describe("Fee tier percentage for the pool (e.g., 0.3 for 0.3%)")
+      .describe("Fee tier percentage for the pool (e.g., 0.3 for 0.3%)"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -87,21 +97,21 @@ const createOrcaSingleSidedWhirlpoolAction: Action = {
         otherTokenMint,
         initialPrice,
         maxPrice,
-        feeTier
+        feeTier,
       );
 
       return {
         status: "success",
         signature,
-        message: "Successfully created Orca single-sided whirlpool"
+        message: "Successfully created Orca single-sided whirlpool",
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to create whirlpool: ${error.message}`
+        message: `Failed to create whirlpool: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default createOrcaSingleSidedWhirlpoolAction; 
+export default createOrcaSingleSidedWhirlpoolAction;

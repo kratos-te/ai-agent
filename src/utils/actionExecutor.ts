@@ -7,9 +7,10 @@ import { actions } from "../actions";
  */
 export function findAction(query: string): Action | undefined {
   const normalizedQuery = query.toLowerCase().trim();
-  return actions.find(action => 
-    action.name.toLowerCase() === normalizedQuery ||
-    action.similes.some(simile => simile.toLowerCase() === normalizedQuery)
+  return actions.find(
+    (action) =>
+      action.name.toLowerCase() === normalizedQuery ||
+      action.similes.some((simile) => simile.toLowerCase() === normalizedQuery),
   );
 }
 
@@ -19,18 +20,18 @@ export function findAction(query: string): Action | undefined {
 export async function executeAction(
   action: Action,
   agent: SolanaAgentKit,
-  input: Record<string, any>
+  input: Record<string, any>,
 ): Promise<Record<string, any>> {
   try {
     // Validate input using Zod schema
     const validatedInput = action.schema.parse(input);
-    
+
     // Execute the action with validated input
     const result = await action.handler(agent, validatedInput);
-    
+
     return {
       status: "success",
-      ...result
+      ...result,
     };
   } catch (error: any) {
     // Handle Zod validation errors specially
@@ -39,14 +40,14 @@ export async function executeAction(
         status: "error",
         message: "Validation error",
         details: error.errors,
-        code: "VALIDATION_ERROR"
+        code: "VALIDATION_ERROR",
       };
     }
-    
+
     return {
       status: "error",
       message: error.message,
-      code: error.code || "EXECUTION_ERROR"
+      code: error.code || "EXECUTION_ERROR",
     };
   }
 }
@@ -57,11 +58,11 @@ export async function executeAction(
 export function getActionExamples(action: Action): string {
   return action.examples
     .flat()
-    .map(example => {
+    .map((example) => {
       return `Input: ${JSON.stringify(example.input, null, 2)}
 Output: ${JSON.stringify(example.output, null, 2)}
 Explanation: ${example.explanation}
 ---`;
     })
     .join("\n");
-} 
+}

@@ -11,7 +11,7 @@ const balanceAction: Action = {
     "get wallet balance",
     "view balance",
     "show balance",
-    "check token balance"
+    "check token balance",
   ],
   description: `Get the balance of a Solana wallet or token account.
   If you want to get the balance of your wallet, you don't need to provide the tokenAddress.
@@ -23,37 +23,40 @@ const balanceAction: Action = {
         output: {
           status: "success",
           balance: "100",
-          token: "SOL"
+          token: "SOL",
         },
-        explanation: "Get SOL balance of the wallet"
-      }
+        explanation: "Get SOL balance of the wallet",
+      },
     ],
     [
       {
         input: {
-          tokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          tokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         },
         output: {
           status: "success",
           balance: "1000",
-          token: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          token: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         },
-        explanation: "Get USDC token balance"
-      }
-    ]
+        explanation: "Get USDC token balance",
+      },
+    ],
   ],
   schema: z.object({
-    tokenAddress: z.string().optional()
+    tokenAddress: z.string().optional(),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
-    const balance = await get_balance(agent, input.tokenAddress && new PublicKey(input.tokenAddress));
+    const balance = await get_balance(
+      agent,
+      input.tokenAddress && new PublicKey(input.tokenAddress),
+    );
 
     return {
       status: "success",
       balance: balance,
-      token: input.tokenAddress || "SOL"
+      token: input.tokenAddress || "SOL",
     };
-  }
+  },
 };
 
-export default balanceAction; 
+export default balanceAction;

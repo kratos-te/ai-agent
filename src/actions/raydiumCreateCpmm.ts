@@ -1,13 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import {
-  CREATE_CPMM_POOL_FEE_ACC,
-  CREATE_CPMM_POOL_PROGRAM,
-  Raydium,
-  TxVersion,
-} from "@raydium-io/raydium-sdk-v2";
-import { MintLayout } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { raydiumCreateCpmm } from "../tools";
@@ -20,45 +13,46 @@ const raydiumCreateCpmmAction: Action = {
     "initialize raydium amm",
     "create constant product market maker",
     "setup raydium cpmm",
-    "create raydium trading pair"
+    "create raydium trading pair",
   ],
-  description: "Create a new Constant Product Market Maker (CPMM) pool on Raydium",
+  description:
+    "Create a new Constant Product Market Maker (CPMM) pool on Raydium",
   examples: [
     [
       {
         input: {
-          baseMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  // USDC
-          quoteMint: "So11111111111111111111111111111111111111112",   // SOL
+          baseMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+          quoteMint: "So11111111111111111111111111111111111111112", // SOL
           baseAmount: 1000,
           quoteAmount: 10,
-          startTime: 1672531200  // Unix timestamp
+          startTime: 1672531200, // Unix timestamp
         },
         output: {
           status: "success",
           signature: "2ZE7Rz...",
           poolId: "7nxQB...",
-          message: "Successfully created Raydium CPMM pool"
+          message: "Successfully created Raydium CPMM pool",
         },
-        explanation: "Create a USDC-SOL pool with initial liquidity of 1000 USDC and 10 SOL"
-      }
-    ]
+        explanation:
+          "Create a USDC-SOL pool with initial liquidity of 1000 USDC and 10 SOL",
+      },
+    ],
   ],
   schema: z.object({
-    baseMint: z.string()
-      .min(1)
-      .describe("The base token mint address"),
-    quoteMint: z.string()
-      .min(1)
-      .describe("The quote token mint address"),
-    baseAmount: z.number()
+    baseMint: z.string().min(1).describe("The base token mint address"),
+    quoteMint: z.string().min(1).describe("The quote token mint address"),
+    baseAmount: z
+      .number()
       .positive()
       .describe("Initial base token amount to provide as liquidity"),
-    quoteAmount: z.number()
+    quoteAmount: z
+      .number()
       .positive()
       .describe("Initial quote token amount to provide as liquidity"),
-    startTime: z.number()
+    startTime: z
+      .number()
       .positive()
-      .describe("Unix timestamp when trading should start")
+      .describe("Unix timestamp when trading should start"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -69,20 +63,28 @@ const raydiumCreateCpmmAction: Action = {
       const mintBAmount = new BN(input.quoteAmount);
       const startTime = new BN(input.startTime);
 
-      const txId = await raydiumCreateCpmm(agent, mintA, mintB, configId, mintAAmount, mintBAmount, startTime);
+      const txId = await raydiumCreateCpmm(
+        agent,
+        mintA,
+        mintB,
+        configId,
+        mintAAmount,
+        mintBAmount,
+        startTime,
+      );
 
       return {
         status: "success",
         signature: txId,
-        message: "Successfully created Raydium CPMM pool"
+        message: "Successfully created Raydium CPMM pool",
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to create CPMM pool: ${error.message}`
+        message: `Failed to create CPMM pool: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default raydiumCreateCpmmAction; 
+export default raydiumCreateCpmmAction;

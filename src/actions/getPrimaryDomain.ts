@@ -1,7 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { getPrimaryDomain as _getPrimaryDomain } from "@bonfida/spl-name-service";
 import { PublicKey } from "@solana/web3.js";
 import { getPrimaryDomain } from "../tools";
 
@@ -13,51 +12,46 @@ const getPrimaryDomainAction: Action = {
     "check primary domain",
     "find primary domain",
     "get main domain",
-    "primary sol domain"
+    "primary sol domain",
   ],
-  description: "Get the primary .sol domain associated with a Solana wallet address",
+  description:
+    "Get the primary .sol domain associated with a Solana wallet address",
   examples: [
     [
       {
         input: {
-          account: "7nxQB..."
+          account: "7nxQB...",
         },
         output: {
           status: "success",
           domain: "vitalik.sol",
-          message: "Primary domain: vitalik.sol"
+          message: "Primary domain: vitalik.sol",
         },
-        explanation: "Get the primary .sol domain for a wallet address"
-      }
-    ]
+        explanation: "Get the primary .sol domain for a wallet address",
+      },
+    ],
   ],
   schema: z.object({
-    account: z.string()
-      .min(1)
-      .describe("The Solana wallet address to lookup")
+    account: z.string().min(1).describe("The Solana wallet address to lookup"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       const account = new PublicKey(input.account);
 
-      const response = await getPrimaryDomain(
-        agent,
-        account
-      );
-
+      const response = await getPrimaryDomain(agent, account);
 
       return {
         status: "success",
         domain: response,
-        message: `Primary domain: ${response}`
+        message: `Primary domain: ${response}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to get primary domain: ${error.message}`
+        message: `Failed to get primary domain: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default getPrimaryDomainAction; 
+export default getPrimaryDomainAction;

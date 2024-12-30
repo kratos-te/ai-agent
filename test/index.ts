@@ -7,8 +7,6 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
-import { Tool } from "@langchain/core/tools";
-import { Action } from "../src/types/action";
 
 dotenv.config();
 

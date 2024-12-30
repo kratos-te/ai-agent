@@ -1,10 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { Transaction } from "@solana/web3.js";
-import { registerDomainNameV2 } from "@bonfida/spl-name-service";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { TOKENS } from "../constants";
 import { registerDomain } from "../tools";
 
 const registerDomainAction: Action = {
@@ -15,7 +11,7 @@ const registerDomainAction: Action = {
     "get domain name",
     "register .sol",
     "purchase domain",
-    "domain registration"
+    "domain registration",
   ],
   description: "Register a .sol domain name using Bonfida Name Service",
   examples: [
@@ -23,26 +19,25 @@ const registerDomainAction: Action = {
       {
         input: {
           name: "mydomain",
-          spaceKB: 1
+          spaceKB: 1,
         },
         output: {
           status: "success",
           signature: "2ZE7Rz...",
-          message: "Successfully registered mydomain.sol"
+          message: "Successfully registered mydomain.sol",
         },
-        explanation: "Register a new .sol domain with 1KB storage space"
-      }
-    ]
+        explanation: "Register a new .sol domain with 1KB storage space",
+      },
+    ],
   ],
   schema: z.object({
-    name: z.string()
-      .min(1)
-      .describe("Domain name to register (without .sol)"),
-    spaceKB: z.number()
+    name: z.string().min(1).describe("Domain name to register (without .sol)"),
+    spaceKB: z
+      .number()
       .min(1)
       .max(10)
       .default(1)
-      .describe("Space allocation in KB (max 10KB)")
+      .describe("Space allocation in KB (max 10KB)"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -54,15 +49,15 @@ const registerDomainAction: Action = {
       return {
         status: "success",
         signature,
-        message: `Successfully registered ${name}.sol`
+        message: `Successfully registered ${name}.sol`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Domain registration failed: ${error.message}`
+        message: `Domain registration failed: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default registerDomainAction; 
+export default registerDomainAction;

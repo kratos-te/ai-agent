@@ -1,7 +1,6 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { resolve } from "@bonfida/spl-name-service";
 import { resolveSolDomain } from "../tools";
 
 const resolveSolDomainAction: Action = {
@@ -12,47 +11,49 @@ const resolveSolDomainAction: Action = {
     "get sol domain owner",
     "check sol domain",
     "find sol domain owner",
-    "resolve .sol"
+    "resolve .sol",
   ],
-  description: "Resolve a .sol domain to its corresponding Solana wallet address using Bonfida Name Service",
+  description:
+    "Resolve a .sol domain to its corresponding Solana wallet address using Bonfida Name Service",
   examples: [
     [
       {
         input: {
-          domain: "vitalik.sol"
+          domain: "vitalik.sol",
         },
         output: {
           status: "success",
           owner: "7nxQB...",
-          message: "Successfully resolved vitalik.sol"
+          message: "Successfully resolved vitalik.sol",
         },
-        explanation: "Resolve a .sol domain to get the owner's wallet address"
-      }
-    ]
+        explanation: "Resolve a .sol domain to get the owner's wallet address",
+      },
+    ],
   ],
   schema: z.object({
-    domain: z.string()
+    domain: z
+      .string()
       .min(1)
-      .describe("The .sol domain to resolve (with or without .sol suffix)")
+      .describe("The .sol domain to resolve (with or without .sol suffix)"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
       const domain = input.domain as string;
 
-      const res = await resolveSolDomain(agent,domain)
+      const res = await resolveSolDomain(agent, domain);
 
       return {
         status: "success",
         owner: res.toString(),
-        message: `Successfully resolved ${res}`
+        message: `Successfully resolved ${res}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to resolve domain: ${error.message}`
+        message: `Failed to resolve domain: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default resolveSolDomainAction; 
+export default resolveSolDomainAction;

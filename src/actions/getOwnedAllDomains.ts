@@ -12,29 +12,31 @@ const getOwnedAllDomainsAction: Action = {
     "fetch wallet domains",
     "get owned names",
     "list my domains",
-    "get address domains"
+    "get address domains",
   ],
-  description: "Get all domains owned by a specific wallet address across all TLDs",
+  description:
+    "Get all domains owned by a specific wallet address across all TLDs",
   examples: [
     [
       {
         input: {
-          address: "7nxQB..."
+          address: "7nxQB...",
         },
         output: {
           status: "success",
           domains: ["solana.sol", "wallet.abc", "user.backpack"],
           total: 3,
-          message: "Successfully retrieved owned domains"
+          message: "Successfully retrieved owned domains",
         },
-        explanation: "Get all domain names owned by a specific wallet address"
-      }
-    ]
+        explanation: "Get all domain names owned by a specific wallet address",
+      },
+    ],
   ],
   schema: z.object({
-    address: z.string()
+    address: z
+      .string()
       .min(1)
-      .describe("The wallet address to get owned domains for")
+      .describe("The wallet address to get owned domains for"),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
@@ -47,15 +49,15 @@ const getOwnedAllDomainsAction: Action = {
         status: "success",
         domains,
         total: domains.length,
-        message: `Successfully retrieved ${domains.length} owned domain${domains.length === 1 ? '' : 's'}`
+        message: `Successfully retrieved ${domains.length} owned domain${domains.length === 1 ? "" : "s"}`,
       };
     } catch (error: any) {
       return {
         status: "error",
-        message: `Failed to get owned domains: ${error.message}`
+        message: `Failed to get owned domains: ${error.message}`,
       };
     }
-  }
+  },
 };
 
-export default getOwnedAllDomainsAction; 
+export default getOwnedAllDomainsAction;

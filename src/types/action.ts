@@ -13,7 +13,10 @@ export interface ActionExample {
 /**
  * Handler function type for executing the action
  */
-export type Handler = (agent: SolanaAgentKit, input: Record<string, any>) => Promise<Record<string, any>>;
+export type Handler = (
+  agent: SolanaAgentKit,
+  input: Record<string, any>,
+) => Promise<Record<string, any>>;
 
 /**
  * Main Action interface inspired by ELIZA
@@ -50,4 +53,4 @@ export interface Action {
    * Function that executes the action
    */
   handler: Handler;
-} 
+}

@@ -10,7 +10,7 @@ const requestFundsAction: Action = {
     "get test sol",
     "use faucet",
     "request test tokens",
-    "get devnet sol"
+    "get devnet sol",
   ],
   description: "Request SOL from Solana faucet (devnet/testnet only)",
   examples: [
@@ -20,11 +20,11 @@ const requestFundsAction: Action = {
         output: {
           status: "success",
           message: "Successfully requested faucet funds",
-          network: "devnet.solana.com"
+          network: "devnet.solana.com",
         },
-        explanation: "Request SOL from the devnet faucet"
-      }
-    ]
+        explanation: "Request SOL from the devnet faucet",
+      },
+    ],
   ],
   schema: z.object({}), // No input parameters required
   handler: async (agent: SolanaAgentKit, _input: Record<string, any>) => {
@@ -33,9 +33,9 @@ const requestFundsAction: Action = {
     return {
       status: "success",
       message: "Successfully requested faucet funds",
-      network: agent.connection.rpcEndpoint.split("/")[2]
+      network: agent.connection.rpcEndpoint.split("/")[2],
     };
-  }
+  },
 };
 
-export default requestFundsAction; 
+export default requestFundsAction;

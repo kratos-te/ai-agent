@@ -10,7 +10,6 @@ import { create_image } from "../tools/create_image";
 import { BN } from "@coral-xyz/anchor";
 import { FEE_TIERS } from "../tools";
 import { toJSON } from "../utils/toJSON";
-import { wrapLangChainTool } from "../utils/langchainWrapper";
 import deployTokenAction from "../actions/deployToken";
 import balanceAction from "../actions/balance";
 import transferAction from "../actions/transfer";
@@ -41,7 +40,7 @@ export class SolanaBalanceTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -69,7 +68,7 @@ export class SolanaTransferTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -97,7 +96,7 @@ export class SolanaDeployTokenTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -125,7 +124,7 @@ export class SolanaDeployCollectionTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -153,7 +152,7 @@ export class SolanaMintNFTTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -181,7 +180,7 @@ export class SolanaTradeTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }
@@ -206,7 +205,7 @@ export class SolanaRequestFundsTool extends Tool {
       return JSON.stringify({
         status: "error",
         message: error.message,
-        code: error.code || "UNKNOWN_ERROR"
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   }

@@ -1,4 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
@@ -17,7 +16,7 @@ const deployCollectionAction: Action = {
     "launch collection",
     "deploy nft collection",
     "create nft collection",
-    "mint collection"
+    "mint collection",
   ],
   description: `Deploy a new NFT collection on Solana blockchain.`,
   examples: [
@@ -26,43 +25,43 @@ const deployCollectionAction: Action = {
         input: {
           name: "My Collection",
           uri: "https://example.com/collection.json",
-          royaltyBasisPoints: 500
+          royaltyBasisPoints: 500,
         },
         output: {
           status: "success",
           message: "Collection deployed successfully",
           collectionAddress: "7nE9GvcwsqzYxmJLSrYmSB1V1YoJWVK1KWzAcWAzjXkN",
-          name: "My Collection"
+          name: "My Collection",
         },
-        explanation: "Deploy an NFT collection with 5% royalty"
-      }
+        explanation: "Deploy an NFT collection with 5% royalty",
+      },
     ],
     [
       {
         input: {
           name: "Basic Collection",
-          uri: "https://example.com/basic.json"
+          uri: "https://example.com/basic.json",
         },
         output: {
           status: "success",
           message: "Collection deployed successfully",
           collectionAddress: "8nE9GvcwsqzYxmJLSrYmSB1V1YoJWVK1KWzAcWAzjXkM",
-          name: "Basic Collection"
+          name: "Basic Collection",
         },
-        explanation: "Deploy a basic NFT collection without royalties"
-      }
-    ]
+        explanation: "Deploy a basic NFT collection without royalties",
+      },
+    ],
   ],
   schema: z.object({
     name: z.string().min(1, "Name is required"),
     uri: z.string().url("URI must be a valid URL"),
-    royaltyBasisPoints: z.number().min(0).max(10000).optional()
+    royaltyBasisPoints: z.number().min(0).max(10000).optional(),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     const options: CollectionOptions = {
       name: input.name,
       uri: input.uri,
-      royaltyBasisPoints: input.royaltyBasisPoints
+      royaltyBasisPoints: input.royaltyBasisPoints,
     };
 
     const result = await deploy_collection(agent, options);
@@ -71,9 +70,9 @@ const deployCollectionAction: Action = {
       status: "success",
       message: "Collection deployed successfully",
       collectionAddress: result.collectionAddress.toString(),
-      name: input.name
+      name: input.name,
     };
-  }
+  },
 };
 
-export default deployCollectionAction; 
+export default deployCollectionAction;
