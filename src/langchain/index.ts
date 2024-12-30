@@ -325,7 +325,7 @@ export class SolanaLimitOrderTool extends Tool {
       const parsedInput = JSON.parse(input);
 
       const tx = await this.solanaKit.limitOrder(
-        parsedInput.marketId,
+        new PublicKey(parsedInput.marketId),
         parsedInput.quantity,
         parsedInput.side,
         parsedInput.price,

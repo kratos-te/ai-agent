@@ -10,7 +10,6 @@ import {
   WrapperPlaceOrderParamsExternal,
 } from "@cks-systems/manifest-sdk";
 import { OrderType } from "@cks-systems/manifest-sdk/client/ts/src/wrapper/types/OrderType";
-import { sleep } from "openai/core";
 
 /**
  * Place limit orders using Manifest
@@ -29,27 +28,6 @@ export async function limitOrder(
   price: number,
 ): Promise<string> {
   try {
-    const { setupNeeded, instructions, wrapperKeypair } =
-      await ManifestClient.getSetupIxs(
-        agent.connection,
-        marketId,
-        agent.wallet.publicKey,
-      );
-
-    if (setupNeeded) {
-      const tx = new Transaction().add(...instructions);
-      const { blockhash } = await agent.connection.getLatestBlockhash();
-      tx.recentBlockhash = blockhash;
-      tx.feePayer = agent.wallet.publicKey!;
-      if (wrapperKeypair) {
-        tx.sign(wrapperKeypair);
-      }
-
-      await sendAndConfirmTransaction(agent.connection, tx, [agent.wallet]);
-
-      await sleep(5_000);
-    }
-
     const mfxClient = await ManifestClient.getClientForMarket(
       agent.connection,
       marketId,
@@ -59,7 +37,7 @@ export async function limitOrder(
     const orderParams: WrapperPlaceOrderParamsExternal = {
       numBaseTokens: quantity,
       tokenPrice: price,
-      isBid: side === "buy",
+      isBid: side === "Buy",
       lastValidSlot: 0,
       orderType: OrderType.Limit,
       clientOrderId: Number(Math.random() * 1000),
