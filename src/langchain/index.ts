@@ -46,7 +46,7 @@ export class SolanaBalanceTool extends Tool {
 
 export class SolanaBalanceOtherTool extends Tool {
   name = "solana_balance_other";
-  description = `Get the balance of a Solana wallet or token account different from the agent's wallet.
+  description = `Get the balance of a Solana wallet or token account which is different from the agent's wallet.
 
   If no tokenAddress is provided, the SOL balance of the wallet will be returned.
 
@@ -1078,7 +1078,7 @@ export class SolanaOrcaOpenSingleSidedPosition extends Tool {
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
-  description = `Raydium's Legacy AMM that requiers an OpenBook marketID
+  description = `Raydium's Legacy AMM that requires an OpenBook marketID
 
   Inputs (input is a json string):
   marketId: string (required)
@@ -1104,7 +1104,7 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium amm v4 pool successfully",
+        message: "Raydium amm v4 pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1149,7 +1149,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium clmm pool successfully",
+        message: "Raydium clmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1197,7 +1197,7 @@ export class SolanaRaydiumCreateCpmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium cpmm pool successfully",
+        message: "Raydium cpmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1239,7 +1239,7 @@ export class SolanaOpenbookCreateMarket extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create openbook market successfully",
+        message: "Openbook market created successfully",
         transaction: tx,
       });
     } catch (error: any) {
