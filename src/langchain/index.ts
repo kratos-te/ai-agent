@@ -36,6 +36,10 @@ import resolveSolDomainAction from "../actions/resolveSolDomain";
 import getAllDomainsTLDsAction from "../actions/getAllDomainsTLDs";
 import getMainAllDomainsDomainAction from "../actions/getMainAllDomainsDomain";
 import raydiumCreateAmmV4Action from "../actions/raydiumCreateAmmV4";
+import tokenDataByTickerAction from "../actions/tokenDataByTicker";
+import compressedAirdropAction from "../actions/compressedAirdrop";
+import raydiumCreateClmmAction from "../actions/raydiumCreateClmm";
+import createOpenbookMarketAction from "../actions/createOpenbookMarket";
 
 export class SolanaBalanceTool extends Tool {
   private action = balanceAction;
@@ -541,7 +545,6 @@ export class SolanaFetchPriceTool extends Tool {
 
       const parsedInput = { tokenId: input.trim() };
       const price = await this.action.handler(this.solanaKit, parsedInput);
-      //const price = await this.solanaKit.fetchTokenPrice(input.trim());
       return JSON.stringify({
         status: "success",
         tokenId: input.trim(),
@@ -587,11 +590,9 @@ export class SolanaTokenDataTool extends Tool {
 }
 
 export class SolanaTokenDataByTickerTool extends Tool {
-  name = "solana_token_data_by_ticker";
-  description = `Get the token data for a given token ticker
-
-Inputs: ticker is required.
-  ticker: string, eg "USDC"(required)`;
+  private action = tokenDataByTickerAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -600,7 +601,7 @@ Inputs: ticker is required.
   protected async _call(input: string): Promise<string> {
     try {
       const ticker = input.trim();
-      const tokenData = await this.solanaKit.getTokenDataByTicker(ticker);
+      const tokenData = await this.action.handler(this.solanaKit, { ticker });
       return JSON.stringify({
         status: "success",
         tokenData: tokenData,
@@ -616,16 +617,9 @@ Inputs: ticker is required.
 }
 
 export class SolanaCompressedAirdropTool extends Tool {
-  name = "solana_compressed_airdrop";
-  description = `Airdrop SPL tokens with ZK Compression(also called as airdropping tokens)
-
-Inputs(input is a JSON string):
-mintAddress: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"(required)
-amount: number, the amount of tokens to airdrop per recipient, e.g., 42(required)
-decimals: number, the decimals of the token, e.g., 6(required)
-recipients: string[], the recipient addresses, e.g., ["1nc1nerator11111111111111111111111111111111"](required)
-priorityFeeInLamports: number, the priority fee in lamports.Default is 30_000.(optional)
-shouldLog: boolean, whether to log progress to stdout.Default is false. (optional)`;
+  private action = compressedAirdropAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -634,16 +628,7 @@ shouldLog: boolean, whether to log progress to stdout.Default is false. (optiona
   protected async _call(input: string): Promise<string> {
     try {
       const parsedInput = JSON.parse(input);
-
-      const txs = await this.solanaKit.sendCompressedAirdrop(
-        parsedInput.mintAddress,
-        parsedInput.amount,
-        parsedInput.decimals,
-        parsedInput.recipients,
-        parsedInput.priorityFeeInLamports || 30_000,
-        parsedInput.shouldLog || false,
-      );
-
+      const txs = await this.action.handler(this.solanaKit, parsedInput);
       return JSON.stringify({
         status: "success",
         message: `Airdropped ${parsedInput.amount} tokens to ${parsedInput.recipients.length} recipients.`,
@@ -740,16 +725,9 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 }
 
 export class SolanaRaydiumCreateClmm extends Tool {
-  name = "raydium_create_clmm";
-  description = `Concentrated liquidity market maker, custom liquidity ranges, increased capital efficiency
-
-Inputs(input is a json string):
-mint1: string(required)
-mint2: string(required)
-configId: string(required) stores pool info, id, index, protocolFeeRate, tradeFeeRate, tickSpacing, fundFeeRate
-initialPrice: number, eg: 123.12(required)
-startTime: number(seconds), eg: now number or zero(required)
-  `;
+  private action = raydiumCreateClmmAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -759,15 +737,7 @@ startTime: number(seconds), eg: now number or zero(required)
     try {
       const inputFormat = JSON.parse(input);
 
-      const tx = await this.solanaKit.raydiumCreateClmm(
-        new PublicKey(inputFormat.mint1),
-        new PublicKey(inputFormat.mint2),
-
-        new PublicKey(inputFormat.configId),
-
-        new Decimal(inputFormat.initialPrice),
-        new BN(inputFormat.startTime),
-      );
+      const tx = await this.action.handler(this.solanaKit, inputFormat);
 
       return JSON.stringify({
         status: "success",
@@ -814,15 +784,9 @@ export class SolanaRaydiumCreateCpmm extends Tool {
 }
 
 export class SolanaOpenbookCreateMarket extends Tool {
-  name = "solana_openbook_create_market";
-  description = `Openbook marketId, required for ammv4
-
-  Inputs(input is a json string):
-  baseMint: string(required)
-quoteMint: string(required)
-lotSize: number(required)
-tickSize: number(required)
-  `;
+  private action = createOpenbookMarketAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -831,14 +795,7 @@ tickSize: number(required)
   async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-
-      const tx = await this.solanaKit.openbookCreateMarket(
-        new PublicKey(inputFormat.baseMint),
-        new PublicKey(inputFormat.quoteMint),
-
-        inputFormat.lotSize,
-        inputFormat.tickSize,
-      );
+      const tx = await this.action.handler(this.solanaKit, inputFormat);
 
       return JSON.stringify({
         status: "success",
@@ -887,13 +844,9 @@ export class SolanaPythFetchPrice extends Tool {
 }
 
 export class SolanaResolveAllDomainsTool extends Tool {
-  name = "solana_resolve_all_domains";
-  description = `Resolve domain names to a public key for ALL domain types EXCEPT.sol domains.
-  Use this for domains like.blink, .bonk, etc.
-  DO NOT use this for .sol domains(use solana_resolve_domain instead).
-
-  Input:
-  domain: string, eg "mydomain.blink" or "mydomain.bonk"(required)`;
+  private action = resolveDomainAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -901,7 +854,8 @@ export class SolanaResolveAllDomainsTool extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const owner = await this.solanaKit.resolveAllDomains(input);
+      const parsedInput = JSON.parse(input);
+      const owner = await this.action.handler(this.solanaKit, parsedInput);
 
       if (!owner) {
         return JSON.stringify({
@@ -956,11 +910,9 @@ export class SolanaGetOwnedDomains extends Tool {
 }
 
 export class SolanaGetOwnedTldDomains extends Tool {
-  name = "solana_get_owned_tld_domains";
-  description = `Get all domains owned by the agent's wallet for a specific TLD.
-
-Inputs:
-tld: string, eg "bonk"(required)`;
+  private action = getOwnedDomainsForTLDAction;
+  name = this.action.name;
+  description = this.action.description;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -968,7 +920,7 @@ tld: string, eg "bonk"(required)`;
 
   async _call(input: string): Promise<string> {
     try {
-      const domains = await this.solanaKit.getOwnedDomainsForTLD(input);
+      const domains = await this.action.handler(this.solanaKit, { tld: input });
 
       return JSON.stringify({
         status: "success",
