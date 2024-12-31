@@ -1,18 +1,23 @@
-import { SolanaAgentKit } from "../src";
-import { createSolanaTools } from "../src/langchain";
+import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 import { HumanMessage } from "@langchain/core/messages";
-import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
-
+import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 dotenv.config();
+
+const checkpointer = PostgresSaver.fromConnString(process.env.POSTGRES_DB_URL!);
 
 function validateEnvironment(): void {
   const missingVars: string[] = [];
-  const requiredVars = ["OPENAI_API_KEY", "RPC_URL", "SOLANA_PRIVATE_KEY"];
+  const requiredVars = [
+    "OPENAI_API_KEY",
+    "RPC_URL",
+    "SOLANA_PRIVATE_KEY",
+    "POSTGRES_DB_URL",
+  ];
 
   requiredVars.forEach((varName) => {
     if (!process.env[varName]) {
@@ -37,7 +42,7 @@ async function initializeAgent() {
   try {
     const llm = new ChatOpenAI({
       modelName: "gpt-4o-mini",
-      temperature: 0.3,
+      temperature: 0.7,
     });
 
     let walletDataStr: string | null = null;
@@ -57,13 +62,13 @@ async function initializeAgent() {
     );
 
     const tools = createSolanaTools(solanaAgent);
-    const memory = new MemorySaver();
+    await checkpointer.setup();
     const config = { configurable: { thread_id: "Solana Agent Kit!" } };
 
     const agent = createReactAgent({
       llm,
       tools,
-      checkpointSaver: memory,
+      checkpointSaver: checkpointer,
       messageModifier: `
         You are a helpful agent that can interact onchain using the Solana Agent Kit. You are
         empowered to interact onchain using your tools. If you ever need funds, you can request them from the
