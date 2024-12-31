@@ -46,7 +46,7 @@ export class SolanaBalanceTool extends Tool {
 
 export class SolanaBalanceOtherTool extends Tool {
   name = "solana_balance_other";
-  description = `Get the balance of a Solana wallet or token account different from the agent's wallet.
+  description = `Get the balance of a Solana wallet or token account which is different from the agent's wallet.
 
   If no tokenAddress is provided, the SOL balance of the wallet will be returned.
 
@@ -904,7 +904,7 @@ export class SolanaCompressedAirdropTool extends Tool {
   }
 }
 
-export class SolanaClosePostition extends Tool {
+export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
@@ -1186,7 +1186,7 @@ export class SolanaOrcaOpenSingleSidedPosition extends Tool {
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
-  description = `Raydium's Legacy AMM that requiers an OpenBook marketID
+  description = `Raydium's Legacy AMM that requires an OpenBook marketID
 
   Inputs (input is a json string):
   marketId: string (required)
@@ -1212,7 +1212,7 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium amm v4 pool successfully",
+        message: "Raydium amm v4 pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1257,7 +1257,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium clmm pool successfully",
+        message: "Raydium clmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1305,7 +1305,7 @@ export class SolanaRaydiumCreateCpmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium cpmm pool successfully",
+        message: "Raydium cpmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1347,7 +1347,7 @@ export class SolanaOpenbookCreateMarket extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create openbook market successfully",
+        message: "Openbook market created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1736,6 +1736,95 @@ export class SolanaTipLinkTool extends Tool {
   }
 }
 
+export class SolanaListNFTForSaleTool extends Tool {
+  name = "solana_list_nft_for_sale";
+  description = `List an NFT for sale on Tensor Trade.
+
+  Inputs (input is a JSON string):
+  nftMint: string, the mint address of the NFT (required)
+  price: number, price in SOL (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      // Validate NFT ownership first
+      const nftAccount =
+        await this.solanaKit.connection.getTokenAccountsByOwner(
+          this.solanaKit.wallet_address,
+          { mint: new PublicKey(parsedInput.nftMint) },
+        );
+
+      if (nftAccount.value.length === 0) {
+        return JSON.stringify({
+          status: "error",
+          message:
+            "NFT not found in wallet. Please make sure you own this NFT.",
+          code: "NFT_NOT_FOUND",
+        });
+      }
+
+      const tx = await this.solanaKit.tensorListNFT(
+        new PublicKey(parsedInput.nftMint),
+        parsedInput.price,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "NFT listed for sale successfully",
+        transaction: tx,
+        price: parsedInput.price,
+        nftMint: parsedInput.nftMint,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCancelNFTListingTool extends Tool {
+  name = "solana_cancel_nft_listing";
+  description = `Cancel an NFT listing on Tensor Trade.
+
+  Inputs (input is a JSON string):
+  nftMint: string, the mint address of the NFT (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const tx = await this.solanaKit.tensorCancelListing(
+        new PublicKey(parsedInput.nftMint),
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "NFT listing cancelled successfully",
+        transaction: tx,
+        nftMint: parsedInput.nftMint,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -1782,5 +1871,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaCreateGibworkTask(solanaKit),
     new SolanaRockPaperScissorsTool(solanaKit),
     new SolanaTipLinkTool(solanaKit),
+    new SolanaListNFTForSaleTool(solanaKit),
+    new SolanaCancelNFTListingTool(solanaKit),
   ];
 }
