@@ -46,7 +46,7 @@ export class SolanaBalanceTool extends Tool {
 
 export class SolanaBalanceOtherTool extends Tool {
   name = "solana_balance_other";
-  description = `Get the balance of a Solana wallet or token account different from the agent's wallet.
+  description = `Get the balance of a Solana wallet or token account which is different from the agent's wallet.
 
   If no tokenAddress is provided, the SOL balance of the wallet will be returned.
 
@@ -796,7 +796,7 @@ export class SolanaCompressedAirdropTool extends Tool {
   }
 }
 
-export class SolanaClosePostition extends Tool {
+export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
@@ -1078,7 +1078,7 @@ export class SolanaOrcaOpenSingleSidedPosition extends Tool {
 
 export class SolanaRaydiumCreateAmmV4 extends Tool {
   name = "raydium_create_ammV4";
-  description = `Raydium's Legacy AMM that requiers an OpenBook marketID
+  description = `Raydium's Legacy AMM that requires an OpenBook marketID
 
   Inputs (input is a json string):
   marketId: string (required)
@@ -1104,7 +1104,7 @@ export class SolanaRaydiumCreateAmmV4 extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium amm v4 pool successfully",
+        message: "Raydium amm v4 pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1149,7 +1149,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium clmm pool successfully",
+        message: "Raydium clmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1197,7 +1197,7 @@ export class SolanaRaydiumCreateCpmm extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create raydium cpmm pool successfully",
+        message: "Raydium cpmm pool created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1239,7 +1239,7 @@ export class SolanaOpenbookCreateMarket extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: "Create openbook market successfully",
+        message: "Openbook market created successfully",
         transaction: tx,
       });
     } catch (error: any) {
@@ -1644,7 +1644,6 @@ export class SolanaListNFTForSaleTool extends Tool {
   }
 }
 
-
 export class SolanaCancelNFTListingTool extends Tool {
   name = "solana_cancel_nft_listing";
   description = `Cancel an NFT listing on Tensor Trade.
@@ -1706,7 +1705,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateClmm(solanaKit),
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
-    new SolanaClosePostition(solanaKit),
+    new SolanaClosePosition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),
     new SolanaOrcaFetchPositions(solanaKit),
