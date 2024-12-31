@@ -4,7 +4,7 @@ import { z } from "zod";
 import { sendCompressedAirdrop } from "../tools";
 
 const compressedAirdropAction: Action = {
-  name: "solana_compressed_airdrop",
+  name: "COMPRESSED_AIRDROP",
   similes: [
     "ZK Compressed airdrop",
     "Airdrop tokens with compression",

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { registerDomain } from "../tools";
 
 const registerDomainAction: Action = {
-  name: "solana_register_domain",
+  name: "REGISTER_DOMAIN",
   similes: [
     "register domain",
     "buy domain",

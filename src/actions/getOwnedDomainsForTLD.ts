@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getOwnedDomainsForTLD } from "../tools";
 
 const getOwnedDomainsForTLDAction: Action = {
-  name: "solana_get_owned_tld_domains",
+  name: "GET_OWNED_DOMAINS_FOR_TLD",
   similes: [
     "list owned domains for tld",
     "get my domains for extension",

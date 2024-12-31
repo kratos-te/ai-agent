@@ -1,13 +1,13 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
-import { actions } from "../actions";
+import { ACTIONS } from "../actions";
 
 /**
  * Find an action by its name or one of its similes
  */
 export function findAction(query: string): Action | undefined {
   const normalizedQuery = query.toLowerCase().trim();
-  return actions.find(
+  return Object.values(ACTIONS).find(
     (action) =>
       action.name.toLowerCase() === normalizedQuery ||
       action.similes.some((simile) => simile.toLowerCase() === normalizedQuery),

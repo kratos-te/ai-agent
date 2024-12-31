@@ -5,7 +5,7 @@ import { z } from "zod";
 import { transfer } from "../tools";
 
 const transferAction: Action = {
-  name: "solana_transfer",
+  name: "TRANSFER",
   similes: [
     "send tokens",
     "transfer funds",

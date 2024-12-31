@@ -6,7 +6,7 @@ import BN from "bn.js";
 import { raydiumCreateCpmm } from "../tools";
 
 const raydiumCreateCpmmAction: Action = {
-  name: "solana_raydium_create_cpmm",
+  name: "RAYDIUM_CREATE_CPMM",
   similes: [
     "create raydium pool",
     "setup raydium liquidity pool",

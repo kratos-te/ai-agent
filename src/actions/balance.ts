@@ -5,7 +5,7 @@ import { z } from "zod";
 import { get_balance } from "../tools";
 
 const balanceAction: Action = {
-  name: "solana_balance",
+  name: "BALANCE_ACTION",
   similes: [
     "check balance",
     "get wallet balance",

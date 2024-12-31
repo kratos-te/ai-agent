@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { create_gibwork_task } from "../tools";
 
 const createGibworkTaskAction: Action = {
-  name: "solana_create_gibwork_task",
+  name: "CREATE_GIBWORK_TASK",
   similes: [
     "create task",
     "post job",

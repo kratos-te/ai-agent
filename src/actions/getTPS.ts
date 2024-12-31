@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getTPS } from "../tools";
 
 const getTPSAction: Action = {
-  name: "solana_get_tps",
+  name: "GET_TPS",
   similes: [
     "get transactions per second",
     "check network speed",

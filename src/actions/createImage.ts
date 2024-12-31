@@ -4,7 +4,7 @@ import { z } from "zod";
 import { create_image } from "../tools/create_image";
 
 const createImageAction: Action = {
-  name: "solana_create_image",
+  name: "CREATE_IMAGE",
   similes: [
     "generate image",
     "create artwork",

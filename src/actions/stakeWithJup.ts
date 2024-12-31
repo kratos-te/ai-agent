@@ -4,7 +4,7 @@ import { z } from "zod";
 import { stakeWithJup } from "../tools";
 
 const stakeWithJupAction: Action = {
-  name: "solana_stake_with_jup",
+  name: "STAKE_WITH_JUPITER",
   similes: [
     "stake sol",
     "stake with jupiter",

@@ -10,7 +10,7 @@ interface CollectionOptions {
 }
 
 const deployCollectionAction: Action = {
-  name: "solana_deploy_collection",
+  name: "DEPLOY_COLLECTION",
   similes: [
     "create collection",
     "launch collection",
