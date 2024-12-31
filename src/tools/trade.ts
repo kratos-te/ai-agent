@@ -1,10 +1,5 @@
 import { VersionedTransaction, PublicKey } from "@solana/web3.js";
 import { SolanaAgentKit } from "../index";
-
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
 import {
   TOKENS,
   DEFAULT_OPTIONS,
@@ -21,14 +16,6 @@ import { getMint } from "@solana/spl-token";
  * @param slippageBps Slippage tolerance in basis points (default: 300 = 3%)
  * @returns Transaction signature
  */
-
-// Get Jupiter fee and referral account from environment variables
-const JUP_FEE_BPS = process.env.JUP_FEE_BPS
-  ? parseInt(process.env.JUP_FEE_BPS)
-  : "";
-const JUP_REFERRAL_ACCOUNT = process.env.JUP_REFERRAL_ACCOUNT
-  ? new PublicKey(process.env.JUP_REFERRAL_ACCOUNT)
-  : "";
 
 export async function trade(
   agent: SolanaAgentKit,
@@ -58,17 +45,17 @@ export async function trade(
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
           `&maxAccounts=20` +
-          `${JUP_FEE_BPS ? `&platformFeeBps=${JUP_FEE_BPS}` : ""}`,
+          `${agent.config.JUPITER_FEE_BPS ? `&platformFeeBps=${agent.config.JUPITER_FEE_BPS}` : ""}`,
       )
     ).json();
 
     // Get serialized transaction
     let feeAccount;
-    if (JUP_REFERRAL_ACCOUNT) {
-      [feeAccount] = await PublicKey.findProgramAddressSync(
+    if (agent.config.JUPITER_REFERRAL_ACCOUNT) {
+      [feeAccount] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("referral_ata"),
-          new PublicKey(JUP_REFERRAL_ACCOUNT).toBuffer(),
+          new PublicKey(agent.config.JUPITER_REFERRAL_ACCOUNT).toBuffer(),
           TOKENS.SOL.toBuffer(),
         ],
         new PublicKey(JUP_REFERRAL_ADDRESS),
