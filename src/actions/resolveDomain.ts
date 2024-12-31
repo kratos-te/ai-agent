@@ -4,7 +4,7 @@ import { z } from "zod";
 import { resolveAllDomains } from "../tools";
 
 const resolveDomainAction: Action = {
-  name: "solana_resolve_all_domains",
+  name: "RESOLVE_ALL_DOMAINS",
   similes: [
     "resolve domain",
     "lookup domain",

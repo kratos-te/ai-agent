@@ -6,7 +6,7 @@ import { JupiterTokenData } from "../types";
 import { getTokenAddressFromTicker, getTokenDataByAddress } from "../tools";
 
 const getTokenDataAction: Action = {
-  name: "solana_token_data",
+  name: "GET_TOKEN_DATA",
   similes: [
     "get token info",
     "token details",

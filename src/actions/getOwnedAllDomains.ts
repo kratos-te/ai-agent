@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { getOwnedAllDomains } from "../tools";
 
 const getOwnedAllDomainsAction: Action = {
-  name: "solana_get_owned_all_domains",
+  name: "GET_OWNED_ALL_DOMAINS",
   similes: [
     "list owned domains",
     "get my domains",

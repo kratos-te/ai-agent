@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { getMainAllDomainsDomain } from "../tools";
 
 const getMainAllDomainsDomainAction: Action = {
-  name: "solana_get_main_domain",
+  name: "GET_MAIN_ALL_DOMAINS_DOMAIN",
   similes: [
     "get main domain",
     "fetch primary domain",

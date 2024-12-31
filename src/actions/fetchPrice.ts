@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { fetchPrice } from "../tools";
 
 const fetchPriceAction: Action = {
-  name: "solana_fetch_price",
+  name: "FETCH_PRICE",
   similes: [
     "get token price",
     "check price",

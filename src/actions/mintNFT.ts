@@ -5,7 +5,7 @@ import { z } from "zod";
 import { mintCollectionNFT } from "../tools";
 
 const mintNFTAction: Action = {
-  name: "solana_mint_nft",
+  name: "MINT_NFT",
   similes: [
     "mint nft",
     "create nft",

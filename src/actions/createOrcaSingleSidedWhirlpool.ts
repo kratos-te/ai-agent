@@ -20,7 +20,7 @@ const FEE_TIERS = {
 } as const;
 
 const createOrcaSingleSidedWhirlpoolAction: Action = {
-  name: "solana_create_orca_single_sided_whirlpool",
+  name: "CREATE_ORCA_SINGLE_SIDED_WHIRLPOOL",
   similes: [
     "create orca whirlpool",
     "setup orca single sided pool",

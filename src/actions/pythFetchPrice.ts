@@ -4,7 +4,7 @@ import { z } from "zod";
 import { pythFetchPrice } from "../tools";
 
 const pythFetchPriceAction: Action = {
-  name: "solana_pyth_fetch_price",
+  name: "PYTH_FETCH_PRICE",
   similes: [
     "get pyth price",
     "check pyth price",

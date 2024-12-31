@@ -4,7 +4,7 @@ import { z } from "zod";
 import { request_faucet_funds } from "../tools";
 
 const requestFundsAction: Action = {
-  name: "solana_request_funds",
+  name: "REQUEST_FUNDS",
   similes: [
     "request sol",
     "get test sol",

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { launchPumpFunToken } from "../tools";
 
 const launchPumpfunTokenAction: Action = {
-  name: "solana_launch_pumpfun_token",
+  name: "LAUNCH_PUMPFUN_TOKEN",
   similes: [
     "create pumpfun token",
     "launch token on pumpfun",

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { deploy_token } from "../tools";
 
 const deployTokenAction: Action = {
-  name: "deploy_token",
+  name: "DEPLOY_TOKEN",
   similes: [
     "create token",
     "launch token",

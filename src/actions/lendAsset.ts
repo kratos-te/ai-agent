@@ -4,7 +4,7 @@ import { z } from "zod";
 import { lendAsset } from "../tools";
 
 const lendAssetAction: Action = {
-  name: "solana_lend_asset",
+  name: "LEND_ASSET",
   similes: [
     "lend usdc",
     "deposit for yield",

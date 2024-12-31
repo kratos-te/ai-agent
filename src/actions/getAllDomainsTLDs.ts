@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getAllDomainsTLDs } from "../tools";
 
 const getAllDomainsTLDsAction: Action = {
-  name: "solana_get_all_tlds",
+  name: "GET_ALL_TLDS",
   similes: [
     "list domain tlds",
     "get domain extensions",

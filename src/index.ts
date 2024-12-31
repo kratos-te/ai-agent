@@ -7,6 +7,5 @@ export { SolanaAgentKit, createSolanaTools };
 export * from "./types";
 
 // Export action system
-export * from "./actions";
-export * from "./types/action";
+export { ACTIONS } from "./actions";
 export * from "./utils/actionExecutor";

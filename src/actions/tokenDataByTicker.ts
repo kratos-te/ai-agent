@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getTokenDataByTicker } from "../tools";
 
 const tokenDataByTickerAction: Action = {
-  name: "solana_token_data_by_ticker",
+  name: "GET_TOKEN_DATA_BY_TICKER",
   similes: [
     "token data by ticker",
     "fetch token info by ticker",

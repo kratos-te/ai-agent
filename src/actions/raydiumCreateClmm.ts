@@ -7,7 +7,7 @@ import Decimal from "decimal.js";
 import { raydiumCreateClmm } from "../tools";
 
 const raydiumCreateClmmAction: Action = {
-  name: "raydium_create_clmm",
+  name: "RAYDIUM_CREATE_CLMM",
   similes: [
     "create clmm pool",
     "create concentrated liquidity pool",

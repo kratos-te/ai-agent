@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { openbookCreateMarket } from "../tools";
 
 const createOpenbookMarketAction: Action = {
-  name: "solana_create_openbook_market",
+  name: "CREATE_OPENBOOK_MARKET",
   similes: [
     "create openbook market",
     "setup trading market",

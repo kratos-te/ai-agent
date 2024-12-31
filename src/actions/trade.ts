@@ -5,7 +5,7 @@ import { z } from "zod";
 import { trade } from "../tools";
 
 const tradeAction: Action = {
-  name: "solana_trade",
+  name: "TRADE",
   similes: [
     "swap tokens",
     "exchange tokens",
