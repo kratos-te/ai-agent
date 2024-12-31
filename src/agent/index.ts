@@ -414,10 +414,7 @@ export class SolanaAgentKit {
     return create_TipLink(this, amount, splmintAddress);
   }
 
-  async tensorListNFT(
-    nftMint: PublicKey,
-    price: number,
-  ): Promise<string> {
+  async tensorListNFT(nftMint: PublicKey, price: number): Promise<string> {
     return listNFTForSale(this, nftMint, price);
   }
 
