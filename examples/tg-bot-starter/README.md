@@ -20,5 +20,5 @@ You can check [here](https://help.zoho.com/portal/en/kb/desk/support-channels/in
 - You can host it on Vercel too as we have used NextJs in this.
 - Once the URL is set successfully, you will see this ``` {"ok":true,"result":true,"description":"Webhook was set"} ```
 
-Done!!! Congrtulations you just hosted Solana Agent Kit on a Telegram bot.
+Done!!! Congratulations you just hosted Solana Agent Kit on a Telegram bot.
 
