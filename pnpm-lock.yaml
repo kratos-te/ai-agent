@@ -98,6 +98,9 @@ importers:
       typedoc:
         specifier: ^0.26.11
         version: 0.26.11(typescript@5.7.2)
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
     devDependencies:
       '@types/bn.js':
         specifier: ^5.1.5
