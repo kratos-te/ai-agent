@@ -37,10 +37,8 @@ const pythFetchPriceAction: Action = {
   }),
   handler: async (_agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const priceFeedId = input.priceFeedId as string;
-
+      const priceFeedId = input.tokenId as string;
       const priceStr = await pythFetchPrice(priceFeedId);
-
       return {
         status: "success",
         price: priceStr,

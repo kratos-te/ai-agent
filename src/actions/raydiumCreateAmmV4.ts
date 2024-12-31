@@ -6,7 +6,7 @@ import BN from "bn.js";
 import { raydiumCreateAmmV4 } from "../tools";
 
 const raydiumCreateAmmV4Action: Action = {
-  name: "solana_raydium_create_amm_v4",
+  name: "raydium_create_ammV4",
   similes: [
     "create raydium v4 pool",
     "setup raydium v4 liquidity pool",
