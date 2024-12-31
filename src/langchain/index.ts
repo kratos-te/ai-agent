@@ -1855,7 +1855,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaLimitOrderTool(solanaKit),
     new SolanaCancelAllOrdersTool(solanaKit),
     new SolanaWithdrawAllTool(solanaKit),
-    new SolanaClosePostition(solanaKit),
+    new SolanaClosePosition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),
     new SolanaOrcaFetchPositions(solanaKit),
