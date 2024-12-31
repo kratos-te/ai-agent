@@ -4,7 +4,7 @@ import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
-import { createOrcaSingleSidedWhirlpool } from "../tools";
+import { orcaCreateSingleSidedLiquidityPool } from "../tools";
 
 // Fee tiers mapping from the original tool
 const FEE_TIERS = {
@@ -82,15 +82,15 @@ const createOrcaSingleSidedWhirlpoolAction: Action = {
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const depositTokenAmount = new BN(input.depositTokenAmount);
+      const depositTokenAmount = Number(input.depositTokenAmount);
       const depositTokenMint = new PublicKey(input.depositTokenMint);
       const otherTokenMint = new PublicKey(input.otherTokenMint);
       const initialPrice = new Decimal(input.initialPrice);
       const maxPrice = new Decimal(input.maxPrice);
-      const feeTier = input.feeTier as keyof typeof FEE_TIERS;
+      const feeTier = input.feeTier
 
       // Create the whirlpool
-      const signature = await createOrcaSingleSidedWhirlpool(
+      const signature = await orcaCreateSingleSidedLiquidityPool(
         agent,
         depositTokenAmount,
         depositTokenMint,
