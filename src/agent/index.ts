@@ -2,6 +2,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
+import { Config } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -71,17 +72,17 @@ export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
-  public openai_api_key: string | null;
+  public config: Config;
 
   constructor(
     private_key: string,
     rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string | null = null,
+    config: Config,
   ) {
     this.connection = new Connection(rpc_url);
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
     this.wallet_address = this.wallet.publicKey;
-    this.openai_api_key = openai_api_key;
+    this.config = config;
   }
 
   // Tool methods
@@ -414,10 +415,7 @@ export class SolanaAgentKit {
     return create_TipLink(this, amount, splmintAddress);
   }
 
-  async tensorListNFT(
-    nftMint: PublicKey,
-    price: number,
-  ): Promise<string> {
+  async tensorListNFT(nftMint: PublicKey, price: number): Promise<string> {
     return listNFTForSale(this, nftMint, price);
   }
 
