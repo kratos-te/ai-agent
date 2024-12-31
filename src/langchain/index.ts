@@ -796,7 +796,7 @@ export class SolanaCompressedAirdropTool extends Tool {
   }
 }
 
-export class SolanaClosePostition extends Tool {
+export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
@@ -1644,7 +1644,6 @@ export class SolanaListNFTForSaleTool extends Tool {
   }
 }
 
-
 export class SolanaCancelNFTListingTool extends Tool {
   name = "solana_cancel_nft_listing";
   description = `Cancel an NFT listing on Tensor Trade.
@@ -1706,7 +1705,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaRaydiumCreateClmm(solanaKit),
     new SolanaRaydiumCreateCpmm(solanaKit),
     new SolanaOpenbookCreateMarket(solanaKit),
-    new SolanaClosePostition(solanaKit),
+    new SolanaClosePosition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),
     new SolanaOrcaFetchPositions(solanaKit),
