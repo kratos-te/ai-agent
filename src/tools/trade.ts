@@ -10,7 +10,10 @@ import {
   JUP_API,
   JUP_REFERRAL_ADDRESS,
 } from "../constants";
+import dotenv from "dotenv";
 
+// Load environment variables
+dotenv.config();
 /**
  * Swap tokens using Jupiter Exchange
  * @param agent SolanaAgentKit instance
@@ -18,18 +21,23 @@ import {
  * @param inputAmount Amount to swap (in token decimals)
  * @param inputMint Source token mint address (defaults to USDC)
  * @param slippageBps Slippage tolerance in basis points (default: 300 = 3%)
- * @param jupReferralAccount Jup Refferral Account, to earn fees on swaps
- * @param jupFeeBps Jup Refferral Fee, to earn fees on swaps (default: 100 = 1%)
  * @returns Transaction signature
  */
+
+// Get Jupiter fee and referral account from environment variables
+const JUP_FEE_BPS = process.env.JUP_FEE_BPS
+  ? parseInt(process.env.JUP_FEE_BPS)
+  : "";
+const JUP_REFERRAL_ACCOUNT = process.env.JUP_REFERRAL_ACCOUNT
+  ? new PublicKey(process.env.JUP_REFERRAL_ACCOUNT)
+  : "";
+
 export async function trade(
   agent: SolanaAgentKit,
   outputMint: PublicKey,
   inputAmount: number,
   inputMint: PublicKey = TOKENS.USDC,
   slippageBps: number = DEFAULT_OPTIONS.SLIPPAGE_BPS,
-  jupReferralAccount?: PublicKey,
-  jupFeeBps?: number,
 ): Promise<string> {
   try {
     const quoteResponse = await (
@@ -41,17 +49,17 @@ export async function trade(
           `&slippageBps=${slippageBps}` +
           `&onlyDirectRoutes=true` +
           `&maxAccounts=20` +
-          `${jupFeeBps ? `&platformFeeBps=${jupFeeBps}` : ""}`,
+          `${JUP_FEE_BPS ? `&platformFeeBps=${JUP_FEE_BPS}` : ""}`,
       )
     ).json();
 
     // Get serialized transaction
     let feeAccount;
-    if (jupReferralAccount) {
+    if (JUP_REFERRAL_ACCOUNT) {
       [feeAccount] = await PublicKey.findProgramAddressSync(
         [
           Buffer.from("referral_ata"),
-          jupReferralAccount.toBuffer(),
+          new PublicKey(JUP_REFERRAL_ACCOUNT).toBuffer(),
           TOKENS.SOL.toBuffer(),
         ],
         new PublicKey(JUP_REFERRAL_ADDRESS),
