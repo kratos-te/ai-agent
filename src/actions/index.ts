@@ -13,6 +13,8 @@ import stakeWithJupAction from "./jupiter/stakeWithJup";
 import stakeWithSolayerAction from "./solayer/stakeWithSolayer";
 import registerDomainAction from "./sns/registerDomain";
 import lendAssetAction from "./lulo/lendAsset";
+import luloLendAction from "./lulo/luloLend";
+import luloWithdrawAction from "./lulo/luloWithdraw";
 import createGibworkTaskAction from "./gibwork/createGibworkTask";
 import resolveSolDomainAction from "./sns/resolveSolDomain";
 import pythFetchPriceAction from "./pyth/pythFetchPrice";
@@ -48,6 +50,8 @@ export const ACTIONS = {
   STAKE_WITH_SOLAYER_ACTION: stakeWithSolayerAction,
   REGISTER_DOMAIN_ACTION: registerDomainAction,
   LEND_ASSET_ACTION: lendAssetAction,
+  LULO_LEND_ACTION: luloLendAction,
+  LULO_WITHDRAW_ACTION: luloWithdrawAction,
   CREATE_GIBWORK_TASK_ACTION: createGibworkTaskAction,
   RESOLVE_SOL_DOMAIN_ACTION: resolveSolDomainAction,
   PYTH_FETCH_PRICE_ACTION: pythFetchPriceAction,
