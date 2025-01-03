@@ -59,6 +59,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
    - Lending by Lulo (Best APR for USDC)
    - Send Arcade Games
    - JupSOL staking
+   - Solayer SOL (sSOL)staking
 
 - **Non-Financial Actions**
   - Gib Work for registering bounties
@@ -171,6 +172,15 @@ const signature = await agent.lendAssets(
 const signature = await agent.stake(
   1 // amount in SOL to stake
 );
+```
+
+### Stake SOL on Solayer
+
+```typescript
+const signature = await agent.restake(
+  1 // amount in SOL to stake
+);
+
 ```
 
 ### Send an SPL Token Airdrop via ZK Compression

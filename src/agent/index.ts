@@ -30,6 +30,7 @@ import {
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
+  stakeWithSolayer,
   sendCompressedAirdrop,
   orcaCreateSingleSidedLiquidityPool,
   orcaCreateCLMM,
@@ -252,6 +253,10 @@ export class SolanaAgentKit {
 
   async stake(amount: number): Promise<string> {
     return stakeWithJup(this, amount);
+  }
+
+  async restake(amount: number): Promise<string> {
+    return stakeWithSolayer(this, amount);
   }
 
   async sendCompressedAirdrop(
