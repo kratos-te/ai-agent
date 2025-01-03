@@ -6,5 +6,5 @@ import { SolanaAgentKit } from "..";
  * @returns string
  */
 export function get_wallet_address(agent: SolanaAgentKit) {
-	return agent.wallet_address.toBase58();
+  return agent.wallet_address.toBase58();
 }

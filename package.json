@@ -10,8 +10,8 @@
 		"test": "ts-node test/index.ts",
 		"test:vercel-ai": "ts-node test/agent_sdks/vercel_ai.ts",
 		"generate": "ts-node src/utils/keypair.ts",
-		"lint": "eslint . --ext .ts,.json",
-		"lint:fix": "eslint . --ext .ts,.json --fix",
+		"lint": "eslint . --ext .ts",
+		"lint:fix": "eslint . --ext .ts --fix",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
 	},
 	"engines": {
