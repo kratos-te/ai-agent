@@ -1,3 +1,5 @@
+import exp from "constants";
+
 export * from "./get_wallet_address";
 export * from "./request_faucet_funds";
 export * from "./deploy_token";
@@ -54,3 +56,4 @@ export * from "./rock_paper_scissor";
 export * from "./create_tiplinks";
 
 export * from "./tensor_trade";
+export * from "./rugcheck";

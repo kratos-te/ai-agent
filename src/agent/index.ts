@@ -2,7 +2,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
-import { Config } from "../types";
+import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -51,6 +51,8 @@ import {
   create_TipLink,
   listNFTForSale,
   cancelListing,
+  fetchTokenReportSummary,
+  fetchTokenDetailedReport,
   OrderParams,
 } from "../tools";
 
@@ -481,5 +483,13 @@ export class SolanaAgentKit {
 
   async tensorCancelListing(nftMint: PublicKey): Promise<string> {
     return cancelListing(this, nftMint);
+  }
+
+  async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
+    return fetchTokenReportSummary(mint);
+  }
+
+  async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
+    return fetchTokenDetailedReport(mint);
   }
 }
