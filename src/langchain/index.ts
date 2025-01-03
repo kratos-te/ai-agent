@@ -1002,7 +1002,7 @@ export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
-  
+
   Inputs (JSON string):
   - positionMintAddress: string, the address of the position mint that represents the liquidity position.`;
 
@@ -1089,9 +1089,9 @@ export class SolanaOrcaCreateCLMM extends Tool {
 
 export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   name = "orca_create_single_sided_liquidity_pool";
-  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana. 
+  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana.
 
-  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range. 
+  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range.
 
   Inputs (JSON string):
   - depositTokenAmount: number, in units of the deposit token including decimals, e.g., 1000000000 (required).

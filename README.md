@@ -71,6 +71,11 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Memory management for persistent interactions
   - Streaming responses for real-time feedback
 
+- **Vercel AI SDK Integration**
+  - Vercel AI SDK for AI agent integration
+  - Framework agnostic support
+  - Quick and easy toolkit setup
+
 - **Autonomous Modes**
   - Interactive chat mode for guided operations
   - Autonomous mode for independent agent actions
@@ -258,4 +263,3 @@ Apache-2 License
 ## Security
 
 This toolkit handles private keys and transactions. Always ensure you're using it in a secure environment and never share your private keys.
-
