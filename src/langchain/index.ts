@@ -772,7 +772,7 @@ export class SolanaRestakeTool extends Tool {
   name = "solana_restake";
   description = `This tool can be used to restake your SOL on Solayer to receive Solayer SOL (sSOL) as a Liquid Staking Token (LST).
 
-  Inputs ( input is a JSON string ):
+  Inputs:
   amount: number, eg 1 or 0.01 (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
