@@ -11,7 +11,7 @@ export async function fetchPythPriceFeedID(
 ): Promise<string> {
   try {
     const stableHermesServiceUrl: string = "https://hermes.pyth.network";
-    
+
     const response = await fetch(
       `${stableHermesServiceUrl}/v2/price_feeds?query=${tokenSymbol}&asset_type=crypto`,
     );
@@ -77,10 +77,12 @@ export async function fetchPythPrice(feedID: string): Promise<string> {
       const adjustedPrice = price.mul(new BN(100));
       const divisor = new BN(10).pow(new BN(-exponent));
       const scaledPrice = adjustedPrice.div(divisor);
-      
+
       const priceStr = scaledPrice.toString();
       const formattedPrice = `${priceStr.slice(0, -2)}.${priceStr.slice(-2)}`;
-      return formattedPrice.startsWith('.') ? `0${formattedPrice}` : formattedPrice;
+      return formattedPrice.startsWith(".")
+        ? `0${formattedPrice}`
+        : formattedPrice;
     }
 
     const scaledPrice = price.div(new BN(10).pow(new BN(exponent)));
