@@ -4,7 +4,6 @@
 
 ![Solana Agent Kit Cover 1 (3)](https://github.com/user-attachments/assets/cfa380f6-79d9-474d-9852-3e1976c6de70)
 
-
 ![NPM Downloads](https://img.shields.io/npm/dm/solana-agent-kit?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/sendaifun/solana-agent-kit?style=for-the-badge)
 ![GitHub License](https://img.shields.io/github/license/sendaifun/solana-agent-kit?style=for-the-badge)
@@ -22,7 +21,6 @@ An open-source toolkit for connecting AI agents to Solana protocols. Now, any ag
 - And more...
 
 Anyone - whether an SF-based AI researcher or a crypto-native builder - can bring their AI agents trained with any model and seamlessly integrate with Solana.
-
 
 [![Run on Repl.it](https://replit.com/badge/github/sendaifun/solana-agent-kit)](https://replit.com/@sendaifun/Solana-Agent-Kit)
 > Replit template created by [Arpit Singh](https://github.com/The-x-35)
@@ -56,9 +54,9 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Register/resolve Alldomains
 
 - **Solana Blinks**
-   - Lending by Lulo (Best APR for USDC)
-   - Send Arcade Games
-   - JupSOL staking
+  - Lending by Lulo (Best APR for USDC)
+  - Send Arcade Games
+  - JupSOL staking
 
 - **Non-Financial Actions**
   - Gib Work for registering bounties
@@ -205,6 +203,13 @@ const price = await agent.pythFetchPrice(
 console.log("Price in BTC/USD:", price);
 ```
 
+### Close Empty Token Accounts
+
+``` typescript
+
+const { signature } = await agent.closeEmptyTokenAccounts();
+```
+
 ## Examples
 
 ### LangGraph Multi-Agent System
@@ -246,7 +251,6 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to co
   <img src="https://contrib.rocks/image?repo=sendaifun/solana-agent-kit" />
 </a>
 
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=sendaifun/solana-agent-kit&type=Date)](https://star-history.com/#sendaifun/solana-agent-kit&Date)
@@ -258,4 +262,3 @@ Apache-2 License
 ## Security
 
 This toolkit handles private keys and transactions. Always ensure you're using it in a secure environment and never share your private keys.
-
