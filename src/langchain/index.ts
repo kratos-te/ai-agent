@@ -2013,6 +2013,91 @@ export class SolanaFetchTokenDetailedReportTool extends Tool {
   }
 }
 
+export class SolanaVoltrDepositStrategy extends Tool {
+  name = "solana_voltr_deposit_strategy";
+  description = `Deposit amount into a strategy for Voltr's vaults
+  
+  Inputs (input is a json string):
+  depositAmount: number (required)
+  vault: string (required)
+  strategy: string (required)
+  `;
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+  async _call(input: string): Promise<string> {
+    try {
+      let inputFormat = JSON.parse(input);
+      const tx = await this.solanaKit.voltrDepositStrategy(
+        new BN(inputFormat.depositAmount),
+        new PublicKey(inputFormat.vault),
+        new PublicKey(inputFormat.strategy),
+      );
+      return JSON.stringify({
+        status: "success",
+        message: `Deposited ${inputFormat.depositAmount} into strategy ${inputFormat.strategy} of vault ${inputFormat.vault} successfully`,
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaVoltrWithdrawStrategy extends Tool {
+  name = "solana_voltr_withdraw_strategy";
+  description = `Withdraw amount from a strategy for Voltr's vaults
+  
+  Inputs (input is a json string):
+  withdrawAmount: number (required)
+  vault: string (required)
+  strategy: string (required)
+  `;
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+  async _call(input: string): Promise<string> {
+    try {
+      let inputFormat = JSON.parse(input);
+      const tx = await this.solanaKit.voltrWithdrawStrategy(
+        new BN(inputFormat.withdrawAmount),
+        new PublicKey(inputFormat.vault),
+        new PublicKey(inputFormat.strategy),
+      );
+      return JSON.stringify({
+        status: "success",
+        message: `Withdrew ${inputFormat.withdrawAmount} from strategy ${inputFormat.strategy} of vault ${inputFormat.vault} successfully`,
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaVoltrGetAssetAmount extends Tool {
+  name = "solana_voltr_get_asset_amount";
+  description = `Get the total asset amount and current amount for each strategy of a given Voltr vault
+  
+  Inputs:
+  vault: string (required)
+  `;
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+  async _call(input: string): Promise<string> {
+    return this.solanaKit.voltrGetAssetAmount(new PublicKey(input));
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -2065,5 +2150,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaCancelNFTListingTool(solanaKit),
     new SolanaFetchTokenReportSummaryTool(solanaKit),
     new SolanaFetchTokenDetailedReportTool(solanaKit),
+    new SolanaVoltrDepositStrategy(solanaKit),
+    new SolanaVoltrWithdrawStrategy(solanaKit),
+    new SolanaVoltrGetAssetAmount(solanaKit),
   ];
 }

@@ -55,6 +55,9 @@ import {
   fetchTokenReportSummary,
   fetchTokenDetailedReport,
   OrderParams,
+  voltrGetAssetAmount,
+  voltrDepositStrategy,
+  voltrWithdrawStrategy,
 } from "../tools";
 
 import {
@@ -496,5 +499,25 @@ export class SolanaAgentKit {
 
   async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
     return fetchTokenDetailedReport(mint);
+  }
+
+  async voltrDepositStrategy(
+    depositAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrDepositStrategy(this, depositAmount, vault, strategy);
+  }
+
+  async voltrWithdrawStrategy(
+    withdrawAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrWithdrawStrategy(this, withdrawAmount, vault, strategy);
+  }
+
+  async voltrGetAssetAmount(vault: PublicKey): Promise<string> {
+    return voltrGetAssetAmount(this, vault);
   }
 }
