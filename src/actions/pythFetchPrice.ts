@@ -1,7 +1,7 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { pythFetchPrice } from "../tools";
+import { fetchPythPrice, fetchPythPriceFeedID } from "../tools";
 
 const pythFetchPriceAction: Action = {
   name: "PYTH_FETCH_PRICE",
@@ -18,7 +18,7 @@ const pythFetchPriceAction: Action = {
     [
       {
         input: {
-          priceFeedId: "Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD", // SOL/USD price feed
+          tokenSymbol: "SOL", // SOL/USD price feed
         },
         output: {
           status: "success",
@@ -37,8 +37,10 @@ const pythFetchPriceAction: Action = {
   }),
   handler: async (_agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const priceFeedId = input.tokenId as string;
-      const priceStr = await pythFetchPrice(priceFeedId);
+      const priceFeedId = await fetchPythPriceFeedID(input.tokenSymbol);
+
+      const priceStr = await fetchPythPrice(priceFeedId);
+
       return {
         status: "success",
         price: priceStr,

@@ -1,4 +1,5 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
@@ -37,7 +38,6 @@ import {
   orcaOpenSingleSidedPosition,
   FEE_TIERS,
   fetchPrice,
-  pythFetchPrice,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -53,9 +53,9 @@ import {
   cancelListing,
   fetchTokenReportSummary,
   fetchTokenDetailedReport,
-  OrderParams,
+  fetchPythPrice,
+  fetchPythPriceFeedID,
 } from "../tools";
-
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -64,8 +64,8 @@ import {
   MintCollectionNFTResponse,
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
+  OrderParams,
 } from "../types";
-import { BN } from "@coral-xyz/anchor";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -442,8 +442,12 @@ export class SolanaAgentKit {
     return manifestCreateMarket(this, baseMint, quoteMint);
   }
 
-  async pythFetchPrice(priceFeedID: string): Promise<string> {
-    return pythFetchPrice(priceFeedID);
+  async getPythPriceFeedID(tokenSymbol: string): Promise<string> {
+    return fetchPythPriceFeedID(tokenSymbol);
+  }
+
+  async getPythPrice(priceFeedID: string): Promise<string> {
+    return fetchPythPrice(priceFeedID);
   }
 
   async createGibworkTask(
