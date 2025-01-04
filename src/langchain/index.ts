@@ -2250,6 +2250,62 @@ export class SolanaFetchTokenDetailedReportTool extends Tool {
   }
 }
 
+export class Solana3LandCreateSingle extends Tool {
+  name = "3land_minting_tool";
+  description = `Creates an NFT and lists it on 3.land's website
+
+  Inputs:
+  optionsWithBase58 (required): represents the privateKey of the wallet - can be an array of numbers, Uint8Array or base58 string
+  collectionAccount (optional): represents the account for the nft collection
+  createItemOptions (required): the options for the creation of the single NFT listing
+  isMainnet (required): defines is the tx takes places in mainnet
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const optionsWithBase58 = inputFormat.optionsWithBase58;
+      let collectionAccount = inputFormat.collectionAccount;
+      const createItemOptions = inputFormat.createItemOptions;
+      const isMainnet = inputFormat.isMainnet;
+
+      if (!collectionAccount) {
+        collectionAccount = "Fpm8XgXEuNxxjmqUQuqEFkGusiSsKM6astUGPs5U9x6v";
+      }
+
+      console.log(
+        "options inside 3land func: ",
+        optionsWithBase58,
+        collectionAccount,
+        createItemOptions,
+        isMainnet,
+      );
+
+      const tx = await this.solanaKit.create3LandNft(
+        optionsWithBase58,
+        collectionAccount,
+        createItemOptions,
+        isMainnet,
+      );
+      return JSON.stringify({
+        status: "success",
+        message: `Created listing successfully ${tx}`,
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -2306,5 +2362,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPerpCloseTradeTool(solanaKit),
     new SolanaFlashOpenTrade(solanaKit),
     new SolanaFlashCloseTrade(solanaKit),
+    new Solana3LandCreateSingle(solanaKit),
   ];
 }
