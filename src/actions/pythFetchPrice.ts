@@ -30,10 +30,10 @@ const pythFetchPriceAction: Action = {
     ],
   ],
   schema: z.object({
-    priceFeedId: z
+    tokenSymbol: z
       .string()
       .min(1)
-      .describe("The Pyth price feed ID to fetch the price from"),
+      .describe("The token symbol to fetch the price for"),
   }),
   handler: async (_agent: SolanaAgentKit, input: Record<string, any>) => {
     try {

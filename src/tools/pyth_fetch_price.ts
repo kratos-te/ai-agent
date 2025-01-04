@@ -11,9 +11,9 @@ export async function fetchPythPriceFeedID(
 ): Promise<string> {
   try {
     const stableHermesServiceUrl: string = "https://hermes.pyth.network";
-
+    
     const response = await fetch(
-      `${stableHermesServiceUrl}/v2/price_feeds/?query=${tokenSymbol}&asset_type=crypto`,
+      `${stableHermesServiceUrl}/v2/price_feeds?query=${tokenSymbol}&asset_type=crypto`,
     );
 
     if (!response.ok) {
@@ -60,7 +60,7 @@ export async function fetchPythPrice(feedID: string): Promise<string> {
     const stableHermesServiceUrl: string = "https://hermes.pyth.network";
 
     const response = await fetch(
-      `${stableHermesServiceUrl}/v2/updates/price/latest/?ids[]=${feedID}`,
+      `${stableHermesServiceUrl}/v2/updates/price/latest?ids[]=${feedID}`,
     );
 
     const data = await response.json();
