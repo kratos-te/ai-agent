@@ -27,10 +27,15 @@ import {
   batchOrder,
   cancelAllOrders,
   withdrawAll,
+  closePerpTradeShort,
+  closePerpTradeLong,
+  openPerpTradeShort,
+  openPerpTradeLong,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
+  stakeWithSolayer,
   sendCompressedAirdrop,
   orcaCreateSingleSidedLiquidityPool,
   orcaCreateCLMM,
@@ -209,6 +214,42 @@ export class SolanaAgentKit {
     return withdrawAll(this, marketId);
   }
 
+  async openPerpTradeLong(
+    args: Omit<Parameters<typeof openPerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async openPerpTradeShort(
+    args: Omit<Parameters<typeof openPerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeShort(
+    args: Omit<Parameters<typeof closePerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeLong(
+    args: Omit<Parameters<typeof closePerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
   async lendAssets(amount: number): Promise<string> {
     return lendAsset(this, amount);
   }
@@ -252,6 +293,10 @@ export class SolanaAgentKit {
 
   async stake(amount: number): Promise<string> {
     return stakeWithJup(this, amount);
+  }
+
+  async restake(amount: number): Promise<string> {
+    return stakeWithSolayer(this, amount);
   }
 
   async sendCompressedAirdrop(

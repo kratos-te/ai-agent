@@ -10,6 +10,7 @@ import getTokenDataAction from "./getTokenData";
 import getTPSAction from "./getTPS";
 import fetchPriceAction from "./fetchPrice";
 import stakeWithJupAction from "./stakeWithJup";
+import stakeWithSolayerAction from "./stakeWithSolayer";
 import registerDomainAction from "./registerDomain";
 import lendAssetAction from "./lendAsset";
 import createGibworkTaskAction from "./createGibworkTask";
@@ -26,8 +27,10 @@ import raydiumCreateCpmmAction from "./raydiumCreateCpmm";
 import raydiumCreateAmmV4Action from "./raydiumCreateAmmV4";
 import createOrcaSingleSidedWhirlpoolAction from "./createOrcaSingleSidedWhirlpool";
 import launchPumpfunTokenAction from "./launchPumpfunToken";
+import getWalletAddressAction from "./getWalletAddress";
 
 export const ACTIONS = {
+  WALLET_ADDRESS_ACTION: getWalletAddressAction,
   DEPLOY_TOKEN_ACTION: deployTokenAction,
   BALANCE_ACTION: balanceAction,
   TRANSFER_ACTION: transferAction,
@@ -40,6 +43,7 @@ export const ACTIONS = {
   GET_TPS_ACTION: getTPSAction,
   FETCH_PRICE_ACTION: fetchPriceAction,
   STAKE_WITH_JUP_ACTION: stakeWithJupAction,
+  STAKE_WITH_SOLAYER_ACTION: stakeWithSolayerAction,
   REGISTER_DOMAIN_ACTION: registerDomainAction,
   LEND_ASSET_ACTION: lendAssetAction,
   CREATE_GIBWORK_TASK_ACTION: createGibworkTaskAction,

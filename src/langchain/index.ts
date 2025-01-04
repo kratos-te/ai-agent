@@ -261,6 +261,114 @@ export class SolanaMintNFTTool extends Tool {
   }
 }
 
+export class SolanaPerpCloseTradeTool extends Tool {
+  name = "solana_close_perp_trade";
+  description = `This tool can be used to close perpetuals trade ( It uses Adrena Protocol ).
+
+  Inputs ( input is a JSON string ):
+  tradeMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" etc. (optional)
+  price?: number, eg 100 (optional)
+  side: string, eg: "long" or "short"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const tx =
+        parsedInput.side === "long"
+          ? await this.solanaKit.closePerpTradeLong({
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+            })
+          : await this.solanaKit.closePerpTradeShort({
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+            });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Perpetual trade closed successfully",
+        transaction: tx,
+        price: parsedInput.price,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        side: parsedInput.side,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaPerpOpenTradeTool extends Tool {
+  name = "solana_open_perp_trade";
+  description = `This tool can be used to open perpetuals trade ( It uses Adrena Protocol ).
+
+  Inputs ( input is a JSON string ):
+  collateralAmount: number, eg 1 or 0.01 (required)
+  collateralMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn" or "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" etc. (optional)
+  tradeMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" etc. (optional)
+  leverage: number, eg 50000 = x5, 100000 = x10, 1000000 = x100 (optional)
+  price?: number, eg 100 (optional)
+  slippage?: number, eg 0.3 (optional)
+  side: string, eg: "long" or "short"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const tx =
+        parsedInput.side === "long"
+          ? await this.solanaKit.openPerpTradeLong({
+              price: parsedInput.price,
+              collateralAmount: parsedInput.collateralAmount,
+              collateralMint: new PublicKey(parsedInput.collateralMint),
+              leverage: parsedInput.leverage,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+              slippage: parsedInput.slippage,
+            })
+          : await this.solanaKit.openPerpTradeLong({
+              price: parsedInput.price,
+              collateralAmount: parsedInput.collateralAmount,
+              collateralMint: new PublicKey(parsedInput.collateralMint),
+              leverage: parsedInput.leverage,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+              slippage: parsedInput.slippage,
+            });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Perpetual trade opened successfully",
+        transaction: tx,
+        price: parsedInput.price,
+        collateralAmount: parsedInput.collateralAmount,
+        collateralMint: new PublicKey(parsedInput.collateralMint),
+        leverage: parsedInput.leverage,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        slippage: parsedInput.slippage,
+        side: parsedInput.side,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaTradeTool extends Tool {
   name = "solana_trade";
   description = `This tool can be used to swap tokens to another token ( It uses Jupiter Exchange ).
@@ -862,6 +970,39 @@ export class SolanaStakeTool extends Tool {
   }
 }
 
+export class SolanaRestakeTool extends Tool {
+  name = "solana_restake";
+  description = `This tool can be used to restake your SOL on Solayer to receive Solayer SOL (sSOL) as a Liquid Staking Token (LST).
+
+  Inputs:
+  amount: number, eg 1 or 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input) || Number(input);
+
+      const tx = await this.solanaKit.restake(parsedInput.amount);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Staked successfully",
+        transaction: tx,
+        amount: parsedInput.amount,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 /**
  * Tool to fetch the price of a token in USDC
  */
@@ -1002,7 +1143,7 @@ export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
-  
+
   Inputs (JSON string):
   - positionMintAddress: string, the address of the position mint that represents the liquidity position.`;
 
@@ -1089,9 +1230,9 @@ export class SolanaOrcaCreateCLMM extends Tool {
 
 export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   name = "orca_create_single_sided_liquidity_pool";
-  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana. 
+  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana.
 
-  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range. 
+  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range.
 
   Inputs (JSON string):
   - depositTokenAmount: number, in units of the deposit token including decimals, e.g., 1000000000 (required).
@@ -2001,6 +2142,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaLendAssetTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
+    new SolanaRestakeTool(solanaKit),
     new SolanaFetchPriceTool(solanaKit),
     new SolanaGetDomainTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
@@ -2035,5 +2177,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaCancelNFTListingTool(solanaKit),
     new SolanaFetchTokenReportSummaryTool(solanaKit),
     new SolanaFetchTokenDetailedReportTool(solanaKit),
+    new SolanaPerpOpenTradeTool(solanaKit),
+    new SolanaPerpCloseTradeTool(solanaKit),
   ];
 }
