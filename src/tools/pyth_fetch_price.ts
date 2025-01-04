@@ -49,7 +49,6 @@ export async function fetchPythPriceFeedID(
 
 /**
  * Fetch the price of a given price feed from Pyth
- * @param agent SolanaAgentKit instance
  * @param priceFeedID Price feed ID
  * @returns Latest price value from feed
  *
@@ -72,10 +71,19 @@ export async function fetchPythPrice(feedID: string): Promise<string> {
     }
 
     const price = new BN(parsedData[0].price.price);
-    const exponent = new BN(parsedData[0].price.expo);
+    const exponent = parsedData[0].price.expo;
 
-    const scaledPrice = price.div(new BN(10).pow(exponent));
+    if (exponent < 0) {
+      const adjustedPrice = price.mul(new BN(100));
+      const divisor = new BN(10).pow(new BN(-exponent));
+      const scaledPrice = adjustedPrice.div(divisor);
+      
+      const priceStr = scaledPrice.toString();
+      const formattedPrice = `${priceStr.slice(0, -2)}.${priceStr.slice(-2)}`;
+      return formattedPrice.startsWith('.') ? `0${formattedPrice}` : formattedPrice;
+    }
 
+    const scaledPrice = price.div(new BN(10).pow(new BN(exponent)));
     return scaledPrice.toString();
   } catch (error: any) {
     throw new Error(`Fetching price from Pyth failed: ${error.message}`);
