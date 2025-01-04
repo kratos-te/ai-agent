@@ -54,6 +54,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Jito Bundles
   - Pyth Price feeds for fetching Asset Prices
   - Register/resolve Alldomains
+  - Perpetuals Trading with Adrena Protocol
 
 - **Solana Blinks**
    - Lending by Lulo (Best APR for USDC)
@@ -220,6 +221,32 @@ const price = await agent.pythFetchPrice(
 console.log("Price in BTC/USD:", price);
 ```
 
+### Open PERP Trade
+
+```typescript
+import { PublicKey } from "@solana/web3.js";
+
+const signature = await agent.openPerpTradeLong({
+  price: 300, // $300 SOL Max price
+  collateralAmount: 10, // 10 jitoSOL in
+  collateralMint: new PublicKey("J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn"), // jitoSOL
+  leverage: 50000, // x5
+  tradeMint: new PublicKey("J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn"), // jitoSOL
+  slippage: 0.3, // 0.3%
+});
+```
+
+### Close PERP Trade
+
+```typescript
+import { PublicKey } from "@solana/web3.js";
+
+const signature = await agent.closePerpTradeLong({
+  price: 200, // $200 SOL price
+  tradeMint: new PublicKey("J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn"), // jitoSOL
+});
+```
+
 ## Examples
 
 ### LangGraph Multi-Agent System
@@ -269,6 +296,12 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to co
 ## License
 
 Apache-2 License
+
+## Funding 
+
+If you wanna give back any tokens or donations to the OSS community -- The Public Solana Agent Kit Treasury Address:
+
+Solana Network : EKHTbXpsm6YDgJzMkFxNU1LNXeWcUW7Ezf8mjUNQQ4Pa
 
 ## Security
 
