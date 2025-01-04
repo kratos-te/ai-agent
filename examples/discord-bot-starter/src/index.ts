@@ -11,6 +11,8 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel],
 });
 
+const chatHistory = new Map();
+
 async function initializeAgent() {
   try {
     const llm = new ChatOpenAI({
@@ -68,13 +70,22 @@ client.on(Events.MessageCreate, async (message) => {
 
     const { agent, config } = await initializeAgent();
 
-    const stream = await agent.stream({ messages: [new HumanMessage(message.content)] }, config);
+    const userId = message.author.id;
+    if (!chatHistory.has(userId)) {
+      chatHistory.set(userId, []);
+    }
+    const userChatHistory = chatHistory.get(userId);
+    userChatHistory.push(new HumanMessage(message.content));
+
+    const stream = await agent.stream({ messages: userChatHistory }, config);
 
     const replyIfNotEmpty = async (content: string) => content.trim() !== '' && message.reply(content);
 
     for await (const chunk of stream) {
       if ('agent' in chunk) {
-        await replyIfNotEmpty(chunk.agent.messages[0].content);
+        const agentMessage = chunk.agent.messages[0].content;
+        await replyIfNotEmpty(agentMessage);
+        userChatHistory.push(new HumanMessage(agentMessage));
       }
     }
   } catch (error) {
