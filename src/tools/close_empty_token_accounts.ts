@@ -30,14 +30,20 @@ export async function closeEmptyTokenAccounts(
     spl_token.forEach((instruction) => transaction.add(instruction));
     token_2022.forEach((instruction) => transaction.add(instruction));
 
+    const size = spl_token.length + token_2022.length;
+
+    if (size === 0) {
+      return {
+        signature: "",
+        size: 0,
+      };
+    }
+
     const signature = await agent.connection.sendTransaction(transaction, [
       agent.wallet,
     ]);
-    const size = spl_token.length + token_2022.length;
-    return {
-      signature,
-      size,
-    };
+
+    return { signature, size };
   } catch (error) {
     throw new Error(`Error closing empty token accounts: ${error}`);
   }
