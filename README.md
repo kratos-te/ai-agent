@@ -59,6 +59,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
    - Lending by Lulo (Best APR for USDC)
    - Send Arcade Games
    - JupSOL staking
+   - Solayer SOL (sSOL)staking
 
 - **Non-Financial Actions**
   - Gib Work for registering bounties
@@ -70,6 +71,11 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Autonomous agent support with React framework
   - Memory management for persistent interactions
   - Streaming responses for real-time feedback
+
+- **Vercel AI SDK Integration**
+  - Vercel AI SDK for AI agent integration
+  - Framework agnostic support
+  - Quick and easy toolkit setup
 
 - **Autonomous Modes**
   - Interactive chat mode for guided operations
@@ -168,6 +174,15 @@ const signature = await agent.stake(
 );
 ```
 
+### Stake SOL on Solayer
+
+```typescript
+const signature = await agent.restake(
+  1 // amount in SOL to stake
+);
+
+```
+
 ### Send an SPL Token Airdrop via ZK Compression
 
 ```typescript
@@ -258,4 +273,3 @@ Apache-2 License
 ## Security
 
 This toolkit handles private keys and transactions. Always ensure you're using it in a secure environment and never share your private keys.
-

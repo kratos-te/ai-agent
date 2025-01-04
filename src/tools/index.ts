@@ -1,3 +1,6 @@
+export * from "./get_wallet_address";
+export * from "./request_faucet_funds";
+export * from "./get_wallet_address";
 export * from "./request_faucet_funds";
 export * from "./deploy_token";
 export * from "./deploy_collection";
@@ -18,6 +21,7 @@ export * from "./lend";
 export * from "./get_tps";
 export * from "./get_token_data";
 export * from "./stake_with_jup";
+export * from "./stake_with_solayer";
 export * from "./fetch_price";
 export * from "./send_compressed_airdrop";
 export * from "./orca_close_position";
@@ -53,3 +57,4 @@ export * from "./rock_paper_scissor";
 export * from "./create_tiplinks";
 
 export * from "./tensor_trade";
+export * from "./rugcheck";
