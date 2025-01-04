@@ -43,7 +43,7 @@ export const ACTIONS = {
   GET_TPS_ACTION: getTPSAction,
   FETCH_PRICE_ACTION: fetchPriceAction,
   STAKE_WITH_JUP_ACTION: stakeWithJupAction,
-  STAKE_WITH_SOLAYER_ACTION : stakeWithSolayerAction,
+  STAKE_WITH_SOLAYER_ACTION: stakeWithSolayerAction,
   REGISTER_DOMAIN_ACTION: registerDomainAction,
   LEND_ASSET_ACTION: lendAssetAction,
   CREATE_GIBWORK_TASK_ACTION: createGibworkTaskAction,
