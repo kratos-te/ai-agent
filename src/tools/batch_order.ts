@@ -7,7 +7,7 @@ import {
 import { SolanaAgentKit } from "../index";
 import {
   ManifestClient,
-  WrapperPlaceOrderParamsExternal,
+  WrapperPlaceOrderParamsExternal
 } from "@cks-systems/manifest-sdk";
 import { OrderType } from "@cks-systems/manifest-sdk/client/ts/src/wrapper/types/OrderType";
 
