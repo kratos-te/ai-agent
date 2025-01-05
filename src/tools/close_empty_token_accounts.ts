@@ -27,8 +27,15 @@ export async function closeEmptyTokenAccounts(
     );
     const transaction = new Transaction();
 
-    spl_token.forEach((instruction) => transaction.add(instruction));
-    token_2022.forEach((instruction) => transaction.add(instruction));
+    const MAX_INSTRUCTIONS = 48; // 25 instructions can be processed in a single transaction without failing
+
+    spl_token
+      .slice(0, Math.min(MAX_INSTRUCTIONS, spl_token.length))
+      .forEach((instruction) => transaction.add(instruction));
+
+    token_2022
+      .slice(0, Math.max(0, MAX_INSTRUCTIONS - spl_token.length))
+      .forEach((instruction) => transaction.add(instruction));
 
     const size = spl_token.length + token_2022.length;
 
@@ -69,13 +76,12 @@ async function create_close_instruction(
   );
 
   const tokens = ata_accounts.value;
-  const size = tokens.length > 25 ? 24 : tokens.length; // closing 24 accounts in a single transaction
 
   const accountExceptions = [
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
   ];
 
-  for (let i = 0; i < size; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     const token_data = AccountLayout.decode(tokens[i].account.data);
     if (
       token_data.amount === BigInt(0) &&
