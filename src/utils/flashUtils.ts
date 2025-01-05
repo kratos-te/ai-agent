@@ -1,4 +1,4 @@
-import { PriceServiceConnection } from "@pythnetwork/price-service-client";
+import { HermesClient } from "@pythnetwork/hermes-client";
 import { OraclePrice } from "flash-sdk";
 import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import { PoolConfig, Token, Referral, PerpetualsClient } from "flash-sdk";
@@ -43,11 +43,7 @@ const PRICE_FEED_IDS = ALL_TOKENS.reduce(
   {} as { [key: string]: string },
 );
 
-const priceServiceConnection = new PriceServiceConnection(HERMES_URL, {
-  priceFeedRequestConfig: {
-    binary: true,
-  },
-});
+const hermesClient = new HermesClient(HERMES_URL, {});
 
 export interface PythPriceEntry {
   price: OraclePrice;
@@ -72,29 +68,41 @@ export const fetchOraclePrice = async (
   }
 
   try {
-    const priceFeed = await priceServiceConnection.getLatestPriceFeeds([
-      priceFeedId,
-    ]);
+    const hermesPriceFeed = await hermesClient.getPriceFeeds({
+      query: symbol,
+      filter: "crypto",
+    });
 
-    if (!priceFeed || priceFeed.length === 0) {
+    if (!hermesPriceFeed || hermesPriceFeed.length === 0) {
       throw new Error(`No price feed received for ${symbol}`);
     }
 
-    const price = priceFeed[0].getPriceUnchecked();
-    const emaPrice = priceFeed[0].getEmaPriceUnchecked();
+    const hemrmesPriceUdpate = await hermesClient.getLatestPriceUpdates(
+      [priceFeedId],
+      {
+        encoding: "hex",
+        parsed: true,
+      },
+    );
 
-    const priceOracle = new OraclePrice({
-      price: new BN(price.price),
-      exponent: new BN(price.expo),
-      confidence: new BN(price.conf),
-      timestamp: new BN(price.publishTime),
+    if (!hemrmesPriceUdpate.parsed) {
+      throw new Error(`No price feed received for ${symbol}`);
+    }
+    const hermesEma = hemrmesPriceUdpate.parsed[0].ema_price;
+    const hermesPrice = hemrmesPriceUdpate.parsed[0].price;
+
+    const hermesPriceOracle = new OraclePrice({
+      price: new BN(hermesPrice.price),
+      exponent: new BN(hermesPrice.expo),
+      confidence: new BN(hermesPrice.conf),
+      timestamp: new BN(hermesPrice.publish_time),
     });
 
-    const emaPriceOracle = new OraclePrice({
-      price: new BN(emaPrice.price),
-      exponent: new BN(emaPrice.expo),
-      confidence: new BN(emaPrice.conf),
-      timestamp: new BN(emaPrice.publishTime),
+    const hermesEmaOracle = new OraclePrice({
+      price: new BN(hermesEma.price),
+      exponent: new BN(hermesEma.expo),
+      confidence: new BN(hermesEma.conf),
+      timestamp: new BN(hermesEma.publish_time),
     });
 
     const token = ALL_TOKENS.find((t) => t.pythPriceId === priceFeedId);
@@ -105,8 +113,8 @@ export const fetchOraclePrice = async (
     const status = !token.isVirtual ? PriceStatus.Trading : PriceStatus.Unknown;
 
     const pythPriceEntry: PythPriceEntry = {
-      price: priceOracle,
-      emaPrice: emaPriceOracle,
+      price: hermesPriceOracle,
+      emaPrice: hermesEmaOracle,
       isStale: false,
       status: status,
     };
@@ -116,43 +124,6 @@ export const fetchOraclePrice = async (
     console.error(`Error in fetchOraclePrice for ${symbol}:`, error);
     throw error;
   }
-};
-
-// If you need to get all price IDs for subscription or other purposes
-export const getAllPriceIds = () => ALL_TOKENS.map((t) => t.pythPriceId);
-
-export const subscribeToPriceFeeds = (
-  callback: (symbol: string, priceEntry: PythPriceEntry) => void,
-) => {
-  const priceIds = getAllPriceIds();
-  priceServiceConnection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
-    const token = ALL_TOKENS.find((f) => f.pythPriceId === `0x${priceFeed.id}`);
-    if (token) {
-      const priceOracle = new OraclePrice({
-        price: new BN(priceFeed.getPriceUnchecked().price),
-        exponent: new BN(priceFeed.getPriceUnchecked().expo),
-        confidence: new BN(priceFeed.getPriceUnchecked().conf),
-        timestamp: new BN(priceFeed.getPriceUnchecked().publishTime),
-      });
-      const emaPriceOracle = new OraclePrice({
-        price: new BN(priceFeed.getEmaPriceUnchecked().price),
-        exponent: new BN(priceFeed.getEmaPriceUnchecked().expo),
-        confidence: new BN(priceFeed.getEmaPriceUnchecked().conf),
-        timestamp: new BN(priceFeed.getEmaPriceUnchecked().publishTime),
-      });
-
-      const status = !token.isVirtual
-        ? PriceStatus.Trading
-        : PriceStatus.Unknown;
-      const priceEntry: PythPriceEntry = {
-        price: priceOracle,
-        emaPrice: emaPriceOracle,
-        isStale: false,
-        status: status,
-      };
-      callback(token.symbol, priceEntry);
-    }
-  });
 };
 
 export interface MarketInfo {
@@ -205,9 +176,9 @@ Object.entries(marketSdkInfo).forEach(([marketID, info]) => {
   if (!marketTokenMap[info.token]) {
     marketTokenMap[info.token] = {};
   }
-  
-  marketTokenMap[info.token][info.side.toLowerCase() as 'long' | 'short'] = {
-    marketID
+
+  marketTokenMap[info.token][info.side.toLowerCase() as "long" | "short"] = {
+    marketID,
   };
 });
 
@@ -288,16 +259,15 @@ export async function getNftTradingAccountInfo(
  * @param wallet Solana wallet
  * @returns PerpetualsClient instance
  */
-export function createPerpClient(connection: Connection, wallet: Keypair): PerpetualsClient {
-  const provider = new AnchorProvider(
-    connection,
-    new Wallet(wallet),
-    { 
-      commitment: 'confirmed', 
-      preflightCommitment: 'confirmed', 
-      skipPreflight: true 
-    }
-  );
+export function createPerpClient(
+  connection: Connection,
+  wallet: Keypair,
+): PerpetualsClient {
+  const provider = new AnchorProvider(connection, new Wallet(wallet), {
+    commitment: "confirmed",
+    preflightCommitment: "confirmed",
+    skipPreflight: true,
+  });
 
   return new PerpetualsClient(
     provider,
@@ -305,6 +275,6 @@ export function createPerpClient(connection: Connection, wallet: Keypair): Perpe
     POOL_CONFIGS[0].perpComposibilityProgramId,
     POOL_CONFIGS[0].fbNftRewardProgramId,
     POOL_CONFIGS[0].rewardDistributionProgram.programId,
-    {}
+    {},
   );
 }

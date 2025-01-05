@@ -782,15 +782,7 @@ export class SolanaFlashOpenTrade extends Tool {
   token: string, one of ["SOL", "BTC", "ETH"] (required)
   side: string, either "long" or "short" (required)
   collateralUsd: number, amount in USD for collateral eg 10 (required)
-  leverage: number, eg 5 for 5x leverage (required)
-
-  Example:
-  {
-    "token": "SOL",
-    "side": "long",
-    "collateralUsd": 10,
-    "leverage": 5
-  }`;
+  leverage: number, eg 5 for 5 times the leverage on collateral amount (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -816,6 +808,8 @@ export class SolanaFlashOpenTrade extends Tool {
       if (!parsedInput.leverage || parsedInput.leverage <= 0) {
         throw new Error("Leverage must be positive");
       }
+
+      console.log(parsedInput);
 
       const tx = await this.solanaKit.flashOpenTrade({
         token: parsedInput.token,
@@ -897,7 +891,6 @@ export class SolanaFlashCloseTrade extends Tool {
     }
   }
 }
-
 
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
@@ -2308,4 +2301,3 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaFlashCloseTrade(solanaKit),
   ];
 }
-
