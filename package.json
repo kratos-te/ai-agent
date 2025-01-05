@@ -12,7 +12,8 @@
 		"generate": "ts-node src/utils/keypair.ts",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
-		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
+		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+		"prepare": "husky"
 	},
 	"engines": {
 		"node": ">=22.0.0",
