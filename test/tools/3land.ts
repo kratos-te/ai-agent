@@ -18,12 +18,13 @@ const optionsWithBase58: StoreInitOptions = {
   isMainnet: false,
 };
 
+/****************************** CREATING COLLECTION ******************************** */
+
 const collectionOpts: CreateCollectionOptions = {
-  collectionName: "collectionXD",
-  collectionSymbol: "CXD",
-  collectionDescription: "a collection that is cool",
-  mainImageUrl:
-    "https://arweave.net/FMkKYYsheEImBfejYaPPoJbI3CxJxunwvErD9VYzxOY?ext=jpeg",
+  collectionName: "",
+  collectionSymbol: "",
+  collectionDescription: "",
+  mainImageUrl: "",
 };
 
 (async () => {
@@ -35,27 +36,28 @@ const collectionOpts: CreateCollectionOptions = {
   console.log("collection: ", collection);
 })();
 
-//const collectionAccount = "";
-// const createItemOptions: CreateSingleOptions = {
-//   itemName: "",
-//   sellerFee: 500,
-//   itemAmount: 100,
-//   itemSymbol: "",
-//   itemDescription: "",
-//   traits: [{ trait_type: "", value: "" }],
-//   price: 0, //100000000 == 0.1 sol
-//   mainImageUrl: "",
-// };
+/****************************** CREATING NFT ******************************** */
+const collectionAccount = "";
+const createItemOptions: CreateSingleOptions = {
+  itemName: "",
+  sellerFee: 500,
+  itemAmount: 100,
+  itemSymbol: "",
+  itemDescription: "",
+  traits: [{ trait_type: "", value: "" }],
+  price: 0, //100000000 == 0.1 sol
+  mainImageUrl: "",
+};
 
-// const isMainnet = true;
-//(async() => {
-// const result = agent.create3LandNft(
-//   optionsWithBase58,
-//   collectionAccount,
-//   createItemOptions,
-//   isMainnet,
-// );
-// console.log("result: ", result);
-//})();
+const isMainnet = false;
+(async () => {
+  const result = agent.create3LandNft(
+    optionsWithBase58,
+    collectionAccount,
+    createItemOptions,
+    isMainnet,
+  );
+  console.log("result: ", result);
+})();
 
-// export { SolanaAgentKit, createSolanaTools };
+export { SolanaAgentKit, createSolanaTools };

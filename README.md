@@ -171,12 +171,12 @@ const createItemOptions: CreateSingleOptions = {
   mainImageUrl: "",
   splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL
 };
-
+const isMainnet = false;
 const result = await agent.create3LandNft(
   optionsWithBase58,
   collectionAccount,
   createItemOptions,
-  optionsWithBase58.isMainnet
+  isMainnet
 );
 
 ```
