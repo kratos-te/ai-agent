@@ -55,6 +55,7 @@ import { transfer_from_multisig } from "../tools/squads_multisig/transfer_from_m
 import { create_proposal } from "../tools/squads_multisig/create_proposal";
 import { approve_proposal } from "../tools/squads_multisig/approve_proposal";
 import { execute_transaction } from "../tools/squads_multisig/execute_proposal";
+import { reject_proposal } from "../tools/squads_multisig/reject_proposal";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -395,6 +396,12 @@ export class SolanaAgentKit {
     transactionIndex?: number | bigint,
   ): Promise<string> {
     return approve_proposal(this, transactionIndex);
+  }
+
+  async rejectMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return reject_proposal(this, transactionIndex);
   }
 
   async executeMultisigTransaction(
