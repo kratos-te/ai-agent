@@ -88,7 +88,8 @@ export interface FetchPriceResponse {
 
 export interface PythFetchPriceResponse {
   status: "success" | "error";
-  priceFeedID: string;
+  tokenSymbol: string;
+  priceFeedID?: string;
   price?: string;
   message?: string;
   code?: string;
@@ -152,4 +153,74 @@ export interface Action {
    * Function that executes the action
    */
   handler: Handler;
+}
+
+export interface TokenCheck {
+  tokenProgram: string;
+  tokenType: string;
+  risks: Array<{
+    name: string;
+    level: string;
+    description: string;
+    score: number;
+  }>;
+  score: number;
+}
+
+export interface PythPriceFeedIDItem {
+  id: string;
+  attributes: {
+    asset_type: string;
+    base: string;
+  };
+}
+
+export interface PythPriceItem {
+  binary: {
+    data: string[];
+    encoding: string;
+  };
+  parsed: [
+    Array<{
+      id: string;
+      price: {
+        price: string;
+        conf: string;
+        expo: number;
+        publish_time: number;
+      };
+      ema_price: {
+        price: string;
+        conf: string;
+        expo: number;
+        publish_time: number;
+      };
+      metadata: {
+        slot: number;
+        proof_available_time: number;
+        prev_publish_time: number;
+      };
+    }>,
+  ];
+}
+
+export interface OrderParams {
+  quantity: number;
+  side: string;
+  price: number;
+}
+
+export interface BatchOrderPattern {
+  side: string;
+  totalQuantity?: number;
+  priceRange?: {
+    min?: number;
+    max?: number;
+  };
+  spacing?: {
+    type: "percentage" | "fixed";
+    value: number;
+  };
+  numberOfOrders?: number;
+  individualQuantity?: number;
 }

@@ -1,8 +1,9 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
-import { Config } from "../types";
+import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -23,12 +24,18 @@ import {
   request_faucet_funds,
   trade,
   limitOrder,
+  batchOrder,
   cancelAllOrders,
   withdrawAll,
+  closePerpTradeShort,
+  closePerpTradeLong,
+  openPerpTradeShort,
+  openPerpTradeLong,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
+  stakeWithSolayer,
   sendCompressedAirdrop,
   orcaCreateSingleSidedLiquidityPool,
   orcaCreateCLMM,
@@ -36,7 +43,6 @@ import {
   orcaOpenSingleSidedPosition,
   FEE_TIERS,
   fetchPrice,
-  pythFetchPrice,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -51,8 +57,11 @@ import {
   listNFTForSale,
   cancelListing,
   closeEmptyTokenAccounts,
+  fetchTokenReportSummary,
+  fetchTokenDetailedReport,
+  fetchPythPrice,
+  fetchPythPriceFeedID,
 } from "../tools";
-
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -61,8 +70,8 @@ import {
   MintCollectionNFTResponse,
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
+  OrderParams,
 } from "../types";
-import { BN } from "@coral-xyz/anchor";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -191,12 +200,55 @@ export class SolanaAgentKit {
     return limitOrder(this, marketId, quantity, side, price);
   }
 
+  async batchOrder(
+    marketId: PublicKey,
+    orders: OrderParams[],
+  ): Promise<string> {
+    return batchOrder(this, marketId, orders);
+  }
+
   async cancelAllOrders(marketId: PublicKey): Promise<string> {
     return cancelAllOrders(this, marketId);
   }
 
   async withdrawAll(marketId: PublicKey): Promise<string> {
     return withdrawAll(this, marketId);
+  }
+
+  async openPerpTradeLong(
+    args: Omit<Parameters<typeof openPerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async openPerpTradeShort(
+    args: Omit<Parameters<typeof openPerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeShort(
+    args: Omit<Parameters<typeof closePerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeLong(
+    args: Omit<Parameters<typeof closePerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeLong({
+      agent: this,
+      ...args,
+    });
   }
 
   async lendAssets(amount: number): Promise<string> {
@@ -242,6 +294,10 @@ export class SolanaAgentKit {
 
   async stake(amount: number): Promise<string> {
     return stakeWithJup(this, amount);
+  }
+
+  async restake(amount: number): Promise<string> {
+    return stakeWithSolayer(this, amount);
   }
 
   async sendCompressedAirdrop(
@@ -432,8 +488,12 @@ export class SolanaAgentKit {
     return manifestCreateMarket(this, baseMint, quoteMint);
   }
 
-  async pythFetchPrice(priceFeedID: string): Promise<string> {
-    return pythFetchPrice(priceFeedID);
+  async getPythPriceFeedID(tokenSymbol: string): Promise<string> {
+    return fetchPythPriceFeedID(tokenSymbol);
+  }
+
+  async getPythPrice(priceFeedID: string): Promise<string> {
+    return fetchPythPrice(priceFeedID);
   }
 
   async createGibworkTask(
@@ -480,5 +540,12 @@ export class SolanaAgentKit {
     size: number;
   }> {
     return closeEmptyTokenAccounts(this);
+ 
+  async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
+    return fetchTokenReportSummary(mint);
+  }
+
+  async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
+    return fetchTokenDetailedReport(mint);
   }
 }
