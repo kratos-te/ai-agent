@@ -1471,7 +1471,7 @@ export class SolanaRaydiumCreateClmm extends Tool {
   startTime: number(seconds), eg: now number or zero (required)
   `;
 
-  constructor(private solanaKit: SolanaAgentKit) {
+  constructor (private solanaKit: SolanaAgentKit) {
     super();
   }
 
