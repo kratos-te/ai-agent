@@ -470,7 +470,7 @@ export class SolanaAgentKit {
   async tensorListNFT(nftMint: PublicKey, price: number): Promise<string> {
     return listNFTForSale(this, nftMint, price);
   }
-  1;
+
   async tensorCancelListing(nftMint: PublicKey): Promise<string> {
     return cancelListing(this, nftMint);
   }

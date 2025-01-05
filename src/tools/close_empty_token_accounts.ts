@@ -73,7 +73,6 @@ async function create_close_instruction(
 
   const accountExceptions = [
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
-    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // USDT
   ];
 
   for (let i = 0; i < size; i++) {
