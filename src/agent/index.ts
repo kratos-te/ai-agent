@@ -540,7 +540,8 @@ export class SolanaAgentKit {
     size: number;
   }> {
     return closeEmptyTokenAccounts(this);
- 
+  }
+
   async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
     return fetchTokenReportSummary(mint);
   }
