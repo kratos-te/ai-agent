@@ -37,7 +37,9 @@ const pythFetchPriceAction: Action = {
   }),
   handler: async (_agent: SolanaAgentKit, input: Record<string, any>) => {
     try {
-      const priceFeedId = await fetchPythPriceFeedID(input.tokenSymbol);
+      const priceFeedId = await fetchPythPriceFeedID(
+        input.tokenSymbol as string,
+      );
 
       const priceStr = await fetchPythPrice(priceFeedId);
 
