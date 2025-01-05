@@ -1,14 +1,14 @@
 import { PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import Decimal from "decimal.js";
 import { Tool } from "langchain/tools";
 import {
   GibworkCreateTaskReponse,
+  OrderParams,
   PythFetchPriceResponse,
   SolanaAgentKit,
 } from "../index";
-import { create_image } from "../tools/create_image";
-import { BN } from "@coral-xyz/anchor";
-import { FEE_TIERS, generateOrdersfromPattern, OrderParams } from "../tools";
+import { create_image, FEE_TIERS, generateOrdersfromPattern } from "../tools";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -1763,7 +1763,7 @@ export class SolanaPythFetchPrice extends Tool {
   description = `Fetch the price of a given price feed from Pyth's Hermes service
 
   Inputs:
-  priceFeedID: string, the price feed ID, e.g., "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" for BTC/USD`;
+  tokenSymbol: string, e.g., BTC for bitcoin`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1771,17 +1771,21 @@ export class SolanaPythFetchPrice extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const price = await this.solanaKit.pythFetchPrice(input);
+      const priceFeedID = await this.solanaKit.getPythPriceFeedID(input);
+      const price = await this.solanaKit.getPythPrice(priceFeedID);
+
       const response: PythFetchPriceResponse = {
         status: "success",
-        priceFeedID: input,
+        tokenSymbol: input,
+        priceFeedID,
         price,
       };
+
       return JSON.stringify(response);
     } catch (error: any) {
       const response: PythFetchPriceResponse = {
         status: "error",
-        priceFeedID: input,
+        tokenSymbol: input,
         message: error.message,
         code: error.code || "UNKNOWN_ERROR",
       };

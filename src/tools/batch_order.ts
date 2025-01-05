@@ -4,33 +4,13 @@ import {
   sendAndConfirmTransaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { SolanaAgentKit } from "../index";
 import {
   ManifestClient,
   WrapperPlaceOrderParamsExternal,
+  OrderType,
 } from "@cks-systems/manifest-sdk";
-import { OrderType } from "@cks-systems/manifest-sdk/client/ts/src/wrapper/types/OrderType";
-
-export interface OrderParams {
-  quantity: number;
-  side: string;
-  price: number;
-}
-
-interface BatchOrderPattern {
-  side: string;
-  totalQuantity?: number;
-  priceRange?: {
-    min?: number;
-    max?: number;
-  };
-  spacing?: {
-    type: "percentage" | "fixed";
-    value: number;
-  };
-  numberOfOrders?: number;
-  individualQuantity?: number;
-}
+import { SolanaAgentKit } from "../index";
+import { BatchOrderPattern, OrderParams } from "../types";
 
 /**
  * Generates an array of orders based on the specified pattern
