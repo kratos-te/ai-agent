@@ -23,7 +23,14 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
         cache-dependency-path: pnpm-lock.json
-    - run: pnpm install
-    - run: pnpm run lint
-    - run: pnpm run build
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    - name: Install dependencies
+      run: pnpm install
+    - name: Run lint
+      run: pnpm run lint
+    - name: Run build
+      run: pnpm run build
     # - run: pnpm run test # TODO: add mock env for testing
