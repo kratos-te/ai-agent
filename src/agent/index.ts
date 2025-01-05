@@ -391,7 +391,6 @@ export class SolanaAgentKit {
   }
 
   async approveMultisigProposal(
-    proposalId: PublicKey,
     transactionIndex?: number | bigint,
   ): Promise<string> {
     return approve_proposal(this, transactionIndex);
