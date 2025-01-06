@@ -2127,7 +2127,9 @@ export class SolanaFetchTokenDetailedReportTool extends Tool {
 
 export class SolanaCreate2by2Multisig extends Tool {
   name = "create_2by2_multisig";
-  description = `Create a 2-of-2 multisig account on Solana.
+  description = `Create a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  Note: For one AI agent, only one 2-by-2 multisig can be created as it is pair-wise.
 
   Inputs (JSON string):
   - creator: string, the public key of the creator (required).`;
@@ -2160,7 +2162,7 @@ export class SolanaCreate2by2Multisig extends Tool {
 
 export class SolanaDepositTo2by2Multisig extends Tool {
   name = "deposit_to_2by2_multisig";
-  description = `Deposit funds to a 2-of-2 multisig account on Solana.
+  description = `Deposit funds to a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
 
   Inputs (JSON string):
   - amount: number, the amount to deposit in SOL (required).`;
@@ -2194,7 +2196,7 @@ export class SolanaDepositTo2by2Multisig extends Tool {
 
 export class SolanaTransferFrom2by2Multisig extends Tool {
   name = "transfer_from_2by2_multisig";
-  description = `Create a transaction to transfer funds from a 2-of-2 multisig account on Solana.
+  description = `Create a transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
 
   Inputs (JSON string):
   - amount: number, the amount to transfer in SOL (required).
@@ -2234,7 +2236,9 @@ export class SolanaTransferFrom2by2Multisig extends Tool {
 
 export class SolanaCreateProposal2by2Multisig extends Tool {
   name = "create_proposal_2by2_multisig";
-  description = `Create a proposal to transfer funds from a 2-of-2 multisig account on Solana.
+  description = `Create a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If transactionIndex is not provided, the latest index will automatically be fetched and used.
 
   Inputs (JSON string):
   - transactionIndex: number, the index of the transaction (optional).`;
@@ -2268,7 +2272,9 @@ export class SolanaCreateProposal2by2Multisig extends Tool {
 
 export class SolanaApproveProposal2by2Multisig extends Tool {
   name = "approve_proposal_2by2_multisig";
-  description = `Approve a proposal to transfer funds from a 2-of-2 multisig account on Solana.
+  description = `Approve a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
 
   Inputs (JSON string):
   - proposalIndex: number, the index of the proposal (optional).`;
@@ -2280,7 +2286,7 @@ export class SolanaApproveProposal2by2Multisig extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const proposalIndex = inputFormat.proposalIndex;
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
 
       const tx = await this.solanaKit.approveMultisigProposal(proposalIndex);
 
@@ -2302,7 +2308,9 @@ export class SolanaApproveProposal2by2Multisig extends Tool {
 
 export class SolanaRejectProposal2by2Multisig extends Tool {
   name = "reject_proposal_2by2_multisig";
-  description = `Reject a proposal to transfer funds from a 2-of-2 multisig account on Solana.
+  description = `Reject a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
 
   Inputs (JSON string):
   - proposalIndex: number, the index of the proposal (optional).`;
@@ -2314,7 +2322,7 @@ export class SolanaRejectProposal2by2Multisig extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const proposalIndex = inputFormat.proposalIndex;
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
 
       const tx = await this.solanaKit.rejectMultisigProposal(proposalIndex);
 
@@ -2336,7 +2344,9 @@ export class SolanaRejectProposal2by2Multisig extends Tool {
 
 export class SolanaExecuteProposal2by2Multisig extends Tool {
   name = "execute_proposal_2by2_multisig";
-  description = `Execute a proposal/transaction to transfer funds from a 2-of-2 multisig account on Solana.
+  description = `Execute a proposal/transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
 
   Inputs (JSON string):
   - proposalIndex: number, the index of the proposal (optional).`;
@@ -2348,7 +2358,7 @@ export class SolanaExecuteProposal2by2Multisig extends Tool {
   protected async _call(input: string): Promise<string> {
     try {
       const inputFormat = JSON.parse(input);
-      const proposalIndex = inputFormat.proposalIndex;
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
 
       const tx = await this.solanaKit.executeMultisigTransaction(proposalIndex);
 
