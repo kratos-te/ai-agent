@@ -1,5 +1,3 @@
-import { SolanaAgentKit, ACTIONS } from "../src";
-import { createSolanaTools } from "../src/langchain";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
@@ -7,6 +5,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import { createSolanaTools, SolanaAgentKit } from "../../src";
 
 dotenv.config();
 
@@ -165,7 +164,171 @@ async function runChatMode(agent: any, config: any) {
   }
 }
 
-async function chooseMode(): Promise<"chat" | "auto"> {
+interface MarketMakerConfig {
+  marketId: string;
+  baseToken: string;
+  quoteToken: string;
+  quoteParams: {
+    number: number; // Number of quotes on each side
+    minDepth: number; // Minimum distance from mid (%)
+    maxDepth: number; // Maximum distance from mid (%)
+  };
+  allowance: {
+    base: number;
+    quote: number;
+  };
+  intervalSeconds: number;
+}
+
+function createReadlineInterface() {
+  return readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+}
+
+async function askQuestion(
+  rl: readline.Interface,
+  question: string,
+): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+    });
+  });
+}
+
+async function configureMarketMaker(): Promise<MarketMakerConfig> {
+  const rl = createReadlineInterface();
+
+  try {
+    console.log("\n=== Market Maker Configuration ===\n");
+
+    // Basic market information
+    const marketId = await askQuestion(rl, "Enter the market ID: ");
+    const baseToken = await askQuestion(
+      rl,
+      "Enter the base token symbol (e.g., SEND): ",
+    );
+    const quoteToken = await askQuestion(
+      rl,
+      "Enter the quote token symbol (e.g., USDC): ",
+    );
+
+    // Quote parameters
+    console.log(
+      "\n=== Quote Parameters (applies to both buy and sell sides) ===",
+    );
+    const quoteNumber = parseInt(
+      await askQuestion(rl, "Enter number of quotes to place on each side: "),
+    );
+    const minDepth = parseFloat(
+      await askQuestion(
+        rl,
+        "Enter minimum quote depth (% distance from mid price): ",
+      ),
+    );
+    const maxDepth = parseFloat(
+      await askQuestion(
+        rl,
+        "Enter maximum quote depth (% distance from mid price): ",
+      ),
+    );
+
+    // Token allowances
+    console.log("\n=== Token Allowances ===");
+    const baseAllowance = parseFloat(
+      await askQuestion(rl, `Enter total ${baseToken} allowance: `),
+    );
+    const quoteAllowance = parseFloat(
+      await askQuestion(rl, `Enter total ${quoteToken} allowance: `),
+    );
+
+    // Update interval
+    const interval = parseInt(
+      await askQuestion(rl, "\nEnter update interval in seconds: "),
+    );
+
+    const config: MarketMakerConfig = {
+      marketId,
+      baseToken,
+      quoteToken,
+      quoteParams: {
+        number: quoteNumber,
+        minDepth: minDepth,
+        maxDepth: maxDepth,
+      },
+      allowance: {
+        base: baseAllowance,
+        quote: quoteAllowance,
+      },
+      intervalSeconds: interval,
+    };
+
+    // Display summary
+    console.log("\n=== Configuration Summary ===");
+    console.log(JSON.stringify(config, null, 2));
+
+    const confirm = await askQuestion(
+      rl,
+      "\nIs this configuration correct? (yes/no): ",
+    );
+    if (confirm.toLowerCase() !== "yes") {
+      throw new Error("Configuration cancelled by user");
+    }
+
+    return config;
+  } finally {
+    rl.close();
+  }
+}
+
+async function runMarketMakerMode(agent: any, config: any) {
+  try {
+    const marketMakerConfig = await configureMarketMaker();
+    console.log(
+      `\nStarting market maker mode for ${marketMakerConfig.baseToken}/${marketMakerConfig.quoteToken}...`,
+    );
+
+    while (true) {
+      try {
+        const thought = `You are an on-chain Solana market maker for the ${marketMakerConfig.baseToken}/${marketMakerConfig.quoteToken} Manifest market, ${marketMakerConfig.marketId}. 
+        Find the ${marketMakerConfig.baseToken}/${marketMakerConfig.quoteToken} live price by checking Jupiter. 
+        Use solana_batch_order to provide ${marketMakerConfig.quoteParams.number} buys at different prices between -${marketMakerConfig.quoteParams.minDepth}% to -${marketMakerConfig.quoteParams.maxDepth}% and ${marketMakerConfig.quoteParams.number} sells at different prices between +${marketMakerConfig.quoteParams.minDepth}% to +${marketMakerConfig.quoteParams.maxDepth}% with increasing quantities further from the live price. 
+        You have an allowance of ${marketMakerConfig.allowance.base} ${marketMakerConfig.baseToken} and ${marketMakerConfig.allowance.quote} ${marketMakerConfig.quoteToken}.
+        Important! Only send 1 transaction, buy and sells can be combined into a single solana_batch_order.`;
+
+        const stream = await agent.stream(
+          { messages: [new HumanMessage(thought)] },
+          config,
+        );
+
+        for await (const chunk of stream) {
+          if ("agent" in chunk) {
+            console.log(chunk.agent.messages[0].content);
+          } else if ("tools" in chunk) {
+            console.log(chunk.tools.messages[0].content);
+          }
+          console.log("-------------------");
+        }
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, marketMakerConfig.intervalSeconds * 1000),
+        );
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error:", error);
+        }
+        process.exit(1);
+      }
+    }
+  } catch (error) {
+    console.error("Configuration error:", error);
+    process.exit(1);
+  }
+}
+
+async function chooseMode(): Promise<"chat" | "auto" | "mm"> {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -178,6 +341,7 @@ async function chooseMode(): Promise<"chat" | "auto"> {
     console.log("\nAvailable modes:");
     console.log("1. chat    - Interactive chat mode");
     console.log("2. auto    - Autonomous action mode");
+    console.log("3. mm      - AI guided market making");
 
     const choice = (await question("\nChoose a mode (enter number or name): "))
       .toLowerCase()
@@ -189,6 +353,8 @@ async function chooseMode(): Promise<"chat" | "auto"> {
       return "chat";
     } else if (choice === "2" || choice === "auto") {
       return "auto";
+    } else if (choice === "3" || choice === "mm") {
+      return "mm";
     }
     console.log("Invalid choice. Please try again.");
   }
@@ -202,8 +368,10 @@ async function main() {
 
     if (mode === "chat") {
       await runChatMode(agent, config);
-    } else {
+    } else if (mode === "auto") {
       await runAutonomousMode(agent, config);
+    } else {
+      await runMarketMakerMode(agent, config);
     }
   } catch (error) {
     if (error instanceof Error) {
