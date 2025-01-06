@@ -2232,6 +2232,40 @@ export class SolanaTransferFrom2by2Multisig extends Tool {
   }
 }
 
+export class SolanaCreateProposal2by2Multisig extends Tool {
+  name = "create_proposal_2by2_multisig";
+  description = `Create a proposal to transfer funds from a 2-of-2 multisig account on Solana.
+
+  Inputs (JSON string):
+  - transactionIndex: number, the index of the transaction (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const transactionIndex = inputFormat.transactionIndex ?? undefined;
+
+      const tx = await this.solanaKit.createMultisigProposal(transactionIndex);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Proposal created successfully",
+        transaction: tx,
+        transactionIndex: transactionIndex?.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "CREATE_PROPOSAL_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -2288,5 +2322,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPerpCloseTradeTool(solanaKit),
     new SolanaCreate2by2Multisig(solanaKit),
     new SolanaDepositTo2by2Multisig(solanaKit),
+    new SolanaTransferFrom2by2Multisig(solanaKit),
+    new SolanaCreateProposal2by2Multisig(solanaKit),
   ];
 }
