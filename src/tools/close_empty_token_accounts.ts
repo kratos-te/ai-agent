@@ -27,7 +27,7 @@ export async function closeEmptyTokenAccounts(
     );
     const transaction = new Transaction();
 
-    const MAX_INSTRUCTIONS = 48; // 25 instructions can be processed in a single transaction without failing
+    const MAX_INSTRUCTIONS = 40; // 40 instructions can be processed in a single transaction without failing
 
     spl_token
       .slice(0, Math.min(MAX_INSTRUCTIONS, spl_token.length))
