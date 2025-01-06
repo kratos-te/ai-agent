@@ -1,7 +1,9 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
 import { DEFAULT_OPTIONS } from "../constants";
+import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -14,21 +16,33 @@ import {
   lendAsset,
   mintCollectionNFT,
   openbookCreateMarket,
+  manifestCreateMarket,
   raydiumCreateAmmV4,
   raydiumCreateClmm,
   raydiumCreateCpmm,
   registerDomain,
   request_faucet_funds,
   trade,
+  limitOrder,
+  batchOrder,
+  cancelAllOrders,
+  withdrawAll,
+  closePerpTradeShort,
+  closePerpTradeLong,
+  openPerpTradeShort,
+  openPerpTradeLong,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
   stakeWithJup,
+  stakeWithSolayer,
   sendCompressedAirdrop,
-  createOrcaSingleSidedWhirlpool,
-  fetchPrice,
-  pythFetchPrice,
+  orcaCreateSingleSidedLiquidityPool,
+  orcaCreateCLMM,
+  orcaOpenCenteredPositionWithLiquidity,
+  orcaOpenSingleSidedPosition,
   FEE_TIERS,
+  fetchPrice,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -36,8 +50,16 @@ import {
   getOwnedAllDomains,
   resolveAllDomains,
   create_gibwork_task,
+  orcaClosePosition,
+  orcaFetchPositions,
   rock_paper_scissor,
   create_TipLink,
+  listNFTForSale,
+  cancelListing,
+  fetchTokenReportSummary,
+  fetchTokenDetailedReport,
+  fetchPythPrice,
+  fetchPythPriceFeedID,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -47,8 +69,8 @@ import {
   MintCollectionNFTResponse,
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
+  OrderParams,
 } from "../types";
-import { BN } from "@coral-xyz/anchor";
 import { create_squads_multisig } from "../tools/squads_multisig/create_multisig";
 import { deposit_to_multisig } from "../tools/squads_multisig/deposit_to_multisig";
 import { transfer_from_multisig } from "../tools/squads_multisig/transfer_from_multisig";
@@ -65,22 +87,45 @@ import { reject_proposal } from "../tools/squads_multisig/reject_proposal";
  * @property {Connection} connection - Solana RPC connection
  * @property {Keypair} wallet - Wallet keypair for signing transactions
  * @property {PublicKey} wallet_address - Public key of the wallet
+ * @property {Config} config - Configuration object
  */
 export class SolanaAgentKit {
   public connection: Connection;
   public wallet: Keypair;
   public wallet_address: PublicKey;
-  public openai_api_key: string | null;
+  public config: Config;
 
+  /**
+   * @deprecated Using openai_api_key directly in constructor is deprecated.
+   * Please use the new constructor with Config object instead:
+   * @example
+   * const agent = new SolanaAgentKit(privateKey, rpcUrl, {
+   *   OPENAI_API_KEY: 'your-key'
+   * });
+   */
   constructor(
     private_key: string,
-    rpc_url = "https://api.mainnet-beta.solana.com",
-    openai_api_key: string | null = null,
+    rpc_url: string,
+    openai_api_key: string | null,
+  );
+  constructor(private_key: string, rpc_url: string, config: Config);
+  constructor(
+    private_key: string,
+    rpc_url: string,
+    configOrKey: Config | string | null,
   ) {
-    this.connection = new Connection(rpc_url);
+    this.connection = new Connection(
+      rpc_url || "https://api.mainnet-beta.solana.com",
+    );
     this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
     this.wallet_address = this.wallet.publicKey;
-    this.openai_api_key = openai_api_key;
+
+    // Handle both old and new patterns
+    if (typeof configOrKey === "string" || configOrKey === null) {
+      this.config = { OPENAI_API_KEY: configOrKey || "" };
+    } else {
+      this.config = configOrKey;
+    }
   }
 
   // Tool methods
@@ -152,6 +197,66 @@ export class SolanaAgentKit {
     return trade(this, outputMint, inputAmount, inputMint, slippageBps);
   }
 
+  async limitOrder(
+    marketId: PublicKey,
+    quantity: number,
+    side: string,
+    price: number,
+  ): Promise<string> {
+    return limitOrder(this, marketId, quantity, side, price);
+  }
+
+  async batchOrder(
+    marketId: PublicKey,
+    orders: OrderParams[],
+  ): Promise<string> {
+    return batchOrder(this, marketId, orders);
+  }
+
+  async cancelAllOrders(marketId: PublicKey): Promise<string> {
+    return cancelAllOrders(this, marketId);
+  }
+
+  async withdrawAll(marketId: PublicKey): Promise<string> {
+    return withdrawAll(this, marketId);
+  }
+
+  async openPerpTradeLong(
+    args: Omit<Parameters<typeof openPerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async openPerpTradeShort(
+    args: Omit<Parameters<typeof openPerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeShort(
+    args: Omit<Parameters<typeof closePerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeLong(
+    args: Omit<Parameters<typeof closePerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
   async lendAssets(amount: number): Promise<string> {
     return lendAsset(this, amount);
   }
@@ -197,6 +302,10 @@ export class SolanaAgentKit {
     return stakeWithJup(this, amount);
   }
 
+  async restake(amount: number): Promise<string> {
+    return stakeWithSolayer(this, amount);
+  }
+
   async sendCompressedAirdrop(
     mintAddress: string,
     amount: number,
@@ -216,15 +325,28 @@ export class SolanaAgentKit {
     );
   }
 
-  async createOrcaSingleSidedWhirlpool(
-    depositTokenAmount: BN,
+  async orcaClosePosition(positionMintAddress: PublicKey) {
+    return orcaClosePosition(this, positionMintAddress);
+  }
+
+  async orcaCreateCLMM(
+    mintDeploy: PublicKey,
+    mintPair: PublicKey,
+    initialPrice: Decimal,
+    feeTier: keyof typeof FEE_TIERS,
+  ) {
+    return orcaCreateCLMM(this, mintDeploy, mintPair, initialPrice, feeTier);
+  }
+
+  async orcaCreateSingleSidedLiquidityPool(
+    depositTokenAmount: number,
     depositTokenMint: PublicKey,
     otherTokenMint: PublicKey,
     initialPrice: Decimal,
     maxPrice: Decimal,
     feeTier: keyof typeof FEE_TIERS,
   ) {
-    return createOrcaSingleSidedWhirlpool(
+    return orcaCreateSingleSidedLiquidityPool(
       this,
       depositTokenAmount,
       depositTokenMint,
@@ -232,6 +354,42 @@ export class SolanaAgentKit {
       initialPrice,
       maxPrice,
       feeTier,
+    );
+  }
+
+  async orcaFetchPositions() {
+    return orcaFetchPositions(this);
+  }
+
+  async orcaOpenCenteredPositionWithLiquidity(
+    whirlpoolAddress: PublicKey,
+    priceOffsetBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ) {
+    return orcaOpenCenteredPositionWithLiquidity(
+      this,
+      whirlpoolAddress,
+      priceOffsetBps,
+      inputTokenMint,
+      inputAmount,
+    );
+  }
+
+  async orcaOpenSingleSidedPosition(
+    whirlpoolAddress: PublicKey,
+    distanceFromCurrentPriceBps: number,
+    widthBps: number,
+    inputTokenMint: PublicKey,
+    inputAmount: Decimal,
+  ): Promise<string> {
+    return orcaOpenSingleSidedPosition(
+      this,
+      whirlpoolAddress,
+      distanceFromCurrentPriceBps,
+      widthBps,
+      inputTokenMint,
+      inputAmount,
     );
   }
 
@@ -247,8 +405,7 @@ export class SolanaAgentKit {
     return getOwnedDomainsForTLD(this, tld);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  async getAllDomainsTLDs(): Promise<String[]> {
+  async getAllDomainsTLDs(): Promise<string[]> {
     return getAllDomainsTLDs(this);
   }
 
@@ -330,8 +487,19 @@ export class SolanaAgentKit {
     );
   }
 
-  async pythFetchPrice(priceFeedID: string): Promise<string> {
-    return pythFetchPrice(priceFeedID);
+  async manifestCreateMarket(
+    baseMint: PublicKey,
+    quoteMint: PublicKey,
+  ): Promise<string[]> {
+    return manifestCreateMarket(this, baseMint, quoteMint);
+  }
+
+  async getPythPriceFeedID(tokenSymbol: string): Promise<string> {
+    return fetchPythPriceFeedID(tokenSymbol);
+  }
+
+  async getPythPrice(priceFeedID: string): Promise<string> {
+    return fetchPythPrice(priceFeedID);
   }
 
   async createGibworkTask(
@@ -363,6 +531,22 @@ export class SolanaAgentKit {
   }
   async createTiplink(amount: number, splmintAddress?: PublicKey) {
     return create_TipLink(this, amount, splmintAddress);
+  }
+
+  async tensorListNFT(nftMint: PublicKey, price: number): Promise<string> {
+    return listNFTForSale(this, nftMint, price);
+  }
+
+  async tensorCancelListing(nftMint: PublicKey): Promise<string> {
+    return cancelListing(this, nftMint);
+  }
+
+  async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
+    return fetchTokenReportSummary(mint);
+  }
+
+  async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
+    return fetchTokenDetailedReport(mint);
   }
 
   async createSquadsMultisig(creator: PublicKey): Promise<string> {
