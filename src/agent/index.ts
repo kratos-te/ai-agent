@@ -60,6 +60,8 @@ import {
   fetchTokenDetailedReport,
   fetchPythPrice,
   fetchPythPriceFeedID,
+  flashOpenTrade,
+  flashCloseTrade,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -70,6 +72,8 @@ import {
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
   OrderParams,
+  FlashTradeParams,
+  FlashCloseTradeParams,
 } from "../types";
 
 /**
@@ -540,5 +544,23 @@ export class SolanaAgentKit {
 
   async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
     return fetchTokenDetailedReport(mint);
+  }
+
+  /**
+   * Opens a new trading position on Flash.Trade
+   * @param params Flash trade parameters including market, side, collateral, leverage, and pool name
+   * @returns Transaction signature
+   */
+  async flashOpenTrade(params: FlashTradeParams): Promise<string> {
+    return flashOpenTrade(this, params);
+  }
+
+  /**
+   * Closes an existing trading position on Flash.Trade
+   * @param params Flash trade close parameters
+   * @returns Transaction signature
+   */
+  async flashCloseTrade(params: FlashCloseTradeParams): Promise<string> {
+    return flashCloseTrade(this, params);
   }
 }
