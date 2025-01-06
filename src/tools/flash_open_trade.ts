@@ -19,13 +19,7 @@ import {
   fetchOraclePrice,
   createPerpClient,
 } from "../utils/flashUtils";
-
-export interface FlashTradeParams {
-  token: string;
-  side: "long" | "short";
-  collateralUsd: number;
-  leverage: number;
-}
+import { FlashTradeParams } from "../types";
 
 /**
  * Opens a new position on Flash.Trade
@@ -77,7 +71,10 @@ export async function flashOpenTrade(
     ]);
 
     // Initialize pool configuration and perpClient
-    const poolConfig = PoolConfig.fromIdsByName(marketData.pool, "mainnet-beta");
+    const poolConfig = PoolConfig.fromIdsByName(
+      marketData.pool,
+      "mainnet-beta",
+    );
     const perpClient = createPerpClient(agent.connection, agent.wallet);
 
     // Calculate position parameters

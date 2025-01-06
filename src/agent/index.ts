@@ -60,8 +60,6 @@ import {
   fetchTokenDetailedReport,
   fetchPythPrice,
   fetchPythPriceFeedID,
-  FlashTradeParams,
-  FlashCloseTradeParams,
   flashOpenTrade,
   flashCloseTrade,
 } from "../tools";
@@ -74,6 +72,8 @@ import {
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
   OrderParams,
+  FlashTradeParams,
+  FlashCloseTradeParams,
 } from "../types";
 
 /**

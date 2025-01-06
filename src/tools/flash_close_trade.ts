@@ -16,11 +16,7 @@ import {
   fetchOraclePrice,
   createPerpClient,
 } from "../utils/flashUtils";
-
-export interface FlashCloseTradeParams {
-  token: string;
-  side: "long" | "short";
-}
+import { FlashCloseTradeParams } from "../types";
 
 /**
  * Closes an existing position on Flash.Trade
@@ -64,7 +60,10 @@ export async function flashCloseTrade(
     ]);
 
     // Initialize pool configuration and perpClient
-    const poolConfig = PoolConfig.fromIdsByName(marketData.pool, "mainnet-beta");
+    const poolConfig = PoolConfig.fromIdsByName(
+      marketData.pool,
+      "mainnet-beta",
+    );
     const perpClient = createPerpClient(agent.connection, agent.wallet);
 
     // Calculate price after slippage
