@@ -1,29 +1,29 @@
-name: Typescript Client CI
-
+name: ci
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
-        cache-dependency-path: pnpm-lock.json
-    - run: pnpm install
-    - run: pnpm run lint
-    - run: pnpm run build
-    # - run: pnpm run test # TODO: add mock env for testing
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9.4.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install -r --no-frozen-lockfile
+ 
+      - name: Run lint and fix
+        run: pnpm run lint:fix
+
+      - name: Build packages
+        run: pnpm run build
