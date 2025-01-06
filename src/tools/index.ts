@@ -50,3 +50,6 @@ export * from "./close_empty_token_accounts";
 export * from "./trade";
 export * from "./transfer";
 export * from "./withdraw_all";
+
+export * from "./flash_open_trade";
+export * from "./flash_close_trade";

@@ -28,6 +28,8 @@ import raydiumCreateAmmV4Action from "./raydiumCreateAmmV4";
 import createOrcaSingleSidedWhirlpoolAction from "./createOrcaSingleSidedWhirlpool";
 import launchPumpfunTokenAction from "./launchPumpfunToken";
 import getWalletAddressAction from "./getWalletAddress";
+import flashOpenTradeAction from "./flashOpenTrade";
+import flashCloseTradeAction from "./flashCloseTrade";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -61,6 +63,8 @@ export const ACTIONS = {
   CREATE_ORCA_SINGLE_SIDED_WHIRLPOOL_ACTION:
     createOrcaSingleSidedWhirlpoolAction,
   LAUNCH_PUMPFUN_TOKEN_ACTION: launchPumpfunTokenAction,
+  FLASH_OPEN_TRADE_ACTION: flashOpenTradeAction,
+  FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
