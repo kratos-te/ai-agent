@@ -13,10 +13,7 @@ const agent = new SolanaAgentKit(
   { OPENAI_API_KEY: process.env.OPENAI_API_KEY! },
 );
 
-const optionsWithBase58: StoreInitOptions = {
-  privateKey: process.env.SOLANA_PRIVATE_KEY!,
-  isMainnet: false,
-};
+const isDevnet = true;
 
 /****************************** CREATING COLLECTION ******************************** */
 
@@ -29,8 +26,8 @@ const collectionOpts: CreateCollectionOptions = {
 
 (async () => {
   const collection = await agent.create3LandCollection(
-    optionsWithBase58,
     collectionOpts,
+    isDevnet,
   );
 
   console.log("collection: ", collection);
@@ -49,13 +46,11 @@ const createItemOptions: CreateSingleOptions = {
   mainImageUrl: "",
 };
 
-const isMainnet = false;
 (async () => {
   const result = agent.create3LandNft(
-    optionsWithBase58,
     collectionAccount,
     createItemOptions,
-    isMainnet,
+    isDevnet,
   );
   console.log("result: ", result);
 })();

@@ -574,24 +574,41 @@ export class SolanaAgentKit {
   }
 
   async create3LandCollection(
-    optionsWithBase58: StoreInitOptions,
     collectionOpts: CreateCollectionOptions,
+    isDevnet: boolean = false,
   ): Promise<string> {
+    let optionsWithBase58: StoreInitOptions = {
+      privateKey: this.wallet.secretKey,
+    };
+    if (isDevnet) {
+      optionsWithBase58.isMainnet = false;
+    } else {
+      optionsWithBase58.isMainnet = true;
+    }
+
     const tx = await createCollection(optionsWithBase58, collectionOpts);
     return `Transaction: ${tx}`;
   }
 
   async create3LandNft(
-    optionsWithBase58: StoreInitOptions,
     collectionAccount: string,
     createItemOptions: CreateSingleOptions,
-    isMainnet: boolean,
+    isDevnet: boolean = false,
   ): Promise<string> {
+    let optionsWithBase58: StoreInitOptions = {
+      privateKey: this.wallet.secretKey,
+    };
+    if (isDevnet) {
+      optionsWithBase58.isMainnet = false;
+    } else {
+      optionsWithBase58.isMainnet = true;
+    }
+
     const tx = await createSingle(
       optionsWithBase58,
       collectionAccount,
       createItemOptions,
-      isMainnet,
+      !isDevnet,
     );
     return `Transaction: ${tx}`;
   }

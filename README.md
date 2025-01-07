@@ -132,10 +132,7 @@ console.log("Token Mint Address:", result.mint.toString());
 ```
 ### Create NFT Collection on 3Land
 ```typescript
-const optionsWithBase58: StoreInitOptions = {
-  privateKey: "",
-  isMainnet: true, // if false, collection will be created on devnet 3.land (dev.3.land)
-};
+const isDevnet = true; // (Optional) if not present TX takes place in Mainnet
 
  const collectionOpts: CreateCollectionOptions = {
     collectionName: "",
@@ -145,18 +142,16 @@ const optionsWithBase58: StoreInitOptions = {
   };
 
 const result = await agent.create3LandCollection(
-      optionsWithBase58,
-      collectionOpts
+      collectionOpts,
+      isDevnet, // (Optional) if not present TX takes place in Mainnet
     );
 ```
 
 ### Create NFT on 3Land
 When creating an NFT using 3Land's tool, it automatically goes for sale on 3.land website
 ```typescript
-const optionsWithBase58: StoreInitOptions = {
-  privateKey: "",
-  isMainnet: true, // if false, listing will be on devnet 3.land (dev.3.land)
-};
+const isDevnet = true; // (Optional) if not present TX takes place in Mainnet
+
 const collectionAccount = ""; //hash for the collection
 const createItemOptions: CreateSingleOptions = {
   itemName: "",
@@ -171,12 +166,10 @@ const createItemOptions: CreateSingleOptions = {
   mainImageUrl: "",
   splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL
 };
-const isMainnet = true;
 const result = await agent.create3LandNft(
-  optionsWithBase58,
   collectionAccount,
   createItemOptions,
-  isMainnet
+  isDevnet, // (Optional) if not present TX takes place in Mainnet
 );
 
 ```
