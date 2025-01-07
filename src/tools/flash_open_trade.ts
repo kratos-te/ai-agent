@@ -141,7 +141,7 @@ export async function flashOpenTrade(
       positionSize,
       side === "long" ? Side.Long : Side.Short,
       poolConfig,
-      get_flash_privilege(),
+      get_flash_privilege(agent),
       tradingAccounts.nftTradingAccountPk,
       tradingAccounts.nftReferralAccountPK,
       tradingAccounts.nftOwnerRebateTokenAccountPk!,

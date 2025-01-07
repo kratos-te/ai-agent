@@ -10,6 +10,7 @@ import {
 } from "flash-sdk";
 import { Cluster, PublicKey, Connection, Keypair } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { SolanaAgentKit } from "../index";
 
 const POOL_NAMES = [
   "Crypto.1",
@@ -285,9 +286,9 @@ export function createPerpClient(
   );
 }
 
-const FLASH_PRIVILEGE = process.env.FLASH_PRIVILEGE || "None";
+export function get_flash_privilege(agent: SolanaAgentKit): Privilege {
+  const FLASH_PRIVILEGE = agent.config.FLASH_PRIVILEGE || "None";
 
-export function get_flash_privilege(): Privilege {
   switch (FLASH_PRIVILEGE.toLowerCase()) {
     case "referral":
       return Privilege.Referral;

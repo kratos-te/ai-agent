@@ -94,7 +94,7 @@ export async function flashCloseTrade(
       priceWithSlippage,
       sideEnum,
       poolConfig,
-      get_flash_privilege(),
+      get_flash_privilege(agent),
       tradingAccounts.nftTradingAccountPk,
       tradingAccounts.nftReferralAccountPK,
       tradingAccounts.nftOwnerRebateTokenAccountPk,
