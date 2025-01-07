@@ -9,6 +9,7 @@ import {
   SolanaAgentKit,
 } from "../index";
 import { create_image, FEE_TIERS, generateOrdersfromPattern } from "../tools";
+import { marketTokenMap } from "../utils/flashUtils";
 import {
   CreateCollectionOptions,
   CreateSingleOptions,
@@ -803,10 +804,14 @@ export class SolanaFlashOpenTrade extends Tool {
       if (!parsedInput.token) {
         throw new Error("Token is required, received: " + parsedInput.token);
       }
-      if (!["SOL", "BTC", "ETH", "USDC"].includes(parsedInput.token)) {
+      if (!Object.keys(marketTokenMap).includes(parsedInput.token)) {
         throw new Error(
-          'Token must be one of ["SOL", "BTC", "ETH", "USDC"], received: ' +
-            parsedInput.token,
+          "Token must be one of " +
+            Object.keys(marketTokenMap).join(", ") +
+            ", received: " +
+            parsedInput.token +
+            "\n" +
+            "Please check https://beast.flash.trade/ for the list of supported tokens",
         );
       }
       if (!["long", "short"].includes(parsedInput.type)) {
