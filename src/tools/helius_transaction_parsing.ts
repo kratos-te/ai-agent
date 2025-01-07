@@ -37,7 +37,6 @@ export async function parseTransaction(
     }
 
     const data = await response.json();
-    console.log("Parsed transaction: ", data);
 
     return data;
   } catch (error: any) {

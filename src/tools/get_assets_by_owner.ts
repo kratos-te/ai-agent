@@ -50,7 +50,6 @@ export async function getAssetsByOwner(
     }
 
     const data = await response.json();
-    console.log("Assets by Owner: ", data.result.items);
 
     return data.result.items;
   } catch (error: any) {
