@@ -40,7 +40,7 @@ const collectionOpts: CreateCollectionOptions = {
 const collectionAccount = "";
 const createItemOptions: CreateSingleOptions = {
   itemName: "",
-  sellerFee: 500,
+  sellerFee: 500, //5%
   itemAmount: 100,
   itemSymbol: "",
   itemDescription: "",

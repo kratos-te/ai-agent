@@ -8,7 +8,7 @@ import {
   PythFetchPriceResponse,
   SolanaAgentKit,
 } from "../index";
-import { create_image, FEE_TIERS } from "../tools";
+import { create_image, FEE_TIERS, generateOrdersfromPattern } from "../tools";
 import {
   CreateCollectionOptions,
   CreateSingleOptions,
