@@ -1,6 +1,4 @@
 import { SolanaAgentKit } from "../index";
-import * as dotenv from "dotenv";
-dotenv.config();
 
 /**
  * Parse a Solana transaction using the Helius Enhanced Transactions API

@@ -1,7 +1,5 @@
 import { SolanaAgentKit } from "../index";
 import { PublicKey } from "@solana/web3.js";
-import * as dotenv from "dotenv";
-dotenv.config();
 
 /**
  * Fetch assets by owner using the Helius Digital Asset Standard (DAS) API

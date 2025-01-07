@@ -623,6 +623,13 @@ export class SolanaAgentKit {
     );
     return `Transaction: ${tx}`;
   }
+  async sendTranctionWithPriority(
+    priorityLevel: string,
+    amount: number,
+    to: PublicKey,
+  ): Promise<PriorityFeeTransaction> {
+    return sendTransactionWithPriorityFee(this, priorityLevel, amount, to);
+  }
 
   async createSquadsMultisig(creator: PublicKey): Promise<string> {
     return create_squads_multisig(this, creator);
