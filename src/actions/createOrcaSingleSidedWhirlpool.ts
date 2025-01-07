@@ -2,7 +2,6 @@ import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
-import { BN } from "@coral-xyz/anchor";
 import { Decimal } from "decimal.js";
 import { orcaCreateSingleSidedLiquidityPool } from "../tools";
 

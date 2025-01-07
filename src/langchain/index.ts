@@ -1,14 +1,14 @@
 import { PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import Decimal from "decimal.js";
 import { Tool } from "langchain/tools";
 import {
   GibworkCreateTaskReponse,
+  OrderParams,
   PythFetchPriceResponse,
   SolanaAgentKit,
 } from "../index";
-import { create_image } from "../tools/create_image";
-import { BN } from "@coral-xyz/anchor";
-import { FEE_TIERS } from "../tools";
+import { create_image, FEE_TIERS, generateOrdersfromPattern } from "../tools";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -261,6 +261,114 @@ export class SolanaMintNFTTool extends Tool {
   }
 }
 
+export class SolanaPerpCloseTradeTool extends Tool {
+  name = "solana_close_perp_trade";
+  description = `This tool can be used to close perpetuals trade ( It uses Adrena Protocol ).
+
+  Inputs ( input is a JSON string ):
+  tradeMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" etc. (optional)
+  price?: number, eg 100 (optional)
+  side: string, eg: "long" or "short"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const tx =
+        parsedInput.side === "long"
+          ? await this.solanaKit.closePerpTradeLong({
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+            })
+          : await this.solanaKit.closePerpTradeShort({
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+            });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Perpetual trade closed successfully",
+        transaction: tx,
+        price: parsedInput.price,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        side: parsedInput.side,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaPerpOpenTradeTool extends Tool {
+  name = "solana_open_perp_trade";
+  description = `This tool can be used to open perpetuals trade ( It uses Adrena Protocol ).
+
+  Inputs ( input is a JSON string ):
+  collateralAmount: number, eg 1 or 0.01 (required)
+  collateralMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn" or "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" etc. (optional)
+  tradeMint: string, eg "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" etc. (optional)
+  leverage: number, eg 50000 = x5, 100000 = x10, 1000000 = x100 (optional)
+  price?: number, eg 100 (optional)
+  slippage?: number, eg 0.3 (optional)
+  side: string, eg: "long" or "short"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const tx =
+        parsedInput.side === "long"
+          ? await this.solanaKit.openPerpTradeLong({
+              price: parsedInput.price,
+              collateralAmount: parsedInput.collateralAmount,
+              collateralMint: new PublicKey(parsedInput.collateralMint),
+              leverage: parsedInput.leverage,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+              slippage: parsedInput.slippage,
+            })
+          : await this.solanaKit.openPerpTradeLong({
+              price: parsedInput.price,
+              collateralAmount: parsedInput.collateralAmount,
+              collateralMint: new PublicKey(parsedInput.collateralMint),
+              leverage: parsedInput.leverage,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
+              slippage: parsedInput.slippage,
+            });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Perpetual trade opened successfully",
+        transaction: tx,
+        price: parsedInput.price,
+        collateralAmount: parsedInput.collateralAmount,
+        collateralMint: new PublicKey(parsedInput.collateralMint),
+        leverage: parsedInput.leverage,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        slippage: parsedInput.slippage,
+        side: parsedInput.side,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaTradeTool extends Tool {
   name = "solana_trade";
   description = `This tool can be used to swap tokens to another token ( It uses Jupiter Exchange ).
@@ -310,6 +418,8 @@ export class SolanaLimitOrderTool extends Tool {
   name = "solana_limit_order";
   description = `This tool can be used to place limit orders using Manifest.
 
+  Do not allow users to place multiple orders with this instruction, use solana_batch_order instead.
+
   Inputs ( input is a JSON string ):
   marketId: PublicKey, eg "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ" for SOL/USDC (required)
   quantity: number, eg 1 or 0.01 (required)
@@ -339,6 +449,98 @@ export class SolanaLimitOrderTool extends Tool {
         quantity: parsedInput.quantity,
         side: parsedInput.side,
         price: parsedInput.price,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaBatchOrderTool extends Tool {
+  name = "solana_batch_order";
+  description = `Places multiple limit orders in one transaction using Manifest. Submit orders either as a list or pattern:
+
+  1. List format:
+  {
+    "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
+    "orders": [
+      { "quantity": 1, "side": "Buy", "price": 200 },
+      { "quantity": 0.5, "side": "Sell", "price": 205 }
+    ]
+  }
+
+  2. Pattern format:
+  {
+    "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
+    "pattern": {
+      "side": "Buy",
+      "totalQuantity": 100,
+      "priceRange": { "max": 1.0 },
+      "spacing": { "type": "percentage", "value": 1 },
+      "numberOfOrders": 5
+    }
+  }
+
+  Examples:
+  - "Place 5 buy orders totaling 100 tokens, 1% apart below $1"
+  - "Create 3 sell orders of 10 tokens each between $50-$55"
+  - "Place buy orders worth 50 tokens, $0.10 spacing from $0.80"
+
+  Important: All orders must be in one transaction. Combine buy and sell orders into a single pattern or list. Never break the orders down to individual buy or sell orders.`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+      let ordersToPlace: OrderParams[] = [];
+
+      if (!parsedInput.marketId) {
+        throw new Error("Market ID is required");
+      }
+
+      if (parsedInput.pattern) {
+        ordersToPlace = generateOrdersfromPattern(parsedInput.pattern);
+      } else if (Array.isArray(parsedInput.orders)) {
+        ordersToPlace = parsedInput.orders;
+      } else {
+        throw new Error("Either pattern or orders array is required");
+      }
+
+      if (ordersToPlace.length === 0) {
+        throw new Error("No orders generated or provided");
+      }
+
+      ordersToPlace.forEach((order: OrderParams, index: number) => {
+        if (!order.quantity || !order.side || !order.price) {
+          throw new Error(
+            `Invalid order at index ${index}: quantity, side, and price are required`,
+          );
+        }
+        if (order.side !== "Buy" && order.side !== "Sell") {
+          throw new Error(
+            `Invalid side at index ${index}: must be "Buy" or "Sell"`,
+          );
+        }
+      });
+
+      const tx = await this.solanaKit.batchOrder(
+        new PublicKey(parsedInput.marketId),
+        parsedInput.orders,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Batch order executed successfully",
+        transaction: tx,
+        marketId: parsedInput.marketId,
+        orders: parsedInput.orders,
       });
     } catch (error: any) {
       return JSON.stringify({
@@ -572,6 +774,131 @@ export class SolanaGetWalletAddressTool extends Tool {
   }
 }
 
+export class SolanaFlashOpenTrade extends Tool {
+  name = "solana_flash_open_trade";
+  description = `This tool can be used to open a new leveraged trading position on Flash.Trade exchange.
+
+  Inputs ( input is a JSON string ):
+  token: string, eg "SOL", "BTC", "ETH" (required)
+  type: string, eg "long", "short" (required) 
+  collateral: number, eg 10, 100, 1000 (required) 
+  leverage: number, eg 5, 10, 20 (required)
+  
+  Example prompt is Open a 20x leveraged trade for SOL on long side using flash trade with 500 USD as collateral`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      // Validate input parameters
+      if (!parsedInput.token) {
+        throw new Error("Token is required, received: " + parsedInput.token);
+      }
+      if (!["SOL", "BTC", "ETH", "USDC"].includes(parsedInput.token)) {
+        throw new Error(
+          'Token must be one of ["SOL", "BTC", "ETH", "USDC"], received: ' +
+            parsedInput.token,
+        );
+      }
+      if (!["long", "short"].includes(parsedInput.type)) {
+        throw new Error(
+          'Type must be either "long" or "short", received: ' +
+            parsedInput.type,
+        );
+      }
+      if (!parsedInput.collateral || parsedInput.collateral <= 0) {
+        throw new Error(
+          "Collateral amount must be positive, received: " +
+            parsedInput.collateral,
+        );
+      }
+      if (!parsedInput.leverage || parsedInput.leverage <= 0) {
+        throw new Error(
+          "Leverage must be positive, received: " + parsedInput.leverage,
+        );
+      }
+
+      const tx = await this.solanaKit.flashOpenTrade({
+        token: parsedInput.token,
+        side: parsedInput.type,
+        collateralUsd: parsedInput.collateral,
+        leverage: parsedInput.leverage,
+      });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Flash trade position opened successfully",
+        transaction: tx,
+        token: parsedInput.token,
+        side: parsedInput.type,
+        collateral: parsedInput.collateral,
+        leverage: parsedInput.leverage,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaFlashCloseTrade extends Tool {
+  name = "solana_flash_close_trade";
+  description = `Close an existing leveraged trading position on Flash.Trade exchange.
+
+  Inputs ( input is a JSON string ):
+  token: string, eg "SOL", "BTC", "ETH" (required)
+  side: string, eg "long", "short" (required)
+  
+  Example prompt is Close a 20x leveraged trade for SOL on long side`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      // Validate input parameters
+      if (!parsedInput.token) {
+        throw new Error("Token is required");
+      }
+      if (!["SOL", "BTC", "ETH"].includes(parsedInput.token)) {
+        throw new Error('Token must be one of ["SOL", "BTC", "ETH"]');
+      }
+      if (!["long", "short"].includes(parsedInput.side)) {
+        throw new Error('Side must be either "long" or "short"');
+      }
+
+      const tx = await this.solanaKit.flashCloseTrade({
+        token: parsedInput.token,
+        side: parsedInput.side,
+      });
+
+      return JSON.stringify({
+        status: "success",
+        message: "Flash trade position closed successfully",
+        transaction: tx,
+        token: parsedInput.token,
+        side: parsedInput.side,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
 
@@ -768,6 +1095,39 @@ export class SolanaStakeTool extends Tool {
   }
 }
 
+export class SolanaRestakeTool extends Tool {
+  name = "solana_restake";
+  description = `This tool can be used to restake your SOL on Solayer to receive Solayer SOL (sSOL) as a Liquid Staking Token (LST).
+
+  Inputs:
+  amount: number, eg 1 or 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input) || Number(input);
+
+      const tx = await this.solanaKit.restake(parsedInput.amount);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Staked successfully",
+        transaction: tx,
+        amount: parsedInput.amount,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 /**
  * Tool to fetch the price of a token in USDC
  */
@@ -908,7 +1268,7 @@ export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
-  
+
   Inputs (JSON string):
   - positionMintAddress: string, the address of the position mint that represents the liquidity position.`;
 
@@ -995,9 +1355,9 @@ export class SolanaOrcaCreateCLMM extends Tool {
 
 export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   name = "orca_create_single_sided_liquidity_pool";
-  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana. 
+  description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana.
 
-  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range. 
+  This function initializes a single-sided liquidity pool, ideal for community driven project, fair launches, and fundraising. Minimize price impact by setting a narrow price range.
 
   Inputs (JSON string):
   - depositTokenAmount: number, in units of the deposit token including decimals, e.g., 1000000000 (required).
@@ -1403,7 +1763,7 @@ export class SolanaPythFetchPrice extends Tool {
   description = `Fetch the price of a given price feed from Pyth's Hermes service
 
   Inputs:
-  priceFeedID: string, the price feed ID, e.g., "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" for BTC/USD`;
+  tokenSymbol: string, e.g., BTC for bitcoin`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -1411,17 +1771,21 @@ export class SolanaPythFetchPrice extends Tool {
 
   async _call(input: string): Promise<string> {
     try {
-      const price = await this.solanaKit.pythFetchPrice(input);
+      const priceFeedID = await this.solanaKit.getPythPriceFeedID(input);
+      const price = await this.solanaKit.getPythPrice(priceFeedID);
+
       const response: PythFetchPriceResponse = {
         status: "success",
-        priceFeedID: input,
+        tokenSymbol: input,
+        priceFeedID,
         price,
       };
+
       return JSON.stringify(response);
     } catch (error: any) {
       const response: PythFetchPriceResponse = {
         status: "error",
-        priceFeedID: input,
+        tokenSymbol: input,
         message: error.message,
         code: error.code || "UNKNOWN_ERROR",
       };
@@ -1825,6 +2189,67 @@ export class SolanaCancelNFTListingTool extends Tool {
   }
 }
 
+export class SolanaFetchTokenReportSummaryTool extends Tool {
+  name = "solana_fetch_token_report_summary";
+  description = `Fetches a summary report for a specific token from RugCheck.
+  Inputs:
+  - mint: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const mint = input.trim();
+      const report = await this.solanaKit.fetchTokenReportSummary(mint);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Token report summary fetched successfully",
+        report,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "FETCH_TOKEN_REPORT_SUMMARY_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaFetchTokenDetailedReportTool extends Tool {
+  name = "solana_fetch_token_detailed_report";
+  description = `Fetches a detailed report for a specific token from RugCheck.
+  Inputs:
+  - mint: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const mint = input.trim();
+      const detailedReport =
+        await this.solanaKit.fetchTokenDetailedReport(mint);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Detailed token report fetched successfully",
+        report: detailedReport,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "FETCH_TOKEN_DETAILED_REPORT_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -1842,6 +2267,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaLendAssetTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
+    new SolanaRestakeTool(solanaKit),
     new SolanaFetchPriceTool(solanaKit),
     new SolanaGetDomainTool(solanaKit),
     new SolanaTokenDataTool(solanaKit),
@@ -1853,6 +2279,7 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaOpenbookCreateMarket(solanaKit),
     new SolanaManifestCreateMarket(solanaKit),
     new SolanaLimitOrderTool(solanaKit),
+    new SolanaBatchOrderTool(solanaKit),
     new SolanaCancelAllOrdersTool(solanaKit),
     new SolanaWithdrawAllTool(solanaKit),
     new SolanaClosePosition(solanaKit),
@@ -1873,5 +2300,11 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTipLinkTool(solanaKit),
     new SolanaListNFTForSaleTool(solanaKit),
     new SolanaCancelNFTListingTool(solanaKit),
+    new SolanaFetchTokenReportSummaryTool(solanaKit),
+    new SolanaFetchTokenDetailedReportTool(solanaKit),
+    new SolanaPerpOpenTradeTool(solanaKit),
+    new SolanaPerpCloseTradeTool(solanaKit),
+    new SolanaFlashOpenTrade(solanaKit),
+    new SolanaFlashCloseTrade(solanaKit),
   ];
 }
