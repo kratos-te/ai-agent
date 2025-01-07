@@ -48,3 +48,5 @@ export * from "./trade";
 export * from "./transfer";
 export * from "./flash_open_trade";
 export * from "./flash_close_trade";
+
+export * from "./create_3land_collectible";
