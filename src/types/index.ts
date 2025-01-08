@@ -6,6 +6,7 @@ export interface Config {
   OPENAI_API_KEY?: string;
   JUPITER_REFERRAL_ACCOUNT?: string;
   JUPITER_FEE_BPS?: number;
+  FLASH_PRIVILEGE?: string;
 }
 
 export interface Creator {
@@ -223,4 +224,16 @@ export interface BatchOrderPattern {
   };
   numberOfOrders?: number;
   individualQuantity?: number;
+}
+
+export interface FlashTradeParams {
+  token: string;
+  side: "long" | "short";
+  collateralUsd: number;
+  leverage: number;
+}
+
+export interface FlashCloseTradeParams {
+  token: string;
+  side: "long" | "short";
 }

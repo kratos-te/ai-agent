@@ -56,10 +56,13 @@ import {
   create_TipLink,
   listNFTForSale,
   cancelListing,
+  closeEmptyTokenAccounts,
   fetchTokenReportSummary,
   fetchTokenDetailedReport,
   fetchPythPrice,
   fetchPythPriceFeedID,
+  flashOpenTrade,
+  flashCloseTrade,
 } from "../tools";
 import {
   CollectionDeployment,
@@ -70,7 +73,18 @@ import {
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
   OrderParams,
+  FlashTradeParams,
+  FlashCloseTradeParams,
 } from "../types";
+import {
+  createCollection,
+  createSingle,
+} from "../tools/create_3land_collectible";
+import {
+  CreateCollectionOptions,
+  CreateSingleOptions,
+  StoreInitOptions,
+} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 import { create_squads_multisig } from "../tools/squads_multisig/create_multisig";
 import { deposit_to_multisig } from "../tools/squads_multisig/deposit_to_multisig";
 import { transfer_from_multisig } from "../tools/squads_multisig/transfer_from_multisig";
@@ -541,12 +555,60 @@ export class SolanaAgentKit {
     return cancelListing(this, nftMint);
   }
 
+  async closeEmptyTokenAccounts(): Promise<{
+    signature: string;
+    size: number;
+  }> {
+    return closeEmptyTokenAccounts(this);
+  }
+
   async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
     return fetchTokenReportSummary(mint);
   }
 
   async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
     return fetchTokenDetailedReport(mint);
+  }
+
+  /**
+   * Opens a new trading position on Flash.Trade
+   * @param params Flash trade parameters including market, side, collateral, leverage, and pool name
+   * @returns Transaction signature
+   */
+  async flashOpenTrade(params: FlashTradeParams): Promise<string> {
+    return flashOpenTrade(this, params);
+  }
+
+  /**
+   * Closes an existing trading position on Flash.Trade
+   * @param params Flash trade close parameters
+   * @returns Transaction signature
+   */
+  async flashCloseTrade(params: FlashCloseTradeParams): Promise<string> {
+    return flashCloseTrade(this, params);
+  }
+
+  async create3LandCollection(
+    optionsWithBase58: StoreInitOptions,
+    collectionOpts: CreateCollectionOptions,
+  ): Promise<string> {
+    const tx = await createCollection(optionsWithBase58, collectionOpts);
+    return `Transaction: ${tx}`;
+  }
+
+  async create3LandNft(
+    optionsWithBase58: StoreInitOptions,
+    collectionAccount: string,
+    createItemOptions: CreateSingleOptions,
+    isMainnet: boolean,
+  ): Promise<string> {
+    const tx = await createSingle(
+      optionsWithBase58,
+      collectionAccount,
+      createItemOptions,
+      isMainnet,
+    );
+    return `Transaction: ${tx}`;
   }
 
   async createSquadsMultisig(creator: PublicKey): Promise<string> {
