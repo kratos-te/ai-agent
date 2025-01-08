@@ -96,6 +96,7 @@ import {
   OrderParams,
   FlashTradeParams,
   FlashCloseTradeParams,
+  PriorityFeeTransaction,
   HeliusWebhookIdResponse,
   HeliusWebhookResponse,
 } from "../types";
@@ -686,25 +687,5 @@ export class SolanaAgentKit {
   }
   async deleteWebhook(webhookID: string): Promise<any> {
     return deleteHeliusWebhook(this, webhookID);
-  }
-  async heliusParseTransactions(transactionId: string): Promise<any> {
-    return parseTransaction(this, transactionId);
-  }
-  async getAllAssetsbyOwner(owner: PublicKey, limit: number): Promise<any> {
-    return getAssetsByOwner(this, owner, limit);
-  }
-  async sendTranctionWithPriority(
-    priorityLevel: string,
-    amount: number,
-    to: PublicKey,
-    splmintAddress?: PublicKey,
-  ): Promise<{ transactionId: string; fee: number }> {
-    return sendTransactionWithPriorityFee(
-      this,
-      priorityLevel,
-      amount,
-      to,
-      splmintAddress,
-    );
   }
 }

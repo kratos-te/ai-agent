@@ -238,3 +238,20 @@ export interface FlashCloseTradeParams {
   token: string;
   side: "long" | "short";
 }
+
+export interface PriorityFeeTransaction {
+  transactionId: string;
+  fee: number;
+}
+
+export interface HeliusWebhookResponse {
+  webhookURL: string;
+  webhookID: string;
+}
+export interface HeliusWebhookIdResponse {
+  wallet: string;
+  webhookURL: string;
+  transactionTypes: string[];
+  accountAddresses: string[];
+  webhookType: string;
+}

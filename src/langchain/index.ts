@@ -100,6 +100,150 @@ import {
   SolanaGetAllAssetsByOwner,
 } from "./index";
 
+export class SolanaHeliusWebhookTool extends Tool {
+  name = "create_helius_webhook";
+  description = `Creates a Helius Webhook that listens to specified account addresses.
+
+  Inputs (input is a JSON string):
+  accountAddresses: string[] | string, 
+    e.g. ["BVdNLvyG2DNiWAXBE9qAmc4MTQXymd5Bzfo9xrQSUzVP","Eo2ciguhMLmcTWXELuEQPdu7DWZt67LHXb2rdHZUbot7"]
+    or "BVdNLvyG2DNiWAXBE9qAmc4MTQXymd5Bzfo9xrQSUzVP,Eo2ciguhMLmcTWXELuEQPdu7DWZt67LHXb2rdHZUbot7"
+  webhookURL: string, e.g. "https://TestServer.test.repl.co/webhooks"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+      let accountAddresses: string[] = [];
+
+      if (!parsedInput.accountAddresses) {
+        throw new Error('Missing "accountAddresses" property in input JSON.');
+      }
+      if (Array.isArray(parsedInput.accountAddresses)) {
+        accountAddresses = parsedInput.accountAddresses.map((addr: string) =>
+          addr.trim(),
+        );
+      } else if (typeof parsedInput.accountAddresses === "string") {
+        accountAddresses = parsedInput.accountAddresses
+          .split(",")
+          .map((addr: string) => addr.trim());
+      } else {
+        throw new Error(
+          'Invalid type for "accountAddresses". Expected array or comma-separated string.',
+        );
+      }
+
+      const webhookURL = parsedInput.webhookURL;
+      if (!webhookURL) {
+        throw new Error(
+          'Invalid input. Expected a "webhookURL" property in the JSON.',
+        );
+      }
+      const result = await this.solanaKit.CreateWebhook(
+        accountAddresses,
+        webhookURL,
+      );
+
+      // Return success in JSON
+      return JSON.stringify({
+        status: "success",
+        message: "Helius Webhook created successfully",
+        webhookURL: result.webhookURL,
+        webhookID: result.webhookID,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaGetHeliusWebhookTool extends Tool {
+  name = "get_helius_webhook";
+  description = `Retrieves a Helius Webhook by its ID.
+
+Inputs (input is a JSON string):
+  webhookID: string, e.g. "1ed4244d-a591-4854-ac31-cc28d40b8255"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const webhookID = parsedInput.webhookID;
+      if (!webhookID || typeof webhookID !== "string") {
+        throw new Error(
+          'Invalid input. Expected a "webhookID" property in the JSON.',
+        );
+      }
+
+      const result = await this.solanaKit.getWebhook(webhookID);
+      return JSON.stringify({
+        status: "success",
+        message: "Helius Webhook retrieved successfully",
+        wallet: result.wallet,
+        webhookURL: result.webhookURL,
+        transactionTypes: result.transactionTypes,
+        accountAddresses: result.accountAddresses,
+        webhookType: result.webhookType,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaDeleteHeliusWebhookTool extends Tool {
+  name = "delete_helius_webhook";
+  description = `Deletes a Helius Webhook by its ID.
+
+Inputs (input is a JSON string):
+  webhookID: string, e.g. "1ed4244d-a591-4854-ac31-cc28d40b8255"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const parsedInput = JSON.parse(input);
+
+      const webhookID = parsedInput.webhookID;
+      if (!webhookID || typeof webhookID !== "string") {
+        throw new Error(
+          'Invalid input. Expected a "webhookID" property in the JSON.',
+        );
+      }
+      const result = await this.solanaKit.deleteWebhook(webhookID);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Helius Webhook deleted successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -172,5 +316,10 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaDeleteHeliusWebhookTool(solanaKit),
     new SolanaParseTransactionHeliusTool(solanaKit),
     new SolanaGetAllAssetsByOwner(solanaKit),
+    new Solana3LandCreateSingle(solanaKit),
+    new SolanaSendTransactionWithPriorityFee(solanaKit),
+    new SolanaHeliusWebhookTool(solanaKit),
+    new SolanaGetHeliusWebhookTool(solanaKit),
+    new SolanaDeleteHeliusWebhookTool(solanaKit),
   ];
 }
