@@ -27,7 +27,9 @@
 		"@ai-sdk/openai": "^1.0.11",
 		"@bonfida/spl-name-service": "^3.0.7",
 		"@cks-systems/manifest-sdk": "0.1.59",
-		"@coral-xyz/anchor": "0.29",
+		"@coral-xyz/anchor": "~0.29.0",
+		"@drift-labs/sdk": "2.107.0-beta.1",
+		"@drift-labs/vaults-sdk": "^0.2.46",
 		"@langchain/core": "^0.3.26",
 		"@langchain/groq": "^0.1.2",
 		"@langchain/langgraph": "^0.2.36",
@@ -76,5 +78,6 @@
 		"prettier": "^3.4.2",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.7.2"
-	}
+	},
+	"packageManager": "pnpm@9.15.3"
 }
