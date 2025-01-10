@@ -92,6 +92,7 @@ import { create_proposal } from "../tools/squads_multisig/create_proposal";
 import { approve_proposal } from "../tools/squads_multisig/approve_proposal";
 import { execute_transaction } from "../tools/squads_multisig/execute_proposal";
 import { reject_proposal } from "../tools/squads_multisig/reject_proposal";
+import { get_token_balance } from "../tools/get_token_balances";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -163,20 +164,21 @@ export class SolanaAgentKit {
     return deploy_collection(this, options);
   }
 
-  async getBalance(token_address?: PublicKey): Promise<
-    | number
-    | {
-        sol: number;
-        tokens: Array<{
-          tokenAddress: string;
-          name: string;
-          symbol: string;
-          balance: number;
-          decimals: number;
-        }>;
-      }
-  > {
+  async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
+  }
+
+  async getTokenBalances(wallet_address?: PublicKey): Promise<{
+    sol: number;
+    tokens: Array<{
+      tokenAddress: string;
+      name: string;
+      symbol: string;
+      balance: number;
+      decimals: number;
+    }>;
+  }> {
+    return get_token_balance(this, wallet_address);
   }
 
   async getBalanceOther(

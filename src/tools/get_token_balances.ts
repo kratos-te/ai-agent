@@ -11,55 +11,49 @@ import { getTokenMetadata } from "../utils/tokenMetadata";
  */
 export async function get_token_balance(
   agent: SolanaAgentKit,
-  token_address?: PublicKey,
-): Promise<
-  | number
-  | {
-      sol: number;
-      tokens: Array<{
-        tokenAddress: string;
-        name: string;
-        symbol: string;
-        balance: number;
-        decimals: number;
-      }>;
-    }
-> {
-  if (!token_address) {
-    const [lamportsBalance, tokenAccountData] = await Promise.all([
-      agent.connection.getBalance(agent.wallet_address),
-      agent.connection.getParsedTokenAccountsByOwner(agent.wallet_address, {
+  walletAddress?: PublicKey,
+): Promise<{
+  sol: number;
+  tokens: Array<{
+    tokenAddress: string;
+    name: string;
+    symbol: string;
+    balance: number;
+    decimals: number;
+  }>;
+}> {
+  const [lamportsBalance, tokenAccountData] = await Promise.all([
+    agent.connection.getBalance(walletAddress ?? agent.wallet_address),
+    agent.connection.getParsedTokenAccountsByOwner(
+      walletAddress ?? agent.wallet_address,
+      {
         programId: TOKEN_PROGRAM_ID,
-      }),
-    ]);
+      },
+    ),
+  ]);
 
-    const removedZeroBalance = tokenAccountData.value.filter(
-      (v) => v.account.data.parsed.info.tokenAmount.uiAmount !== 0,
-    );
+  const removedZeroBalance = tokenAccountData.value.filter(
+    (v) => v.account.data.parsed.info.tokenAmount.uiAmount !== 0,
+  );
 
-    const tokenBalances = await Promise.all(
-      removedZeroBalance.map(async (v) => {
-        const mint = v.account.data.parsed.info.mint;
-        const mintInfo = await getTokenMetadata(agent.connection, mint);
-        return {
-          tokenAddress: mint,
-          name: mintInfo.name ?? "",
-          symbol: mintInfo.symbol ?? "",
-          balance: v.account.data.parsed.info.tokenAmount.uiAmount as number,
-          decimals: v.account.data.parsed.info.tokenAmount.decimals as number,
-        };
-      }),
-    );
+  const tokenBalances = await Promise.all(
+    removedZeroBalance.map(async (v) => {
+      const mint = v.account.data.parsed.info.mint;
+      const mintInfo = await getTokenMetadata(agent.connection, mint);
+      return {
+        tokenAddress: mint,
+        name: mintInfo.name ?? "",
+        symbol: mintInfo.symbol ?? "",
+        balance: v.account.data.parsed.info.tokenAmount.uiAmount as number,
+        decimals: v.account.data.parsed.info.tokenAmount.decimals as number,
+      };
+    }),
+  );
 
-    const solBalance = lamportsBalance / LAMPORTS_PER_SOL;
+  const solBalance = lamportsBalance / LAMPORTS_PER_SOL;
 
-    return {
-      sol: solBalance,
-      tokens: tokenBalances,
-    };
-  }
-
-  const token_account =
-    await agent.connection.getTokenAccountBalance(token_address);
-  return token_account.value.uiAmount || 0;
+  return {
+    sol: solBalance,
+    tokens: tokenBalances,
+  };
 }
