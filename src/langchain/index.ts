@@ -9,6 +9,12 @@ import {
   SolanaAgentKit,
 } from "../index";
 import { create_image, FEE_TIERS, generateOrdersfromPattern } from "../tools";
+import { marketTokenMap } from "../utils/flashUtils";
+import {
+  CreateCollectionOptions,
+  CreateSingleOptions,
+  StoreInitOptions,
+} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -798,10 +804,14 @@ export class SolanaFlashOpenTrade extends Tool {
       if (!parsedInput.token) {
         throw new Error("Token is required, received: " + parsedInput.token);
       }
-      if (!["SOL", "BTC", "ETH", "USDC"].includes(parsedInput.token)) {
+      if (!Object.keys(marketTokenMap).includes(parsedInput.token)) {
         throw new Error(
-          'Token must be one of ["SOL", "BTC", "ETH", "USDC"], received: ' +
-            parsedInput.token,
+          "Token must be one of " +
+            Object.keys(marketTokenMap).join(", ") +
+            ", received: " +
+            parsedInput.token +
+            "\n" +
+            "Please check https://beast.flash.trade/ for the list of supported tokens",
         );
       }
       if (!["long", "short"].includes(parsedInput.type)) {
@@ -2250,6 +2260,434 @@ export class SolanaFetchTokenDetailedReportTool extends Tool {
   }
 }
 
+export class Solana3LandCreateSingle extends Tool {
+  name = "3land_minting_tool";
+  description = `Creates an NFT and lists it on 3.land's website
+
+  Inputs:
+  privateKey (required): represents the privateKey of the wallet - can be an array of numbers, Uint8Array or base58 string
+  collectionAccount (optional): represents the account for the nft collection
+  itemName (required): the name of the NFT
+  sellerFee (required): the fee of the seller
+  itemAmount (required): the amount of the NFTs that can be minted
+  itemDescription (required): the description of the NFT
+  traits (required): the traits of the NFT [{trait_type: string, value: string}]
+  price (required): the price of the item, if is 0 the listing will be free
+  mainImageUrl (required): the main image of the NFT
+  coverImageUrl (optional): the cover image of the NFT
+  splHash (optional): the hash of the spl token, if not provided listing will be in $SOL
+  isMainnet (required): defines is the tx takes places in mainnet
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const privateKey = inputFormat.privateKey;
+      const isMainnet = inputFormat.isMainnet;
+
+      const optionsWithBase58: StoreInitOptions = {
+        ...(privateKey && { privateKey }),
+        ...(isMainnet && { isMainnet }),
+      };
+
+      const collectionAccount = inputFormat.collectionAccount;
+
+      const itemName = inputFormat?.itemName;
+      const sellerFee = inputFormat?.sellerFee;
+      const itemAmount = inputFormat?.itemAmount;
+      const itemSymbol = inputFormat?.itemSymbol;
+      const itemDescription = inputFormat?.itemDescription;
+      const traits = inputFormat?.traits;
+      const price = inputFormat?.price;
+      const mainImageUrl = inputFormat?.mainImageUrl;
+      const coverImageUrl = inputFormat?.coverImageUrl;
+      const splHash = inputFormat?.splHash;
+
+      const createItemOptions: CreateSingleOptions = {
+        ...(itemName && { itemName }),
+        ...(sellerFee && { sellerFee }),
+        ...(itemAmount && { itemAmount }),
+        ...(itemSymbol && { itemSymbol }),
+        ...(itemDescription && { itemDescription }),
+        ...(traits && { traits }),
+        ...(price && { price }),
+        ...(mainImageUrl && { mainImageUrl }),
+        ...(coverImageUrl && { coverImageUrl }),
+        ...(splHash && { splHash }),
+      };
+
+      if (!collectionAccount) {
+        throw new Error("Collection account is required");
+      }
+
+      const tx = await this.solanaKit.create3LandNft(
+        optionsWithBase58,
+        collectionAccount,
+        createItemOptions,
+        isMainnet,
+      );
+      return JSON.stringify({
+        status: "success",
+        message: `Created listing successfully ${tx}`,
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class Solana3LandCreateCollection extends Tool {
+  name = "3land_minting_tool";
+  description = `Creates an NFT Collection that you can visit on 3.land's website (3.land/collection/{collectionAccount})
+  
+  Inputs:
+  privateKey (required): represents the privateKey of the wallet - can be an array of numbers, Uint8Array or base58 string
+  isMainnet (required): defines is the tx takes places in mainnet
+  collectionSymbol (required): the symbol of the collection
+  collectionName (required): the name of the collection
+  collectionDescription (required): the description of the collection
+  mainImageUrl (required): the image of the collection
+  coverImageUrl (optional): the cover image of the collection
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const privateKey = inputFormat.privateKey;
+      const isMainnet = inputFormat.isMainnet;
+
+      const optionsWithBase58: StoreInitOptions = {
+        ...(privateKey && { privateKey }),
+        ...(isMainnet && { isMainnet }),
+      };
+
+      const collectionSymbol = inputFormat?.collectionSymbol;
+      const collectionName = inputFormat?.collectionName;
+      const collectionDescription = inputFormat?.collectionDescription;
+      const mainImageUrl = inputFormat?.mainImageUrl;
+      const coverImageUrl = inputFormat?.coverImageUrl;
+
+      const collectionOpts: CreateCollectionOptions = {
+        ...(collectionSymbol && { collectionSymbol }),
+        ...(collectionName && { collectionName }),
+        ...(collectionDescription && { collectionDescription }),
+        ...(mainImageUrl && { mainImageUrl }),
+        ...(coverImageUrl && { coverImageUrl }),
+      };
+
+      const tx = await this.solanaKit.create3LandCollection(
+        optionsWithBase58,
+        collectionOpts,
+      );
+      return JSON.stringify({
+        status: "success",
+        message: `Created Collection successfully ${tx}`,
+        transaction: tx,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCloseEmptyTokenAccounts extends Tool {
+  name = "close_empty_token_accounts";
+  description = `Close all empty spl-token accounts and reclaim the rent`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(): Promise<string> {
+    try {
+      const { signature, size } =
+        await this.solanaKit.closeEmptyTokenAccounts();
+
+      return JSON.stringify({
+        status: "success",
+        message: `${size} accounts closed successfully. ${size === 48 ? "48 accounts can be closed in a single transaction try again to close more accounts" : ""}`,
+        signature,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCreate2by2Multisig extends Tool {
+  name = "create_2by2_multisig";
+  description = `Create a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  Note: For one AI agent, only one 2-by-2 multisig can be created as it is pair-wise.
+
+  Inputs (JSON string):
+  - creator: string, the public key of the creator (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const creator = new PublicKey(inputFormat.creator);
+
+      const multisig = await this.solanaKit.createSquadsMultisig(creator);
+
+      return JSON.stringify({
+        status: "success",
+        message: "2-by-2 multisig account created successfully",
+        multisig,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "CREATE_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaDepositTo2by2Multisig extends Tool {
+  name = "deposit_to_2by2_multisig";
+  description = `Deposit funds to a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+
+  Inputs (JSON string):
+  - amount: number, the amount to deposit in SOL (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const amount = new Decimal(inputFormat.amount);
+
+      const tx = await this.solanaKit.depositToMultisig(amount.toNumber());
+
+      return JSON.stringify({
+        status: "success",
+        message: "Funds deposited to 2-by-2 multisig account successfully",
+        transaction: tx,
+        amount: amount.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "DEPOSIT_TO_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaTransferFrom2by2Multisig extends Tool {
+  name = "transfer_from_2by2_multisig";
+  description = `Create a transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+
+  Inputs (JSON string):
+  - amount: number, the amount to transfer in SOL (required).
+  - recipient: string, the public key of the recipient (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const amount = new Decimal(inputFormat.amount);
+      const recipient = new PublicKey(inputFormat.recipient);
+
+      const tx = await this.solanaKit.transferFromMultisig(
+        amount.toNumber(),
+        recipient,
+      );
+
+      return JSON.stringify({
+        status: "success",
+        message: "Transaction added to 2-by-2 multisig account successfully",
+        transaction: tx,
+        amount: amount.toString(),
+        recipient: recipient.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "TRANSFER_FROM_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaCreateProposal2by2Multisig extends Tool {
+  name = "create_proposal_2by2_multisig";
+  description = `Create a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If transactionIndex is not provided, the latest index will automatically be fetched and used.
+
+  Inputs (JSON string):
+  - transactionIndex: number, the index of the transaction (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const transactionIndex = inputFormat.transactionIndex ?? undefined;
+
+      const tx = await this.solanaKit.createMultisigProposal(transactionIndex);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Proposal created successfully",
+        transaction: tx,
+        transactionIndex: transactionIndex?.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "CREATE_PROPOSAL_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaApproveProposal2by2Multisig extends Tool {
+  name = "approve_proposal_2by2_multisig";
+  description = `Approve a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
+
+  Inputs (JSON string):
+  - proposalIndex: number, the index of the proposal (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
+
+      const tx = await this.solanaKit.approveMultisigProposal(proposalIndex);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Proposal approved successfully",
+        transaction: tx,
+        proposalIndex: proposalIndex.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "APPROVE_PROPOSAL_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaRejectProposal2by2Multisig extends Tool {
+  name = "reject_proposal_2by2_multisig";
+  description = `Reject a proposal to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
+
+  Inputs (JSON string):
+  - proposalIndex: number, the index of the proposal (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
+
+      const tx = await this.solanaKit.rejectMultisigProposal(proposalIndex);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Proposal rejected successfully",
+        transaction: tx,
+        proposalIndex: proposalIndex.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "REJECT_PROPOSAL_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaExecuteProposal2by2Multisig extends Tool {
+  name = "execute_proposal_2by2_multisig";
+  description = `Execute a proposal/transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
+  
+  If proposalIndex is not provided, the latest index will automatically be fetched and used.
+
+  Inputs (JSON string):
+  - proposalIndex: number, the index of the proposal (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  protected async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      const proposalIndex = inputFormat.proposalIndex ?? undefined;
+
+      const tx = await this.solanaKit.executeMultisigTransaction(proposalIndex);
+
+      return JSON.stringify({
+        status: "success",
+        message: "Proposal executed successfully",
+        transaction: tx,
+        proposalIndex: proposalIndex.toString(),
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "EXECUTE_PROPOSAL_2BY2_MULTISIG_ERROR",
+      });
+    }
+  }
+}
+
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
     new SolanaBalanceTool(solanaKit),
@@ -2300,11 +2738,22 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaTipLinkTool(solanaKit),
     new SolanaListNFTForSaleTool(solanaKit),
     new SolanaCancelNFTListingTool(solanaKit),
+    new SolanaCloseEmptyTokenAccounts(solanaKit),
     new SolanaFetchTokenReportSummaryTool(solanaKit),
     new SolanaFetchTokenDetailedReportTool(solanaKit),
+    new Solana3LandCreateSingle(solanaKit),
+    new Solana3LandCreateCollection(solanaKit),
     new SolanaPerpOpenTradeTool(solanaKit),
     new SolanaPerpCloseTradeTool(solanaKit),
     new SolanaFlashOpenTrade(solanaKit),
     new SolanaFlashCloseTrade(solanaKit),
+    new Solana3LandCreateSingle(solanaKit),
+    new SolanaCreate2by2Multisig(solanaKit),
+    new SolanaDepositTo2by2Multisig(solanaKit),
+    new SolanaTransferFrom2by2Multisig(solanaKit),
+    new SolanaCreateProposal2by2Multisig(solanaKit),
+    new SolanaApproveProposal2by2Multisig(solanaKit),
+    new SolanaRejectProposal2by2Multisig(solanaKit),
+    new SolanaExecuteProposal2by2Multisig(solanaKit),
   ];
 }
