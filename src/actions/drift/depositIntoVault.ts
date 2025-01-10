@@ -26,7 +26,10 @@ const depositIntoDriftVaultAction: Action = {
   ],
   schema: z.object({
     vaultAddress: z.string(),
-    amount: z.number().positive(),
+    amount: z
+      .number()
+      .positive()
+      .describe("The amount in tokens you'd like to deposit into the vault"),
   }),
   handler: async (agent: SolanaAgentKit, input) => {
     try {

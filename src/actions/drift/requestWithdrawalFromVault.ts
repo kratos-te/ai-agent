@@ -26,7 +26,10 @@ const requestWithdrawalFromVaultAction: Action = {
   ],
   schema: z.object({
     vaultAddress: z.string(),
-    amount: z.number().positive(),
+    amount: z
+      .number()
+      .positive()
+      .describe("Amount of shares you would like to withdraw from the vault"),
   }),
   handler: async (agent: SolanaAgentKit, input) => {
     try {
