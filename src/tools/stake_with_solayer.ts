@@ -27,7 +27,7 @@ export async function stakeWithSolayer(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Staking request failed');
+      throw new Error(errorData.message || "Staking request failed");
     }
 
     const data = await response.json();

@@ -28,6 +28,8 @@ import raydiumCreateAmmV4Action from "./raydiumCreateAmmV4";
 import createOrcaSingleSidedWhirlpoolAction from "./createOrcaSingleSidedWhirlpool";
 import launchPumpfunTokenAction from "./launchPumpfunToken";
 import getWalletAddressAction from "./getWalletAddress";
+import flashOpenTradeAction from "./flashOpenTrade";
+import flashCloseTradeAction from "./flashCloseTrade";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -43,7 +45,7 @@ export const ACTIONS = {
   GET_TPS_ACTION: getTPSAction,
   FETCH_PRICE_ACTION: fetchPriceAction,
   STAKE_WITH_JUP_ACTION: stakeWithJupAction,
-  STAKE_WITH_SOLAYER_ACTION : stakeWithSolayerAction,
+  STAKE_WITH_SOLAYER_ACTION: stakeWithSolayerAction,
   REGISTER_DOMAIN_ACTION: registerDomainAction,
   LEND_ASSET_ACTION: lendAssetAction,
   CREATE_GIBWORK_TASK_ACTION: createGibworkTaskAction,
@@ -61,6 +63,8 @@ export const ACTIONS = {
   CREATE_ORCA_SINGLE_SIDED_WHIRLPOOL_ACTION:
     createOrcaSingleSidedWhirlpoolAction,
   LAUNCH_PUMPFUN_TOKEN_ACTION: launchPumpfunTokenAction,
+  FLASH_OPEN_TRADE_ACTION: flashOpenTradeAction,
+  FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
