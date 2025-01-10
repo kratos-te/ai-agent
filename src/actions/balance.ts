@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
-import { Action } from "../types/action";
-import { SolanaAgentKit } from "../agent";
+import type { Action } from "../types/action";
+import type { SolanaAgentKit } from "../agent";
 import { z } from "zod";
 import { get_balance } from "../tools";
 
@@ -54,6 +54,7 @@ const balanceAction: Action = {
     return {
       status: "success",
       balance: balance,
+      token: input.tokenAddress || "SOL",
     };
   },
 };

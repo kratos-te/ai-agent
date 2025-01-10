@@ -30,9 +30,11 @@ import launchPumpfunTokenAction from "./launchPumpfunToken";
 import getWalletAddressAction from "./getWalletAddress";
 import flashOpenTradeAction from "./flashOpenTrade";
 import flashCloseTradeAction from "./flashCloseTrade";
+import tokenBalancesAction from "./tokenBalances";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
+  TOKEN_BALANCES_ACTION: tokenBalancesAction,
   DEPLOY_TOKEN_ACTION: deployTokenAction,
   BALANCE_ACTION: balanceAction,
   TRANSFER_ACTION: transferAction,
