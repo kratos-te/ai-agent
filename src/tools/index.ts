@@ -1,7 +1,7 @@
 export * from "./adrena";
-export * from "./balance";
+export * from "./bonfida";
 export * from "./dexscreener";
-export * from "./domain";
+export * from "./onsol";
 export * from "./flash";
 export * from "./gibwork";
 export * from "./jupiter";
@@ -21,4 +21,5 @@ export * from "./solayer";
 export * from "./tensor";
 export * from "./3land";
 export * from "./tiplink";
-export * from "./token";
+export * from "./lightprotocol";
+export * from "./squads_multisig";
