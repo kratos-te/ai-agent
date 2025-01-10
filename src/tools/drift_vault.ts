@@ -165,8 +165,8 @@ export async function createVault(
         .mul(PERCENTAGE_PRECISION)
         .div(new BN(100))
         .toNumber(),
-      minDepositAmount: new BN(params.minDepositAmount).mul(spotPrecision),
-      redeemPeriod: new BN(params.redeemPeriod),
+      minDepositAmount: numberToSafeBN(params.minDepositAmount, spotPrecision),
+      redeemPeriod: new BN(params.redeemPeriod * 86400),
       maxTokens: new BN(params.maxTokens).mul(spotPrecision),
       managementFee: new BN(params.managementFee)
         .mul(PERCENTAGE_PRECISION)
@@ -214,7 +214,11 @@ export async function updateVault(
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
 
     const tx = await vaultClient.managerUpdateVault(vaultPublicKey, {
-      redeemPeriod: new BN(params.redeemPeriod ?? vaultDetails.redeemPeriod),
+      redeemPeriod: new BN(
+        params.redeemPeriod
+          ? params.redeemPeriod * 86400
+          : vaultDetails.redeemPeriod,
+      ),
       maxTokens: new BN(params.maxTokens ?? vaultDetails.maxTokens),
       minDepositAmount: new BN(
         params.minDepositAmount ?? vaultDetails.minDepositAmount,
@@ -326,7 +330,10 @@ export async function requestWithdrawalFromVault(
   @param vault Vault address
   @returns Promise<anchor.Web3.TransactionSignature> - The transaction signature of the redemption
 */
-export async function withdraw(agent: SolanaAgentKit, vault: string) {
+export async function withdrawFromDriftVault(
+  agent: SolanaAgentKit,
+  vault: string,
+) {
   try {
     const { vaultClient } = initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
@@ -353,7 +360,7 @@ export async function withdraw(agent: SolanaAgentKit, vault: string) {
   @param vault Vault address
   @returns Promise<boolean> - Whether the vault is owned by the user
 */
-export async function getIsOwned(agent: SolanaAgentKit, vault: string) {
+async function getIsOwned(agent: SolanaAgentKit, vault: string) {
   try {
     const { vaultClient } = initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
@@ -375,13 +382,13 @@ export async function getIsOwned(agent: SolanaAgentKit, vault: string) {
   @param type Type of trade (e.g. "market" or "limit")
   @param vault Vault address
 */
-export async function trade(
+export async function tradeDriftVault(
   agent: SolanaAgentKit,
+  vault: string,
   amount: number,
   symbol: string,
   action: "buy" | "sell",
   type: "market" | "limit",
-  vault: string,
   price?: number,
 ) {
   try {

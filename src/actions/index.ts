@@ -30,6 +30,12 @@ import launchPumpfunTokenAction from "./launchPumpfunToken";
 import getWalletAddressAction from "./getWalletAddress";
 import flashOpenTradeAction from "./flashOpenTrade";
 import flashCloseTradeAction from "./flashCloseTrade";
+import createDriftVaultAction from "./drift/createVault";
+import updateDriftVaultAction from "./drift/updateVault";
+import depositIntoDriftVaultAction from "./drift/depositIntoVault";
+import requestWithdrawalFromVaultAction from "./drift/requestWithdrawalFromVault";
+import withdrawFromVaultAction from "./drift/withdrawFromVault";
+import tradeDelegatedDriftVaultAction from "./drift/tradeDelegatedDriftVault";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -65,6 +71,12 @@ export const ACTIONS = {
   LAUNCH_PUMPFUN_TOKEN_ACTION: launchPumpfunTokenAction,
   FLASH_OPEN_TRADE_ACTION: flashOpenTradeAction,
   FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
+  CREATE_DRIFT_VAULT_ACTION: createDriftVaultAction,
+  UPDATE_DRIFT_VAULT_ACTION: updateDriftVaultAction,
+  DEPOSIT_INTO_DRIFT_VAULT_ACTION: depositIntoDriftVaultAction,
+  REQUEST_WITHDRAWAL_FROM_DRIFT_VAULT_ACTION: requestWithdrawalFromVaultAction,
+  WITHDRAW_FROM_DRIFT_VAULT_ACTION: withdrawFromVaultAction,
+  TRADE_DELEGATED_DRIFT_VAULT_ACTION: tradeDelegatedDriftVaultAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
