@@ -96,7 +96,6 @@ import {
   OrderParams,
   FlashTradeParams,
   FlashCloseTradeParams,
-  PriorityFeeTransaction,
   HeliusWebhookIdResponse,
   HeliusWebhookResponse,
 } from "../types";
@@ -628,8 +627,15 @@ export class SolanaAgentKit {
     priorityLevel: string,
     amount: number,
     to: PublicKey,
-  ): Promise<PriorityFeeTransaction> {
-    return sendTransactionWithPriorityFee(this, priorityLevel, amount, to);
+    splmintAddress?: PublicKey,
+  ): Promise<{ transactionId: string; fee: number }> {
+    return sendTransactionWithPriorityFee(
+      this,
+      priorityLevel,
+      amount,
+      to,
+      splmintAddress,
+    );
   }
 
   async createSquadsMultisig(creator: PublicKey): Promise<string> {
