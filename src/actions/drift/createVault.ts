@@ -40,7 +40,6 @@ const createDriftVaultAction: Action = {
     // regex matches SOL-SPOT
     marketName: z
       .string()
-      .regex(/^([A-Za-z0-9]{2,7})-SPOT$/)
       .describe('Market name must be in the format "TOKEN-SPOT"'),
     redeemPeriod: z
       .number()

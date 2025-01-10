@@ -36,6 +36,7 @@ import depositIntoDriftVaultAction from "./drift/depositIntoVault";
 import requestWithdrawalFromVaultAction from "./drift/requestWithdrawalFromVault";
 import withdrawFromVaultAction from "./drift/withdrawFromVault";
 import tradeDelegatedDriftVaultAction from "./drift/tradeDelegatedDriftVault";
+import vaultInfoAction from "./drift/vaultInfo";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -77,6 +78,7 @@ export const ACTIONS = {
   REQUEST_WITHDRAWAL_FROM_DRIFT_VAULT_ACTION: requestWithdrawalFromVaultAction,
   WITHDRAW_FROM_DRIFT_VAULT_ACTION: withdrawFromVaultAction,
   TRADE_DELEGATED_DRIFT_VAULT_ACTION: tradeDelegatedDriftVaultAction,
+  DRIFT_VAULT_INFO_ACTION: vaultInfoAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

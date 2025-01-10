@@ -6,6 +6,8 @@ import {
   getLimitOrderParams,
   getMarketOrderParams,
   getOrderParams,
+  MainnetPerpMarkets,
+  MainnetSpotMarkets,
   MarketType,
   numberToSafeBN,
   PERCENTAGE_PRECISION,
@@ -33,7 +35,25 @@ import {
 import type { SolanaAgentKit } from "../agent";
 import { BN } from "bn.js";
 
-function initClients(agent: SolanaAgentKit) {
+export function getMarketIndexAndType(name: `${string}-${string}`) {
+  const [symbol, type] = name.toUpperCase().split("-");
+
+  if (type === "PERP") {
+    const token = MainnetPerpMarkets.find((v) => v.symbol === symbol);
+    if (!token) {
+      throw new Error("Drift doesn't have that market");
+    }
+    return { marketIndex: token.marketIndex, marketType: MarketType.PERP };
+  }
+
+  const token = MainnetSpotMarkets.find((v) => v.symbol === symbol);
+  if (!token) {
+    throw new Error("Drift doesn't have that market");
+  }
+  return { marketIndex: token.marketIndex, marketType: MarketType.SPOT };
+}
+
+async function initClients(agent: SolanaAgentKit) {
   const wallet: IWallet = {
     publicKey: agent.wallet.publicKey,
     payer: agent.wallet,
@@ -76,12 +96,17 @@ function initClients(agent: SolanaAgentKit) {
     program: vaultProgram,
     cliMode: false,
   });
+  await driftClient.subscribe();
 
-  return { driftClient, vaultClient };
+  async function cleanUp() {
+    await driftClient.unsubscribe();
+  }
+
+  return { driftClient, vaultClient, cleanUp };
 }
 
 async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
-  const { vaultClient } = initClients(agent);
+  const { vaultClient, cleanUp } = await initClients(agent);
   const vaultPublicKey = new PublicKey(vault);
   const vaultDepositor = getVaultDepositorAddressSync(
     vaultClient.program.programId,
@@ -91,12 +116,14 @@ async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
 
   try {
     await vaultClient.getVaultDepositor(vaultDepositor);
+    await cleanUp();
     return vaultDepositor;
   } catch (e) {
     // @ts-expect-error - error message is a string
     if (e.message === "Account not found") {
       await vaultClient.initializeVaultDepositor(vaultDepositor);
     }
+    await cleanUp();
     return vaultDepositor;
   }
 }
@@ -131,10 +158,8 @@ export async function createVault(
   },
 ) {
   try {
-    const { vaultClient, driftClient } = initClients(agent);
-    const marketIndexAndType = driftClient.getMarketIndexAndType(
-      params.marketName,
-    );
+    const { vaultClient, driftClient, cleanUp } = await initClients(agent);
+    const marketIndexAndType = getMarketIndexAndType(params.marketName);
 
     if (!marketIndexAndType) {
       throw new Error("Invalid market name");
@@ -174,6 +199,8 @@ export async function createVault(
       permissioned: params.permissioned ?? false,
     });
 
+    await cleanUp();
+
     return tx;
   } catch (e) {
     // @ts-expect-error - error message is a string
@@ -209,7 +236,7 @@ export async function updateVault(
   },
 ) {
   try {
-    const { vaultClient } = initClients(agent);
+    const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
 
@@ -233,10 +260,30 @@ export async function updateVault(
       permissioned: params.permissioned ?? vaultDetails.permissioned,
     });
 
+    await cleanUp();
+
     return tx;
   } catch (e) {
     // @ts-expect-error - error message is a string
     throw new Error(`Failed to update Drift vault: ${e.message}`);
+  }
+}
+
+export async function getVaultInfo(
+  agent: SolanaAgentKit,
+  vaultAddress: string,
+) {
+  try {
+    const { vaultClient, cleanUp } = await initClients(agent);
+    const vaultPublicKey = new PublicKey(vaultAddress);
+    const vaultDetails = await vaultClient.getVault(vaultPublicKey);
+
+    await cleanUp();
+
+    return vaultDetails;
+  } catch (e) {
+    // @ts-expect-error - error message is a string
+    throw new Error(`Failed to get vault info: ${e.message}`);
   }
 }
 
@@ -252,8 +299,9 @@ export async function depositIntoVault(
   amount: number,
   vault: string,
 ) {
+  const { vaultClient, driftClient, cleanUp } = await initClients(agent);
+
   try {
-    const { vaultClient, driftClient } = initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const [isOwned, vaultDetails] = await Promise.all([
       getIsOwned(agent, vault),
@@ -275,8 +323,11 @@ export async function depositIntoVault(
     }
 
     const vaultDepositor = await getOrCreateVaultDepositor(agent, vault);
+    const tx = await vaultClient.deposit(vaultDepositor, amountBN);
 
-    return await vaultClient.deposit(vaultDepositor, amountBN);
+    await cleanUp();
+
+    return tx;
   } catch (e) {
     // @ts-expect-error - error message is a string
     throw new Error(`Failed to deposit into Drift vault: ${e.message}`);
@@ -295,7 +346,7 @@ export async function requestWithdrawalFromVault(
   vault: string,
 ) {
   try {
-    const { vaultClient } = initClients(agent);
+    const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const isOwned = await getIsOwned(agent, vault);
 
@@ -314,6 +365,8 @@ export async function requestWithdrawalFromVault(
       new BN(amount.toFixed(0)),
       WithdrawUnit.SHARES,
     );
+
+    await cleanUp();
 
     return tx;
   } catch (e) {
@@ -335,7 +388,7 @@ export async function withdrawFromDriftVault(
   vault: string,
 ) {
   try {
-    const { vaultClient } = initClients(agent);
+    const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const isOwned = await getIsOwned(agent, vault);
 
@@ -346,6 +399,8 @@ export async function withdrawFromDriftVault(
     const vaultDepositor = await getOrCreateVaultDepositor(agent, vault);
 
     const tx = await vaultClient.withdraw(vaultDepositor);
+
+    await cleanUp();
 
     return tx;
   } catch (e) {
@@ -362,11 +417,14 @@ export async function withdrawFromDriftVault(
 */
 async function getIsOwned(agent: SolanaAgentKit, vault: string) {
   try {
-    const { vaultClient } = initClients(agent);
+    const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
+    const isOwned = vaultDetails.delegate.equals(agent.wallet.publicKey);
 
-    return vaultDetails.delegate.equals(agent.wallet.publicKey);
+    await cleanUp();
+
+    return isOwned;
   } catch (e) {
     // @ts-expect-error - error message is a string
     throw new Error(`Failed to check if vault is owned: ${e.message}`);
@@ -392,7 +450,7 @@ export async function tradeDriftVault(
   price?: number,
 ) {
   try {
-    const { driftClient, vaultClient } = initClients(agent);
+    const { driftClient, vaultClient, cleanUp } = await initClients(agent);
     const [isOwned, vaultDetails, driftLookupTableAccount] = await Promise.all([
       getIsOwned(agent, vault),
       vaultClient.getVault(new PublicKey(vault)),
@@ -433,7 +491,7 @@ export async function tradeDriftVault(
       );
     }
 
-    const perpMarketIndexAndType = driftClient.getMarketIndexAndType(
+    const perpMarketIndexAndType = getMarketIndexAndType(
       `${symbol.toUpperCase()}-PERP`,
     );
 
@@ -505,6 +563,8 @@ export async function tradeDriftVault(
         driftClient.opts,
       ),
     );
+
+    await cleanUp();
 
     return tx;
   } catch (e) {
