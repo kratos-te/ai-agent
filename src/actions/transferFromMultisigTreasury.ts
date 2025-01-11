@@ -34,7 +34,7 @@ const transferFromMultisigAction: Action = {
   ],
   schema: z.object({
     amount: z.number().min(0, "Amount must be greater than 0"),
-    recipient: z.string().optional(),
+    recipient: z.string(),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
     const multisig = await multisig_transfer_from_treasury(

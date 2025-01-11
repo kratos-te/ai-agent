@@ -35,6 +35,8 @@ import depositToMultisigAction from "./depositToMultisigTreasury";
 import transferFromMultisigAction from "./transferFromMultisigTreasury";
 import createMultisigProposalAction from "./createMultisigProposal";
 import approveMultisigProposalAction from "./approveMultisigProposal";
+import rejectMultisigProposalAction from "./rejectMultisigProposal";
+import executeMultisigProposalAction from "./executeMultisigProposal";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -75,6 +77,8 @@ export const ACTIONS = {
   TRANSFER_FROM_MULTISIG_ACTION: transferFromMultisigAction,
   CREATE_MULTISIG_PROPOSAL_ACTION: createMultisigProposalAction,
   APPROVE_MULTISIG_PROPOSAL_ACTION: approveMultisigProposalAction,
+  REJECT_MULTISIG_PROPOSAL_ACTION: rejectMultisigProposalAction,
+  EXECUTE_MULTISIG_PROPOSAL_ACTION: executeMultisigProposalAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

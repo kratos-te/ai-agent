@@ -36,16 +36,18 @@ const createMultisigProposalAction: Action = {
     transactionIndex: z.number().optional(),
   }),
   handler: async (agent: SolanaAgentKit, input: Record<string, any>) => {
-    const multisig = await multisig_create_proposal(
-      agent,
-      input.transactionIndex as number,
-    );
+    const transactionIndex =
+      input.transactionIndex !== undefined
+        ? Number(input.transactionIndex)
+        : undefined;
+
+    const multisig = await multisig_create_proposal(agent, transactionIndex);
 
     return {
       status: "success",
       message: "Proposal created successfully",
       transaction: multisig,
-      transactionIndex: input.transactionIndex as number,
+      transactionIndex: transactionIndex,
     };
   },
 };
