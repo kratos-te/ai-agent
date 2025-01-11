@@ -1,4 +1,4 @@
-import { SolanaAgentKit } from "../../index";
+import { SolanaAgentKit } from "../agent";
 import {
   PublicKey,
   SystemProgram,
@@ -15,7 +15,7 @@ import * as multisig from "@sqds/multisig";
 const { Multisig } = multisig.accounts;
 
 /**
- * Transfer SOL or SPL tokens to a recipient from a multisig vault.
+ * Transfer SOL or SPL tokens to a recipient from a multisig treasury vault.
  * @param agent - SolanaAgentKit instance.
  * @param amount - Amount to transfer.
  * @param to - Recipient's public key.
@@ -23,7 +23,7 @@ const { Multisig } = multisig.accounts;
  * @param mint - Optional mint address for SPL tokens.
  * @returns Transaction signature.
  */
-export async function transfer_from_multisig(
+export async function multisig_transfer_from_treasury(
   agent: SolanaAgentKit,
   amount: number,
   to: PublicKey,

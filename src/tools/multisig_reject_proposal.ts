@@ -1,16 +1,16 @@
-import { SolanaAgentKit } from "../../index";
+import { SolanaAgentKit } from "../agent";
 import * as multisig from "@sqds/multisig";
 const { Multisig } = multisig.accounts;
 
 /**
- * Approves a proposal in a Solana multisig wallet.
+ * Rejects a proposal in a Solana multisig setup.
  *
- * @param {SolanaAgentKit} agent - The Solana agent kit instance.
- * @param {number | bigint} [transactionIndex] - The index of the transaction to approve. If not provided, the current transaction index will be used.
- * @returns {Promise<string>} - A promise that resolves to the transaction ID of the approved proposal.
- * @throws {Error} - Throws an error if the approval process fails.
+ * @param agent - The SolanaAgentKit instance containing the wallet and connection.
+ * @param transactionIndex - Optional. The index of the transaction to reject. If not provided, the current transaction index will be used.
+ * @returns A promise that resolves to the transaction ID of the rejection transaction.
+ * @throws Will throw an error if the transaction fails.
  */
-export async function approve_proposal(
+export async function multisig_reject_proposal(
   agent: SolanaAgentKit,
   transactionIndex?: number | bigint,
 ): Promise<string> {
@@ -33,7 +33,7 @@ export async function approve_proposal(
     //   multisigPda,
     //   transactionIndex,
     // });
-    const multisigTx = multisig.transactions.proposalApprove({
+    const multisigTx = multisig.transactions.proposalReject({
       blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
       feePayer: agent.wallet.publicKey,
       multisigPda,

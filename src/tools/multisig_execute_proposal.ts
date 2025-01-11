@@ -1,16 +1,16 @@
-import { SolanaAgentKit } from "../../index";
+import { SolanaAgentKit } from "../agent";
 import * as multisig from "@sqds/multisig";
 const { Multisig } = multisig.accounts;
 
 /**
- * Rejects a proposal in a Solana multisig setup.
+ * Executes a transaction on the Solana blockchain using the provided agent.
  *
- * @param agent - The SolanaAgentKit instance containing the wallet and connection.
- * @param transactionIndex - Optional. The index of the transaction to reject. If not provided, the current transaction index will be used.
- * @returns A promise that resolves to the transaction ID of the rejection transaction.
- * @throws Will throw an error if the transaction fails.
+ * @param {SolanaAgentKit} agent - The Solana agent kit instance containing the wallet and connection.
+ * @param {number | bigint} [transactionIndex] - Optional transaction index to execute. If not provided, the current transaction index from the multisig account will be used.
+ * @returns {Promise<string>} - A promise that resolves to the transaction signature string.
+ * @throws {Error} - Throws an error if the transaction execution fails.
  */
-export async function reject_proposal(
+export async function multisig_execute_proposal(
   agent: SolanaAgentKit,
   transactionIndex?: number | bigint,
 ): Promise<string> {
@@ -29,15 +29,12 @@ export async function reject_proposal(
     } else if (typeof transactionIndex !== "bigint") {
       transactionIndex = BigInt(transactionIndex);
     }
-    // const [proposalPda, proposalBump] = multisig.getProposalPda({
-    //   multisigPda,
-    //   transactionIndex,
-    // });
-    const multisigTx = multisig.transactions.proposalReject({
+    const multisigTx = await multisig.transactions.vaultTransactionExecute({
+      connection: agent.connection,
       blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
       feePayer: agent.wallet.publicKey,
       multisigPda,
-      transactionIndex: transactionIndex,
+      transactionIndex,
       member: agent.wallet.publicKey,
     });
 

@@ -1,4 +1,4 @@
-import { SolanaAgentKit } from "../../index";
+import { SolanaAgentKit } from "../agent";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
@@ -10,14 +10,14 @@ import {
 import * as multisig from "@sqds/multisig";
 
 /**
- * Transfer SOL or SPL tokens to a multisig vault.
+ * Transfer SOL or SPL tokens to a multisig treasury vault.
  * @param agent SolanaAgentKit instance
  * @param amount Amount to transfer
  * @param vaultIndex Optional vault index, default is 0
  * @param mint Optional mint address for SPL tokens
  * @returns Transaction signature
  */
-export async function deposit_to_multisig(
+export async function multisig_deposit_to_treasury(
   agent: SolanaAgentKit,
   amount: number,
   vaultIndex?: number,
