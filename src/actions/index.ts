@@ -30,6 +30,8 @@ import launchPumpfunTokenAction from "./launchPumpfunToken";
 import getWalletAddressAction from "./getWalletAddress";
 import flashOpenTradeAction from "./flashOpenTrade";
 import flashCloseTradeAction from "./flashCloseTrade";
+import createMultisigAction from "./createMultisig";
+import depositToMultisigAction from "./depositToMultisigTreasury";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -65,6 +67,8 @@ export const ACTIONS = {
   LAUNCH_PUMPFUN_TOKEN_ACTION: launchPumpfunTokenAction,
   FLASH_OPEN_TRADE_ACTION: flashOpenTradeAction,
   FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
+  CREATE_MULTISIG_ACTION: createMultisigAction,
+  DEPOSIT_TO_MULTISIG_ACTION: depositToMultisigAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
