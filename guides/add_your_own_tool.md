@@ -10,7 +10,8 @@ Extending the **Solana Agent Kit** with custom tools allows you to add specializ
 4. Implement the Langchain tool class
 5. Export the Langchain tool
 6. Define Action class for given tool
-7. Use the custom tool
+7. Export Action
+8. Use the custom tool
 
 ## Implementation Guide
 
