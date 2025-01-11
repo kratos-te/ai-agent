@@ -32,6 +32,9 @@ import flashOpenTradeAction from "./flashOpenTrade";
 import flashCloseTradeAction from "./flashCloseTrade";
 import createMultisigAction from "./createMultisig";
 import depositToMultisigAction from "./depositToMultisigTreasury";
+import transferFromMultisigAction from "./transferFromMultisigTreasury";
+import createMultisigProposalAction from "./createMultisigProposal";
+import approveMultisigProposalAction from "./approveMultisigProposal";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -69,6 +72,9 @@ export const ACTIONS = {
   FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
   CREATE_MULTISIG_ACTION: createMultisigAction,
   DEPOSIT_TO_MULTISIG_ACTION: depositToMultisigAction,
+  TRANSFER_FROM_MULTISIG_ACTION: transferFromMultisigAction,
+  CREATE_MULTISIG_PROPOSAL_ACTION: createMultisigProposalAction,
+  APPROVE_MULTISIG_PROPOSAL_ACTION: approveMultisigProposalAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

@@ -1,17 +1,17 @@
 import { Action } from "../types/action";
 import { SolanaAgentKit } from "../agent";
 import { z } from "zod";
-import { create_squads_multisig, multisig_deposit_to_treasury } from "../tools";
+import { multisig_deposit_to_treasury } from "../tools";
 
 const depositToMultisigAction: Action = {
   name: "DEPOSIT_TO_MULTISIG_ACTION",
   similes: [
     "deposit to multisig",
     "deposit to squads multisig",
-    "deposit to 2-by-2 multisig",
-    "deposit to 2-of-2 multisig",
-    "deposit SOL to 2-of-2 multisig account on Solana",
-    "deposit SPL tokens to 2-of-2 multisig account",
+    "deposit to 2-of-2 multisig account",
+    "deposit to 2-of-2 multisig account on Solana",
+    "deposit SOL to 2-of-2 multisig",
+    "deposit SPL tokens to 2-of-2 multisig",
   ],
   description: `Deposit funds to a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.`,
   examples: [
