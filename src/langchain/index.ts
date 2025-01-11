@@ -1,7 +1,7 @@
 export * from "./adrena";
-export * from "./onsol";
+export * from "./alldomains";
 export * from "./dexscreener";
-export * from "./onsol";
+export * from "./alldomains";
 export * from "./flash";
 export * from "./gibwork";
 export * from "./jupiter";
@@ -21,7 +21,7 @@ export * from "./solayer";
 export * from "./tensor";
 export * from "./3land";
 export * from "./tiplink";
-export * from "./bonfida";
+export * from "./sns";
 export * from "./lightprotocol";
 
 import { SolanaAgentKit } from "../agent";

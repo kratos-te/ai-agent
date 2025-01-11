@@ -1,7 +1,7 @@
 import { getAllDomains } from "@bonfida/spl-name-service";
 import { SolanaAgentKit } from "../../agent";
 import { PublicKey } from "@solana/web3.js";
-import { getAllDomainsTLDs } from "../onsol/get_all_domains_tlds";
+import { getAllDomainsTLDs } from "../alldomains/get_all_domains_tlds";
 
 /**
  * Get all registered domains across all TLDs
