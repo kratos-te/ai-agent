@@ -1,6 +1,7 @@
-import { BaseSolanaTool } from "../common/base";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaDeployTokenTool extends BaseSolanaTool {
+export class SolanaDeployTokenTool extends Tool {
   name = "solana_deploy_token";
   description = `Deploy a new token on Solana blockchain.
 
@@ -11,26 +12,34 @@ export class SolanaDeployTokenTool extends BaseSolanaTool {
   decimals?: number, eg 9 (optional, defaults to 9)
   initialSupply?: number, eg 1000000 (optional)`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
 
       const result = await this.solanaKit.deployToken(
-        params.name,
-        params.uri,
-        params.symbol,
-        params.decimals,
-        params.initialSupply,
+        parsedInput.name,
+        parsedInput.uri,
+        parsedInput.symbol,
+        parsedInput.decimals,
+        parsedInput.initialSupply,
       );
 
       return JSON.stringify({
         status: "success",
         message: "Token deployed successfully",
         mintAddress: result.mint.toString(),
-        decimals: params.decimals || 9,
+        decimals: parsedInput.decimals || 9,
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,11 +1,15 @@
-import { BaseSolanaTool } from "../common/base";
-import { TokenReportResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaFetchTokenReportSummaryTool extends BaseSolanaTool {
+export class SolanaFetchTokenReportSummaryTool extends Tool {
   name = "solana_fetch_token_report_summary";
   description = `Fetches a summary report for a specific token from RugCheck.
   Inputs:
   - mint: string, the mint address of the token, e.g., "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -16,9 +20,13 @@ export class SolanaFetchTokenReportSummaryTool extends BaseSolanaTool {
         status: "success",
         message: "Token report summary fetched successfully",
         report,
-      } as TokenReportResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "FETCH_TOKEN_REPORT_SUMMARY_ERROR",
+      });
     }
   }
 }

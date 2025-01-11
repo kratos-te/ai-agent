@@ -1,11 +1,15 @@
-import { BaseSolanaTool } from "../common/base";
-import { CreateImageResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 import { create_image } from "../../tools/agent";
 
-export class SolanaCreateImageTool extends BaseSolanaTool {
+export class SolanaCreateImageTool extends Tool {
   name = "solana_create_image";
   description =
     "Create an image using OpenAI's DALL-E. Input should be a string prompt for the image.";
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   private validateInput(input: string): void {
     if (typeof input !== "string" || input.trim().length === 0) {
@@ -22,9 +26,13 @@ export class SolanaCreateImageTool extends BaseSolanaTool {
         status: "success",
         message: "Image created successfully",
         ...result,
-      } as CreateImageResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

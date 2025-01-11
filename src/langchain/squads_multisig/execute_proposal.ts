@@ -1,6 +1,7 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaExecuteProposal2by2Multisig extends BaseSolanaTool {
+export class SolanaExecuteProposal2by2Multisig extends Tool {
   name = "execute_proposal_2by2_multisig";
   description = `Execute a proposal/transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
   
@@ -8,6 +9,10 @@ export class SolanaExecuteProposal2by2Multisig extends BaseSolanaTool {
 
   Inputs (JSON string):
   - proposalIndex: number, the index of the proposal (optional).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {

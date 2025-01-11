@@ -1,20 +1,20 @@
-import { BaseSolanaTool } from "../common/base";
-import { TPSResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaTPSCalculatorTool extends BaseSolanaTool {
+export class SolanaTPSCalculatorTool extends Tool {
   name = "solana_get_tps";
   description = "Get the current TPS of the Solana network";
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   async _call(_input: string): Promise<string> {
     try {
       const tps = await this.solanaKit.getTPS();
-      return JSON.stringify({
-        status: "success",
-        message: `Current network TPS: ${tps}`,
-        tps,
-      } as TPSResponse);
+      return `Solana (mainnet-beta) current transactions per second: ${tps}`;
     } catch (error: any) {
-      return this.handleError(error);
+      return `Error fetching TPS: ${error.message}`;
     }
   }
 }

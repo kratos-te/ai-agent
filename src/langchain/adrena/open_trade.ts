@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { PerpTradeResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaPerpOpenTradeTool extends BaseSolanaTool {
+export class SolanaPerpOpenTradeTool extends Tool {
   name = "solana_open_perp_trade";
   description = `This tool can be used to open perpetuals trade ( It uses Adrena Protocol ).
 
@@ -14,6 +14,10 @@ export class SolanaPerpOpenTradeTool extends BaseSolanaTool {
   price?: number, eg 100 (optional)
   slippage?: number, eg 0.3 (optional)
   side: string, eg: "long" or "short"`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -42,10 +46,20 @@ export class SolanaPerpOpenTradeTool extends BaseSolanaTool {
         status: "success",
         message: "Perpetual trade opened successfully",
         transaction: tx,
-        ...parsedInput,
-      } as PerpTradeResponse);
+        price: parsedInput.price,
+        collateralAmount: parsedInput.collateralAmount,
+        collateralMint: new PublicKey(parsedInput.collateralMint),
+        leverage: parsedInput.leverage,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        slippage: parsedInput.slippage,
+        side: parsedInput.side,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,12 +1,17 @@
-import { BaseSolanaTool } from "../common";
 import { PublicKey } from "@solana/web3.js";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaWithdrawAllTool extends BaseSolanaTool {
+export class SolanaWithdrawAllTool extends Tool {
   name = "solana_withdraw_all";
   description = `This tool can be used to withdraw all funds from a Manifest market.
-  
-    Input ( input is a JSON string ):
-    marketId: string, eg "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ" for SOL/USDC (required)`;
+
+  Input ( input is a JSON string ):
+  marketId: string, eg "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ" for SOL/USDC (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {

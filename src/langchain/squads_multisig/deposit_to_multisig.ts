@@ -1,12 +1,17 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 import Decimal from "decimal.js";
 
-export class SolanaDepositTo2by2Multisig extends BaseSolanaTool {
+export class SolanaDepositTo2by2Multisig extends Tool {
   name = "deposit_to_2by2_multisig";
   description = `Deposit funds to a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
 
   Inputs (JSON string):
   - amount: number, the amount to deposit in SOL (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {

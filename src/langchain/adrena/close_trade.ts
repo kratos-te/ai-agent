@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { PerpTradeResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaPerpCloseTradeTool extends BaseSolanaTool {
+export class SolanaPerpCloseTradeTool extends Tool {
   name = "solana_close_perp_trade";
   description = `This tool can be used to close perpetuals trade ( It uses Adrena Protocol ).
 
@@ -11,29 +11,39 @@ export class SolanaPerpCloseTradeTool extends BaseSolanaTool {
   price?: number, eg 100 (optional)
   side: string, eg: "long" or "short"`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
 
       const tx =
-        params.side === "long"
+        parsedInput.side === "long"
           ? await this.solanaKit.closePerpTradeLong({
-              price: params.price,
-              tradeMint: new PublicKey(params.tradeMint),
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
             })
           : await this.solanaKit.closePerpTradeShort({
-              price: params.price,
-              tradeMint: new PublicKey(params.tradeMint),
+              price: parsedInput.price,
+              tradeMint: new PublicKey(parsedInput.tradeMint),
             });
 
       return JSON.stringify({
         status: "success",
         message: "Perpetual trade closed successfully",
         transaction: tx,
-        ...params,
-      } as PerpTradeResponse);
+        price: parsedInput.price,
+        tradeMint: new PublicKey(parsedInput.tradeMint),
+        side: parsedInput.side,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,21 +1,29 @@
-import { BaseSolanaTool } from "../common/base";
-import { OrcaPositionsResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOrcaFetchPositions extends BaseSolanaTool {
+export class SolanaOrcaFetchPositions extends Tool {
   name = "orca_fetch_positions";
-  description = `Fetch all the liquidity positions in an Orca Whirlpool by owner. Returns an object with position mint addresses as keys and position status details as values.`;
+  description = `Fetch all the liquidity positions in an Orca Whirlpool by owner. Returns an object with positiont mint addresses as keys and position status details as values.`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   async _call(): Promise<string> {
     try {
-      const positions = await this.solanaKit.orcaFetchPositions();
+      const txId = await this.solanaKit.orcaFetchPositions();
 
       return JSON.stringify({
         status: "success",
-        message: "Liquidity positions fetched successfully",
-        positions: JSON.parse(positions),
-      } as OrcaPositionsResponse);
+        message: "Liquidity positions fetched.",
+        transaction: txId,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,17 +1,20 @@
-import { BaseSolanaTool } from "../common/base";
-import { LendAssetResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaLendAssetTool extends BaseSolanaTool {
+export class SolanaLendAssetTool extends Tool {
   name = "solana_lend_asset";
   description = `Lend idle USDC for yield using Lulo. ( only USDC is supported )
 
   Inputs (input is a json string):
   amount: number, eg 1, 0.01 (required)`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   async _call(input: string): Promise<string> {
     try {
-      // Parse input either as direct number or JSON object
-      const amount = JSON.parse(input).amount || Number(input);
+      const amount = JSON.parse(input).amount || input;
 
       const tx = await this.solanaKit.lendAssets(amount);
 
@@ -20,9 +23,13 @@ export class SolanaLendAssetTool extends BaseSolanaTool {
         message: "Asset lent successfully",
         transaction: tx,
         amount,
-      } as LendAssetResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,14 +1,19 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 import { PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 
-export class SolanaTransferFrom2by2Multisig extends BaseSolanaTool {
+export class SolanaTransferFrom2by2Multisig extends Tool {
   name = "transfer_from_2by2_multisig";
   description = `Create a transaction to transfer funds from a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
 
   Inputs (JSON string):
   - amount: number, the amount to transfer in SOL (required).
   - recipient: string, the public key of the recipient (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {

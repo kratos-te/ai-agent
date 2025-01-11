@@ -1,39 +1,44 @@
-import { BaseSolanaTool } from "../common";
 import { OrderParams } from "../../types";
 import { generateOrdersfromPattern } from "../../tools/manifest";
 import { PublicKey } from "@solana/web3.js";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaBatchOrderTool extends BaseSolanaTool {
+export class SolanaBatchOrderTool extends Tool {
   name = "solana_batch_order";
   description = `Places multiple limit orders in one transaction using Manifest. Submit orders either as a list or pattern:
-  
-    1. List format:
-    {
-      "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
-      "orders": [
-        { "quantity": 1, "side": "Buy", "price": 200 },
-        { "quantity": 0.5, "side": "Sell", "price": 205 }
-      ]
+
+  1. List format:
+  {
+    "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
+    "orders": [
+      { "quantity": 1, "side": "Buy", "price": 200 },
+      { "quantity": 0.5, "side": "Sell", "price": 205 }
+    ]
+  }
+
+  2. Pattern format:
+  {
+    "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
+    "pattern": {
+      "side": "Buy",
+      "totalQuantity": 100,
+      "priceRange": { "max": 1.0 },
+      "spacing": { "type": "percentage", "value": 1 },
+      "numberOfOrders": 5
     }
-  
-    2. Pattern format:
-    {
-      "marketId": "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ",
-      "pattern": {
-        "side": "Buy",
-        "totalQuantity": 100,
-        "priceRange": { "max": 1.0 },
-        "spacing": { "type": "percentage", "value": 1 },
-        "numberOfOrders": 5
-      }
-    }
-  
-    Examples:
-    - "Place 5 buy orders totaling 100 tokens, 1% apart below $1"
-    - "Create 3 sell orders of 10 tokens each between $50-$55"
-    - "Place buy orders worth 50 tokens, $0.10 spacing from $0.80"
-  
-    Important: All orders must be in one transaction. Combine buy and sell orders into a single pattern or list. Never break the orders down to individual buy or sell orders.`;
+  }
+
+  Examples:
+  - "Place 5 buy orders totaling 100 tokens, 1% apart below $1"
+  - "Create 3 sell orders of 10 tokens each between $50-$55"
+  - "Place buy orders worth 50 tokens, $0.10 spacing from $0.80"
+
+  Important: All orders must be in one transaction. Combine buy and sell orders into a single pattern or list. Never break the orders down to individual buy or sell orders.`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -82,7 +87,11 @@ export class SolanaBatchOrderTool extends BaseSolanaTool {
         orders: parsedInput.orders,
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

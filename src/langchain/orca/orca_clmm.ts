@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 import { Decimal } from "decimal.js";
-import { BaseSolanaTool } from "../common/base";
-import { LiquidityResponse } from "./types";
 import { FEE_TIERS } from "../../tools/orca";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOrcaCreateCLMM extends BaseSolanaTool {
+export class SolanaOrcaCreateCLMM extends Tool {
   name = "orca_create_clmm";
   description = `Create a Concentrated Liquidity Market Maker (CLMM) pool on Orca, the most efficient and capital-optimized CLMM on Solana. This function initializes a CLMM pool but does not add liquidity. You can add liquidity later using a centered position or a single-sided position.
 
@@ -14,10 +14,17 @@ export class SolanaOrcaCreateCLMM extends BaseSolanaTool {
   - initialPrice: number, initial price of mintA in terms of mintB, e.g., 0.001 (required).
   - feeTier: number, fee tier in bps. Options: 1, 2, 4, 5, 16, 30, 65, 100, 200 (required).`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   async _call(input: string): Promise<string> {
     try {
-      const params = JSON.parse(input);
-      const feeTier = params.feeTier;
+      const inputFormat = JSON.parse(input);
+      const mintA = new PublicKey(inputFormat.mintDeploy);
+      const mintB = new PublicKey(inputFormat.mintPair);
+      const initialPrice = new Decimal(inputFormat.initialPrice);
+      const feeTier = inputFormat.feeTier;
 
       if (!feeTier || !(feeTier in FEE_TIERS)) {
         throw new Error(
@@ -26,10 +33,11 @@ export class SolanaOrcaCreateCLMM extends BaseSolanaTool {
           )}`,
         );
       }
+
       const txId = await this.solanaKit.orcaCreateCLMM(
-        new PublicKey(params.mintDeploy),
-        new PublicKey(params.mintPair),
-        new Decimal(params.initialPrice),
+        mintA,
+        mintB,
+        initialPrice,
         feeTier,
       );
 
@@ -38,9 +46,13 @@ export class SolanaOrcaCreateCLMM extends BaseSolanaTool {
         message:
           "CLMM pool created successfully. Note: No liquidity was added.",
         transaction: txId,
-      } as LiquidityResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

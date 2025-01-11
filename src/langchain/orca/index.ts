@@ -4,4 +4,3 @@ export * from "./orca_position";
 export * from "./orca_fetch_positions";
 export * from "./orca_centered_position";
 export * from "./orca_single_sided_position";
-export * from "./types";

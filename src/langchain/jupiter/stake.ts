@@ -1,12 +1,16 @@
-import { BaseSolanaTool } from "../common/base";
-import { StakeResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaStakeTool extends BaseSolanaTool {
+export class SolanaStakeTool extends Tool {
   name = "solana_stake";
   description = `This tool can be used to stake your SOL (Solana), also called as SOL staking or liquid staking.
 
   Inputs ( input is a JSON string ):
   amount: number, eg 1 or 0.01 (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -19,9 +23,13 @@ export class SolanaStakeTool extends BaseSolanaTool {
         message: "Staked successfully",
         transaction: tx,
         amount: parsedInput.amount,
-      } as StakeResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { ListNFTInput, NFTListingResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaListNFTForSaleTool extends BaseSolanaTool {
+export class SolanaListNFTForSaleTool extends Tool {
   name = "solana_list_nft_for_sale";
   description = `List an NFT for sale on Tensor Trade.
 
@@ -10,15 +10,19 @@ export class SolanaListNFTForSaleTool extends BaseSolanaTool {
   nftMint: string, the mint address of the NFT (required)
   price: number, price in SOL (required)`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params: ListNFTInput = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
 
-      // Validate NFT ownership
+      // Validate NFT ownership first
       const nftAccount =
         await this.solanaKit.connection.getTokenAccountsByOwner(
           this.solanaKit.wallet_address,
-          { mint: new PublicKey(params.nftMint) },
+          { mint: new PublicKey(parsedInput.nftMint) },
         );
 
       if (nftAccount.value.length === 0) {
@@ -27,23 +31,27 @@ export class SolanaListNFTForSaleTool extends BaseSolanaTool {
           message:
             "NFT not found in wallet. Please make sure you own this NFT.",
           code: "NFT_NOT_FOUND",
-        } as NFTListingResponse);
+        });
       }
 
       const tx = await this.solanaKit.tensorListNFT(
-        new PublicKey(params.nftMint),
-        params.price,
+        new PublicKey(parsedInput.nftMint),
+        parsedInput.price,
       );
 
       return JSON.stringify({
         status: "success",
         message: "NFT listed for sale successfully",
         transaction: tx,
-        price: params.price,
-        nftMint: params.nftMint,
-      } as NFTListingResponse);
+        price: parsedInput.price,
+        nftMint: parsedInput.nftMint,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

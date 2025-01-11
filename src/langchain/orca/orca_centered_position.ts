@@ -1,9 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
 import { Decimal } from "decimal.js";
-import { BaseSolanaTool } from "../common/base";
-import { OrcaCenteredPositionInput, LiquidityResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOrcaOpenCenteredPosition extends BaseSolanaTool {
+export class SolanaOrcaOpenCenteredPosition extends Tool {
   name = "orca_open_centered_position_with_liquidity";
   description = `Add liquidity to a CLMM by opening a centered position in an Orca Whirlpool, the most efficient liquidity pool on Solana.
 
@@ -13,23 +13,42 @@ export class SolanaOrcaOpenCenteredPosition extends BaseSolanaTool {
   - inputTokenMint: string, mint address of the deposit token (required).
   - inputAmount: number, amount of the deposit token, e.g., 100.0 (required).`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   async _call(input: string): Promise<string> {
     try {
-      const params: OrcaCenteredPositionInput = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
+      const whirlpoolAddress = new PublicKey(inputFormat.whirlpoolAddress);
+      const priceOffsetBps = parseInt(inputFormat.priceOffsetBps, 10);
+      const inputTokenMint = new PublicKey(inputFormat.inputTokenMint);
+      const inputAmount = new Decimal(inputFormat.inputAmount);
+
+      if (priceOffsetBps < 0) {
+        throw new Error(
+          "Invalid distanceFromCurrentPriceBps. It must be equal or greater than 0.",
+        );
+      }
+
       const txId = await this.solanaKit.orcaOpenCenteredPositionWithLiquidity(
-        new PublicKey(params.whirlpoolAddress),
-        params.priceOffsetBps,
-        new PublicKey(params.inputTokenMint),
-        new Decimal(params.inputAmount),
+        whirlpoolAddress,
+        priceOffsetBps,
+        inputTokenMint,
+        inputAmount,
       );
 
       return JSON.stringify({
         status: "success",
         message: "Centered liquidity position opened successfully.",
         transaction: txId,
-      } as LiquidityResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

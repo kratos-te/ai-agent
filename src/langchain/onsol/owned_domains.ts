@@ -1,15 +1,19 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { DomainsListResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaGetOwnedDomains extends BaseSolanaTool {
+export class SolanaGetOwnedDomains extends Tool {
   name = "solana_get_owned_domains";
   description = `Get all domains owned by a specific wallet address.
 
   Inputs:
   owner: string, eg "4Be9CvxqHW6BYiRAxW9Q3xu1ycTMWaL5z8NX4HR3ha7t" (required)`;
 
-  protected async _call(input: string): Promise<string> {
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
     try {
       const ownerPubkey = new PublicKey(input.trim());
       const domains = await this.solanaKit.getOwnedAllDomains(ownerPubkey);
@@ -18,9 +22,13 @@ export class SolanaGetOwnedDomains extends BaseSolanaTool {
         status: "success",
         message: "Owned domains fetched successfully",
         domains,
-      } as DomainsListResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "FETCH_OWNED_DOMAINS_ERROR",
+      });
     }
   }
 }

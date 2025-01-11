@@ -1,7 +1,8 @@
-import { BaseSolanaTool } from "../common/base";
-import { FlashOpenTradeInput, PerpTradeResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
+import { marketTokenMap } from "../../utils/flashUtils";
 
-export class SolanaFlashOpenTrade extends BaseSolanaTool {
+export class SolanaFlashOpenTrade extends Tool {
   name = "solana_flash_open_trade";
   description = `This tool can be used to open a new leveraged trading position on Flash.Trade exchange.
 
@@ -13,28 +14,68 @@ export class SolanaFlashOpenTrade extends BaseSolanaTool {
   
   Example prompt is Open a 20x leveraged trade for SOL on long side using flash trade with 500 USD as collateral`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params: FlashOpenTradeInput = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
+
+      // Validate input parameters
+      if (!parsedInput.token) {
+        throw new Error("Token is required, received: " + parsedInput.token);
+      }
+      if (!Object.keys(marketTokenMap).includes(parsedInput.token)) {
+        throw new Error(
+          "Token must be one of " +
+            Object.keys(marketTokenMap).join(", ") +
+            ", received: " +
+            parsedInput.token +
+            "\n" +
+            "Please check https://beast.flash.trade/ for the list of supported tokens",
+        );
+      }
+      if (!["long", "short"].includes(parsedInput.type)) {
+        throw new Error(
+          'Type must be either "long" or "short", received: ' +
+            parsedInput.type,
+        );
+      }
+      if (!parsedInput.collateral || parsedInput.collateral <= 0) {
+        throw new Error(
+          "Collateral amount must be positive, received: " +
+            parsedInput.collateral,
+        );
+      }
+      if (!parsedInput.leverage || parsedInput.leverage <= 0) {
+        throw new Error(
+          "Leverage must be positive, received: " + parsedInput.leverage,
+        );
+      }
 
       const tx = await this.solanaKit.flashOpenTrade({
-        token: params.token,
-        side: params.type,
-        collateralUsd: params.collateral,
-        leverage: params.leverage,
+        token: parsedInput.token,
+        side: parsedInput.type,
+        collateralUsd: parsedInput.collateral,
+        leverage: parsedInput.leverage,
       });
 
       return JSON.stringify({
         status: "success",
         message: "Flash trade position opened successfully",
         transaction: tx,
-        token: params.token,
-        side: params.type,
-        collateralAmount: params.collateral,
-        leverage: params.leverage,
-      } as PerpTradeResponse);
+        token: parsedInput.token,
+        side: parsedInput.type,
+        collateral: parsedInput.collateral,
+        leverage: parsedInput.leverage,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

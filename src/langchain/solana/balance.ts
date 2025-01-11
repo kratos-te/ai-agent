@@ -1,7 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaBalanceTool extends BaseSolanaTool {
+export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
   description = `Get the balance of a Solana wallet or token account.
 
@@ -11,21 +12,26 @@ export class SolanaBalanceTool extends BaseSolanaTool {
   Inputs ( input is a JSON string ):
   tokenAddress: string, eg "So11111111111111111111111111111111111111112" (optional)`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params = input ? JSON.parse(input) : {};
-      const tokenAddress = params.tokenAddress
-        ? new PublicKey(params.tokenAddress)
-        : undefined;
+      const tokenAddress = input ? new PublicKey(input) : undefined;
       const balance = await this.solanaKit.getBalance(tokenAddress);
 
       return JSON.stringify({
         status: "success",
         balance,
-        token: params.tokenAddress || "SOL",
+        token: input || "SOL",
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

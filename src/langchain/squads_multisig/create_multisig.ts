@@ -1,7 +1,8 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 import { PublicKey } from "@solana/web3.js";
 
-export class SolanaCreate2by2Multisig extends BaseSolanaTool {
+export class SolanaCreate2by2Multisig extends Tool {
   name = "create_2by2_multisig";
   description = `Create a 2-of-2 multisig account on Solana with the user and the agent, where both approvals will be required to run the transactions.
   
@@ -9,6 +10,10 @@ export class SolanaCreate2by2Multisig extends BaseSolanaTool {
 
   Inputs (JSON string):
   - creator: string, the public key of the creator (required).`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {

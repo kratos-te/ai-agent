@@ -1,7 +1,7 @@
-import { BaseSolanaTool } from "../common/base";
-import { ResolveDomainResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaResolveAllDomainsTool extends BaseSolanaTool {
+export class SolanaResolveAllDomainsTool extends Tool {
   name = "solana_resolve_all_domains";
   description = `Resolve domain names to a public key for ALL domain types EXCEPT .sol domains.
   Use this for domains like .blink, .bonk, etc.
@@ -10,7 +10,11 @@ export class SolanaResolveAllDomainsTool extends BaseSolanaTool {
   Input:
   domain: string, eg "mydomain.blink" or "mydomain.bonk" (required)`;
 
-  protected async _call(input: string): Promise<string> {
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
     try {
       const owner = await this.solanaKit.resolveAllDomains(input);
 
@@ -19,16 +23,20 @@ export class SolanaResolveAllDomainsTool extends BaseSolanaTool {
           status: "error",
           message: "Domain not found",
           code: "DOMAIN_NOT_FOUND",
-        } as ResolveDomainResponse);
+        });
       }
 
       return JSON.stringify({
         status: "success",
         message: "Domain resolved successfully",
         owner: owner?.toString(),
-      } as ResolveDomainResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "DOMAIN_RESOLUTION_ERROR",
+      });
     }
   }
 }

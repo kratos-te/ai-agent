@@ -1,12 +1,17 @@
-import { BaseSolanaTool } from "../common";
 import { PublicKey } from "@solana/web3.js";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaCancelAllOrdersTool extends BaseSolanaTool {
+export class SolanaCancelAllOrdersTool extends Tool {
   name = "solana_cancel_all_orders";
   description = `This tool can be used to cancel all orders from a Manifest market.
-  
-    Input ( input is a JSON string ):
-    marketId: string, eg "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ" for SOL/USDC (required)`;
+
+  Input ( input is a JSON string ):
+  marketId: string, eg "ENhU8LsaR7vDD2G1CsWcsuSGNrih9Cv5WZEk7q9kPapQ" for SOL/USDC (required)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -20,7 +25,11 @@ export class SolanaCancelAllOrdersTool extends BaseSolanaTool {
         marketId,
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,7 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaBalanceOtherTool extends BaseSolanaTool {
+export class SolanaBalanceOtherTool extends Tool {
   name = "solana_balance_other";
   description = `Get the balance of a Solana wallet or token account which is different from the agent's wallet.
 
@@ -11,26 +12,35 @@ export class SolanaBalanceOtherTool extends BaseSolanaTool {
   walletAddress: string, eg "GDEkQF7UMr7RLv1KQKMtm8E2w3iafxJLtyXu3HVQZnME" (required)
   tokenAddress: string, eg "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (optional)`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params = JSON.parse(input);
-      const tokenPubKey = params.tokenAddress
-        ? new PublicKey(params.tokenAddress)
+      const { walletAddress, tokenAddress } = JSON.parse(input);
+
+      const tokenPubKey = tokenAddress
+        ? new PublicKey(tokenAddress)
         : undefined;
 
       const balance = await this.solanaKit.getBalanceOther(
-        new PublicKey(params.walletAddress),
+        new PublicKey(walletAddress),
         tokenPubKey,
       );
 
       return JSON.stringify({
         status: "success",
         balance,
-        wallet: params.walletAddress,
-        token: params.tokenAddress || "SOL",
+        wallet: walletAddress,
+        token: tokenAddress || "SOL",
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 import { Decimal } from "decimal.js";
-import { BaseSolanaTool } from "../common/base";
-import { LiquidityResponse } from "./types";
 import { FEE_TIERS } from "../../tools/orca";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOrcaCreateSingleSidedPool extends BaseSolanaTool {
+export class SolanaOrcaCreateSingleSideLiquidityPool extends Tool {
   name = "orca_create_single_sided_liquidity_pool";
   description = `Create a single-sided liquidity pool on Orca, the most efficient and capital-optimized CLMM platform on Solana.
 
@@ -18,10 +18,19 @@ export class SolanaOrcaCreateSingleSidedPool extends BaseSolanaTool {
   - maxPrice: number, maximum price at which liquidity is added, e.g., 5.0 (required).
   - feeTier: number, fee tier for the pool in bps. Options: 1, 2, 4, 5, 16, 30, 65, 100, 200 (required).`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   async _call(input: string): Promise<string> {
     try {
-      const params = JSON.parse(input);
-      const feeTier = params.feeTier;
+      const inputFormat = JSON.parse(input);
+      const depositTokenAmount = inputFormat.depositTokenAmount;
+      const depositTokenMint = new PublicKey(inputFormat.depositTokenMint);
+      const otherTokenMint = new PublicKey(inputFormat.otherTokenMint);
+      const initialPrice = new Decimal(inputFormat.initialPrice);
+      const maxPrice = new Decimal(inputFormat.maxPrice);
+      const feeTier = inputFormat.feeTier;
 
       if (!feeTier || !(feeTier in FEE_TIERS)) {
         throw new Error(
@@ -30,12 +39,13 @@ export class SolanaOrcaCreateSingleSidedPool extends BaseSolanaTool {
           )}`,
         );
       }
+
       const txId = await this.solanaKit.orcaCreateSingleSidedLiquidityPool(
-        params.depositTokenAmount,
-        new PublicKey(params.depositTokenMint),
-        new PublicKey(params.otherTokenMint),
-        new Decimal(params.initialPrice),
-        new Decimal(params.maxPrice),
+        depositTokenAmount,
+        depositTokenMint,
+        otherTokenMint,
+        initialPrice,
+        maxPrice,
         feeTier,
       );
 
@@ -43,9 +53,13 @@ export class SolanaOrcaCreateSingleSidedPool extends BaseSolanaTool {
         status: "success",
         message: "Single-sided Whirlpool created successfully",
         transaction: txId,
-      } as LiquidityResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

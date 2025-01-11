@@ -1,6 +1,7 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaPumpfunTokenLaunchTool extends BaseSolanaTool {
+export class SolanaPumpfunTokenLaunchTool extends Tool {
   name = "solana_launch_pumpfun_token";
 
   description = `This tool can be used to launch a token on Pump.fun,
@@ -13,6 +14,10 @@ export class SolanaPumpfunTokenLaunchTool extends BaseSolanaTool {
    tokenTicker: string, eg "PUMP",
    description: string, eg "PumpFun Token is a token on the Solana blockchain",
    imageUrl: string, eg "https://i.imgur.com/UFm07Np_d.png`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   private validateInput(input: any): void {
     if (!input.tokenName || typeof input.tokenName !== "string") {

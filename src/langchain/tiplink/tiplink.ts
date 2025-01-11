@@ -1,25 +1,29 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { TipLinkInput, TipLinkResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaTipLinkTool extends BaseSolanaTool {
+export class SolanaTipLinkTool extends Tool {
   name = "solana_tiplink";
   description = `Create a TipLink for transferring SOL or SPL tokens.
   Input is a JSON string with:
   - amount: number (required) - Amount to transfer
   - splmintAddress: string (optional) - SPL token mint address`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   protected async _call(input: string): Promise<string> {
     try {
-      const params: TipLinkInput = JSON.parse(input);
+      const parsedInput = JSON.parse(input);
 
-      if (!params.amount) {
+      if (!parsedInput.amount) {
         throw new Error("Amount is required");
       }
 
-      const amount = parseFloat(params.amount.toString());
-      const splmintAddress = params.splmintAddress
-        ? new PublicKey(params.splmintAddress)
+      const amount = parseFloat(parsedInput.amount);
+      const splmintAddress = parsedInput.splmintAddress
+        ? new PublicKey(parsedInput.splmintAddress)
         : undefined;
 
       const { url, signature } = await this.solanaKit.createTiplink(
@@ -29,14 +33,18 @@ export class SolanaTipLinkTool extends BaseSolanaTool {
 
       return JSON.stringify({
         status: "success",
-        message: "TipLink created successfully",
         url,
         signature,
         amount,
         tokenType: splmintAddress ? "SPL" : "SOL",
-      } as TipLinkResponse);
+        message: `TipLink created successfully`,
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

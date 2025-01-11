@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { OrcaPositionInput, LiquidityResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOrcaClosePosition extends BaseSolanaTool {
+export class SolanaClosePosition extends Tool {
   name = "orca_close_position";
   description = `Closes an existing liquidity position in an Orca Whirlpool. This function fetches the position
   details using the provided mint address and closes the position with a 1% slippage.
@@ -10,20 +10,30 @@ export class SolanaOrcaClosePosition extends BaseSolanaTool {
   Inputs (JSON string):
   - positionMintAddress: string, the address of the position mint that represents the liquidity position.`;
 
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
   async _call(input: string): Promise<string> {
     try {
-      const params: OrcaPositionInput = JSON.parse(input);
-      const txId = await this.solanaKit.orcaClosePosition(
-        new PublicKey(params.positionMintAddress),
+      const inputFormat = JSON.parse(input);
+      const positionMintAddress = new PublicKey(
+        inputFormat.positionMintAddress,
       );
+
+      const txId = await this.solanaKit.orcaClosePosition(positionMintAddress);
 
       return JSON.stringify({
         status: "success",
         message: "Liquidity position closed successfully.",
         transaction: txId,
-      } as LiquidityResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

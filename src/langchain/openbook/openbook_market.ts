@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { BaseSolanaTool } from "../common/base";
-import { OpenbookMarketInput } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaOpenbookCreateMarket extends BaseSolanaTool {
+export class SolanaOpenbookCreateMarket extends Tool {
   name = "solana_openbook_create_market";
   description = `Openbook marketId, required for ammv4
 
@@ -10,17 +10,23 @@ export class SolanaOpenbookCreateMarket extends BaseSolanaTool {
   baseMint: string (required)
   quoteMint: string (required)
   lotSize: number (required)
-  tickSize: number (required)`;
+  tickSize: number (required)
+  `;
 
-  protected async _call(input: string): Promise<string> {
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
     try {
-      const params: OpenbookMarketInput = JSON.parse(input);
+      const inputFormat = JSON.parse(input);
 
       const tx = await this.solanaKit.openbookCreateMarket(
-        new PublicKey(params.baseMint),
-        new PublicKey(params.quoteMint),
-        params.lotSize,
-        params.tickSize,
+        new PublicKey(inputFormat.baseMint),
+        new PublicKey(inputFormat.quoteMint),
+
+        inputFormat.lotSize,
+        inputFormat.tickSize,
       );
 
       return JSON.stringify({
@@ -29,7 +35,11 @@ export class SolanaOpenbookCreateMarket extends BaseSolanaTool {
         transaction: tx,
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }

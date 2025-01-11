@@ -1,14 +1,18 @@
-import { BaseSolanaTool } from "../common/base";
-import { DomainsListResponse } from "./types";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 
-export class SolanaGetOwnedTldDomains extends BaseSolanaTool {
+export class SolanaGetOwnedTldDomains extends Tool {
   name = "solana_get_owned_tld_domains";
   description = `Get all domains owned by the agent's wallet for a specific TLD.
 
   Inputs:
   tld: string, eg "bonk" (required)`;
 
-  protected async _call(input: string): Promise<string> {
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
     try {
       const domains = await this.solanaKit.getOwnedDomainsForTLD(input);
 
@@ -16,9 +20,13 @@ export class SolanaGetOwnedTldDomains extends BaseSolanaTool {
         status: "success",
         message: "TLD domains fetched successfully",
         domains,
-      } as DomainsListResponse);
+      });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "FETCH_TLD_DOMAINS_ERROR",
+      });
     }
   }
 }

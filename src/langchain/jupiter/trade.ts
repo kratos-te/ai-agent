@@ -1,15 +1,20 @@
-import { BaseSolanaTool } from "../common";
+import { Tool } from "langchain/tools";
+import { SolanaAgentKit } from "../../agent";
 import { PublicKey } from "@solana/web3.js";
 
-export class SolanaTradeTool extends BaseSolanaTool {
+export class SolanaTradeTool extends Tool {
   name = "solana_trade";
   description = `This tool can be used to swap tokens to another token ( It uses Jupiter Exchange ).
-  
-    Inputs ( input is a JSON string ):
-    outputMint: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (required)
-    inputAmount: number, eg 1 or 0.01 (required)
-    inputMint?: string, eg "So11111111111111111111111111111111111111112" (optional)
-    slippageBps?: number, eg 100 (optional)`;
+
+  Inputs ( input is a JSON string ):
+  outputMint: string, eg "So11111111111111111111111111111111111111112" or "SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa" (required)
+  inputAmount: number, eg 1 or 0.01 (required)
+  inputMint?: string, eg "So11111111111111111111111111111111111111112" (optional)
+  slippageBps?: number, eg 100 (optional)`;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
 
   protected async _call(input: string): Promise<string> {
     try {
@@ -33,7 +38,11 @@ export class SolanaTradeTool extends BaseSolanaTool {
         outputToken: parsedInput.outputMint,
       });
     } catch (error: any) {
-      return this.handleError(error);
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   }
 }
