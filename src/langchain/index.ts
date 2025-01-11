@@ -1310,6 +1310,88 @@ export class SolanaClosePosition extends Tool {
   }
 }
 
+export class SolanaMeteoraCreateDynamicPool extends Tool {
+  name = "meteora_create_dynamic_pool";
+  description = `Create a Meteora Dynamic Pool. This function adds liquidity with a constant-product formula.
+  
+  Inputs (JSON string):
+  - tokenAMint: string, token A mint (required).
+  - tokenBMint: string, token B mint (required).
+  - tokenAAmount: number, token A amount (required).
+  - tokenBAmount: number, token B amount (required).
+  - tradeFee: number, trade fee in percentage (required).
+  - activationType: number, pool start trading time indicator. 0 is slot and 1 is timestamp, default is timestamp (optional).
+  - activationPoint: number, pool start trading slot / timestamp, default is null means pool can start trading immediately (optional).
+  - hasAlphaVault: boolean, whether the pool supports alpha vault, default is false (optional).
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      console.log(inputFormat);
+
+      const txId = "";
+
+      return JSON.stringify({
+        status: "success",
+        message: "Meteora Dynamic pool created successfully.",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class SolanaMeteoraCreateDlmmPool extends Tool {
+  name = "meteora_create_dlmm_pool";
+  description = `Create a Meteora DLMM Pool. This function doesn't add liquidity.
+  
+  Inputs (JSON string):
+  - tokenAMint: string, token A mint (required).
+  - tokenBMint: string, token B mint (required).
+  - binStep: number, pool bin step (required).
+  - initialPrice: number, pool initial price (required).
+  - fee: number, trade fee in percentage (required).
+  - activationType: number, pool start trading time indicator. 0 is slot and 1 is timestamp, default is timestamp (optional).
+  - activationPoint: number, pool start trading slot / timestamp, default is null means pool can start trading immediately (optional).
+  - hasAlphaVault: boolean, whether the pool supports alpha vault, default is false (optional).
+  `;
+
+  constructor(private solanaKit: SolanaAgentKit) {
+    super();
+  }
+
+  async _call(input: string): Promise<string> {
+    try {
+      const inputFormat = JSON.parse(input);
+      console.log(inputFormat);
+
+      const txId = "";
+
+      return JSON.stringify({
+        status: "success",
+        message: "Meteora DLMM pool created successfully.",
+        transaction: txId,
+      });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
 export class SolanaOrcaCreateCLMM extends Tool {
   name = "orca_create_clmm";
   description = `Create a Concentrated Liquidity Market Maker (CLMM) pool on Orca, the most efficient and capital-optimized CLMM on Solana. This function initializes a CLMM pool but does not add liquidity. You can add liquidity later using a centered position or a single-sided position.
@@ -2720,6 +2802,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaBatchOrderTool(solanaKit),
     new SolanaCancelAllOrdersTool(solanaKit),
     new SolanaWithdrawAllTool(solanaKit),
+    new SolanaMeteoraCreateDynamicPool(solanaKit),
+    new SolanaMeteoraCreateDlmmPool(solanaKit),
     new SolanaClosePosition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),

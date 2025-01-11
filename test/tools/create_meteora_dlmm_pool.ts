@@ -39,9 +39,9 @@ async function main() {
   const activationPoint = undefined;
 
   const txHash = await agent.meteoraCreateDlmmPool(
-    binStep,
     tokenAMint,
     tokenBMint,
+    binStep,
     initialPrice,
     priceRoundingUp,
     feeBps,

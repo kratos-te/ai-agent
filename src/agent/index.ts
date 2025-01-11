@@ -368,9 +368,9 @@ export class SolanaAgentKit {
   }
 
   async meteoraCreateDlmmPool(
-    binStep: number,
     tokenAMint: PublicKey,
     tokenBMint: PublicKey,
+    binStep: number,
     initialPrice: number,
     priceRoundingUp: boolean,
     feeBps: number,
