@@ -25,11 +25,18 @@ export async function createMeteoraDynamicAMMPool(
   tokenBMint: PublicKey,
   tokenAAmount: BN,
   tokenBAmount: BN,
-  customizableParams: CustomizableParams
+  customizableParams: CustomizableParams,
 ): Promise<string> {
-  const initPoolTx = await AmmImpl.createCustomizablePermissionlessConstantProductPool(
-    agent.connection, agent.wallet_address, tokenAMint, tokenBMint, tokenAAmount, tokenBAmount, customizableParams
-  )
+  const initPoolTx =
+    await AmmImpl.createCustomizablePermissionlessConstantProductPool(
+      agent.connection,
+      agent.wallet_address,
+      tokenAMint,
+      tokenBMint,
+      tokenAAmount,
+      tokenBAmount,
+      customizableParams,
+    );
 
   const initPoolTxHash = await sendAndConfirmTransaction(
     agent.connection,

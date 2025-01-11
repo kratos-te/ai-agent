@@ -28,7 +28,7 @@ export async function createMeteoraDlmmPool(
   feeBps: number,
   activationType: ActivationType,
   hasAlphaVault: boolean,
-  activationPoint: BN | undefined
+  activationPoint: BN | undefined,
 ): Promise<string> {
   const tokenAMintInfo = await getMint(agent.connection, tokenAMint);
   const tokenBMintInfo = await getMint(agent.connection, tokenBMint);
@@ -55,8 +55,8 @@ export async function createMeteoraDlmmPool(
     activationType,
     hasAlphaVault,
     agent.wallet_address,
-    activationPoint
-  )
+    activationPoint,
+  );
 
   const initPoolTxHash = await sendAndConfirmTransaction(
     agent.connection,

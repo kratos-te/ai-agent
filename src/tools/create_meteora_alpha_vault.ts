@@ -4,7 +4,7 @@
 // import BN from "bn.js";
 
 // /**
-//  * Create Meteora FCFS alpha vault 
+//  * Create Meteora FCFS alpha vault
 //  * @param agent SolanaAgentKit instance
 //  * @param tokenAMint Token A mint
 //  * @param tokenBMint Token B mint
@@ -17,7 +17,7 @@
 //  * @param individualDepositingCap Maximum number of deposit amount for individual
 //  * @param escrowFee Fee to create stake escrow account
 //  * @param whitelistMode Alpha vault whitelist mode
-//  * @returns 
+//  * @returns
 //  */
 // export async function createMeteoraFcfsAlphaVault(
 //   agent: SolanaAgentKit,
@@ -64,7 +64,7 @@
 // }
 
 // /**
-//  * Create Meteora Prorata alpha vault 
+//  * Create Meteora Prorata alpha vault
 //  * @param agent SolanaAgentKit instance
 //  * @param tokenAMint Token A mint
 //  * @param tokenBMint Token B mint
@@ -76,7 +76,7 @@
 //  * @param maxBuyingCap Maximum buying amount
 //  * @param escrowFee Fee to create stake escrow account
 //  * @param whitelistMode Alpha vault whitelist mode
-//  * @returns 
+//  * @returns
 //  */
 // export async function createMeteoraProrataAlphaVault(
 //   agent: SolanaAgentKit,
