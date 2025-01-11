@@ -63,7 +63,7 @@ import {
   fetchPythPriceFeedID,
   flashOpenTrade,
   flashCloseTrade,
-} from "../tools";
+} from "../tools/";
 import {
   CollectionDeployment,
   CollectionOptions,
@@ -79,7 +79,7 @@ import {
 import {
   createCollection,
   createSingle,
-} from "../tools/create_3land_collectible";
+} from "../tools/3land/create_3land_collectible";
 import {
   CreateCollectionOptions,
   CreateSingleOptions,
