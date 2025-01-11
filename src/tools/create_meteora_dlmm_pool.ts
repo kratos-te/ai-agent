@@ -40,7 +40,7 @@ export async function createMeteoraDlmmPool(
   );
 
   const activateBinId = DLMM.getBinIdFromPrice(
-    initialPrice,
+    initPrice,
     binStep,
     !priceRoundingUp,
   );

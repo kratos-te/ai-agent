@@ -10,11 +10,25 @@ const agent = new SolanaAgentKit(
 async function main() {
   console.log("<<< Test Create Meteora DLMM pool");
 
-  const { mint: tokenAMint } = await deploy_token(agent, "token_a_mint", "www.example.com", "TOKEN_A", 6, 100_000);
-  const { mint: tokenBMint } = await deploy_token(agent, "token_b_mint", "www.example.com", "TOKEN_B", 6, 100_000);
+  const { mint: tokenAMint } = await deploy_token(
+    agent,
+    "token_a_mint",
+    "www.example.com",
+    "TOKEN_A",
+    6,
+    100_000,
+  );
+  const { mint: tokenBMint } = await deploy_token(
+    agent,
+    "token_b_mint",
+    "www.example.com",
+    "TOKEN_B",
+    6,
+    100_000,
+  );
 
   // Delay for 5 seconds
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   const binStep = 20;
   const initialPrice = 0.25;
@@ -24,7 +38,17 @@ async function main() {
   const hasAlphaVault = false;
   const activationPoint = undefined;
 
-  const txHash = await agent.meteoraCreateDlmmPool(binStep, tokenAMint, tokenBMint, initialPrice, priceRoundingUp, feeBps, activationType, hasAlphaVault, activationPoint);
+  const txHash = await agent.meteoraCreateDlmmPool(
+    binStep,
+    tokenAMint,
+    tokenBMint,
+    initialPrice,
+    priceRoundingUp,
+    feeBps,
+    activationType,
+    hasAlphaVault,
+    activationPoint,
+  );
   console.log(`Tx successfully ${txHash.toString()}`);
 
   console.log(">>> Test Create Meteora DLMM Pool Passed");

@@ -14,11 +14,25 @@ const agent = new SolanaAgentKit(
 async function main() {
   console.log("<<< Test Create Meteora Dynamic AMM pool");
 
-  const { mint: tokenAMint } = await deploy_token(agent, "token_a_mint", "www.example.com", "TOKEN_A", 6, 100_000);
-  const { mint: tokenBMint } = await deploy_token(agent, "token_b_mint", "www.example.com", "TOKEN_B", 6, 100_000);
+  const { mint: tokenAMint } = await deploy_token(
+    agent,
+    "token_a_mint",
+    "www.example.com",
+    "TOKEN_A",
+    6,
+    100_000,
+  );
+  const { mint: tokenBMint } = await deploy_token(
+    agent,
+    "token_b_mint",
+    "www.example.com",
+    "TOKEN_B",
+    6,
+    100_000,
+  );
 
   // Delay for 5 seconds
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   const tokenAAmount = new BN(1000);
   const tokenBAmount = new BN(5);
@@ -28,11 +42,22 @@ async function main() {
     hasAlphaVault: false,
     activationType: 0,
   };
-  const txHash = await agent.meteoraCreateDynamicPool(tokenAMint, tokenBMint, tokenAAmount, tokenBAmount, params.tradeFeeNumerator, params.activationPoint, params.hasAlphaVault, params.activationType);
+  const txHash = await agent.meteoraCreateDynamicPool(
+    tokenAMint,
+    tokenBMint,
+    tokenAAmount,
+    tokenBAmount,
+    params.tradeFeeNumerator,
+    params.activationPoint,
+    params.hasAlphaVault,
+    params.activationType,
+  );
   console.log(`Tx successfully ${txHash.toString()}`);
 
   const poolKey = deriveCustomizablePermissionlessConstantProductPoolAddress(
-    tokenAMint, tokenBMint, METEORA_DYNAMIC_AMM_PROGRAM_ID
+    tokenAMint,
+    tokenBMint,
+    METEORA_DYNAMIC_AMM_PROGRAM_ID,
   );
   const pool = await AmmImpl.create(agent.connection, poolKey);
   await pool.updateState();
