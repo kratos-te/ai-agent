@@ -33,3 +33,10 @@ export const DEFAULT_OPTIONS = {
 export const JUP_API = "https://quote-api.jup.ag/v6";
 export const JUP_REFERRAL_ADDRESS =
   "REFER4ZgmyYx9c6He5XfaTMiGfdLwRnkV4RPp9t9iF3";
+
+export const METEORA_DYNAMIC_AMM_PROGRAM_ID = new PublicKey(
+  "Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB",
+);
+export const METEORA_DLMM_PROGRAM_ID = new PublicKey(
+  "LbVRzDTvBDEcrthxfZ4RL6yiq3uZw8bS6MwtdY6UhFQ",
+);
