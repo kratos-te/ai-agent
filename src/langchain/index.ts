@@ -23,6 +23,7 @@ export * from "./3land";
 export * from "./tiplink";
 export * from "./sns";
 export * from "./lightprotocol";
+export * from "./squads";
 
 import { SolanaAgentKit } from "../agent";
 import {
@@ -83,6 +84,13 @@ import {
   SolanaPerpCloseTradeTool,
   SolanaFlashOpenTrade,
   SolanaFlashCloseTrade,
+  SolanaCreate2by2Multisig,
+  SolanaDepositTo2by2Multisig,
+  SolanaTransferFrom2by2Multisig,
+  SolanaCreateProposal2by2Multisig,
+  SolanaApproveProposal2by2Multisig,
+  SolanaExecuteProposal2by2Multisig,
+  SolanaRejectProposal2by2Multisig,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -144,5 +152,12 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPerpCloseTradeTool(solanaKit),
     new SolanaFlashOpenTrade(solanaKit),
     new SolanaFlashCloseTrade(solanaKit),
+    new SolanaCreate2by2Multisig(solanaKit),
+    new SolanaCreateProposal2by2Multisig(solanaKit),
+    new SolanaApproveProposal2by2Multisig(solanaKit),
+    new SolanaRejectProposal2by2Multisig(solanaKit),
+    new SolanaExecuteProposal2by2Multisig(solanaKit),
+    new SolanaDepositTo2by2Multisig(solanaKit),
+    new SolanaTransferFrom2by2Multisig(solanaKit),
   ];
 }

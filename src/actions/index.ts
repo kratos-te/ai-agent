@@ -30,6 +30,13 @@ import launchPumpfunTokenAction from "./pumpfun/launchPumpfunToken";
 import getWalletAddressAction from "./agent/getWalletAddress";
 import flashOpenTradeAction from "./flash/flashOpenTrade";
 import flashCloseTradeAction from "./flash/flashCloseTrade";
+import createMultisigAction from "./squads/createMultisig";
+import approveMultisigProposalAction from "./squads/approveMultisigProposal";
+import createMultisigProposalAction from "./squads/createMultisigProposal";
+import depositToMultisigAction from "./squads/depositToMultisigTreasury";
+import executeMultisigProposalAction from "./squads/executeMultisigProposal";
+import rejectMultisigProposalAction from "./squads/rejectMultisigProposal";
+import transferFromMultisigAction from "./squads/transferFromMultisigTreasury";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -65,6 +72,13 @@ export const ACTIONS = {
   LAUNCH_PUMPFUN_TOKEN_ACTION: launchPumpfunTokenAction,
   FLASH_OPEN_TRADE_ACTION: flashOpenTradeAction,
   FLASH_CLOSE_TRADE_ACTION: flashCloseTradeAction,
+  CREATE_MULTISIG_ACTION: createMultisigAction,
+  DEPOSIT_TO_MULTISIG_ACTION: depositToMultisigAction,
+  TRANSFER_FROM_MULTISIG_ACTION: transferFromMultisigAction,
+  CREATE_MULTISIG_PROPOSAL_ACTION: createMultisigProposalAction,
+  APPROVE_MULTISIG_PROPOSAL_ACTION: approveMultisigProposalAction,
+  REJECT_MULTISIG_PROPOSAL_ACTION: rejectMultisigProposalAction,
+  EXECUTE_MULTISIG_PROPOSAL_ACTION: executeMultisigProposalAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
