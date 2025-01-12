@@ -37,6 +37,11 @@ import requestWithdrawalFromVaultAction from "./drift/requestWithdrawalFromVault
 import withdrawFromVaultAction from "./drift/withdrawFromVault";
 import tradeDelegatedDriftVaultAction from "./drift/tradeDelegatedDriftVault";
 import vaultInfoAction from "./drift/vaultInfo";
+import createDriftUserAccountAction from "./drift/createDriftUserAccount";
+import tradeDriftPerpAccountAction from "./drift/tradePerpAccount";
+import doesUserHaveDriftAccountAction from "./drift/doesUserHaveDriftAccount";
+import depositToDriftUserAccountAction from "./drift/depositToDriftUserAccount";
+import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -79,6 +84,11 @@ export const ACTIONS = {
   WITHDRAW_FROM_DRIFT_VAULT_ACTION: withdrawFromVaultAction,
   TRADE_DELEGATED_DRIFT_VAULT_ACTION: tradeDelegatedDriftVaultAction,
   DRIFT_VAULT_INFO_ACTION: vaultInfoAction,
+  CREATE_DRIFT_USER_ACCOUNT_ACTION: createDriftUserAccountAction,
+  TRADE_DRIFT_PERP_ACCOUNT_ACTION: tradeDriftPerpAccountAction,
+  DOES_USER_HAVE_DRIFT_ACCOUNT_ACTION: doesUserHaveDriftAccountAction,
+  DEPOSIT_TO_DRIFT_USER_ACCOUNT_ACTION: depositToDriftUserAccountAction,
+  WITHDRAW_FROM_DRIFT_ACCOUNT_ACTION: withdrawFromDriftAccountAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

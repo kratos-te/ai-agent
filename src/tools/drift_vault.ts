@@ -1,8 +1,6 @@
 import {
   BASE_PRECISION,
   convertToNumber,
-  DriftClient,
-  FastSingleTxSender,
   getLimitOrderParams,
   getMarketOrderParams,
   getOrderParams,
@@ -16,17 +14,12 @@ import {
   PRICE_PRECISION,
   QUOTE_PRECISION,
   TEN,
-  type IWallet,
 } from "@drift-labs/sdk";
 import {
-  VAULT_PROGRAM_ID,
-  VaultClient,
-  IDL,
   WithdrawUnit,
   encodeName,
   getVaultDepositorAddressSync,
 } from "@drift-labs/vaults-sdk";
-import * as anchor from "@coral-xyz/anchor";
 import {
   ComputeBudgetProgram,
   PublicKey,
@@ -34,6 +27,7 @@ import {
 } from "@solana/web3.js";
 import type { SolanaAgentKit } from "../agent";
 import { BN } from "bn.js";
+import { initClients } from "./drift";
 
 export function getMarketIndexAndType(name: `${string}-${string}`) {
   const [symbol, type] = name.toUpperCase().split("-");
@@ -51,58 +45,6 @@ export function getMarketIndexAndType(name: `${string}-${string}`) {
     throw new Error("Drift doesn't have that market");
   }
   return { marketIndex: token.marketIndex, marketType: MarketType.SPOT };
-}
-
-async function initClients(agent: SolanaAgentKit) {
-  const wallet: IWallet = {
-    publicKey: agent.wallet.publicKey,
-    payer: agent.wallet,
-    signAllTransactions: async (txs) => {
-      for (const tx of txs) {
-        tx.sign(agent.wallet);
-      }
-      return txs;
-    },
-    signTransaction: async (tx) => {
-      tx.sign(agent.wallet);
-      return tx;
-    },
-  };
-
-  const driftClient = new DriftClient({
-    connection: agent.connection,
-    wallet,
-    env: "mainnet-beta",
-    txSender: new FastSingleTxSender({
-      connection: agent.connection,
-      wallet,
-      timeout: 30000,
-      blockhashRefreshInterval: 1000,
-      opts: {
-        commitment: agent.connection.commitment ?? "confirmed",
-        skipPreflight: false,
-        preflightCommitment: agent.connection.commitment ?? "confirmed",
-      },
-    }),
-  });
-  const vaultProgram = new anchor.Program(
-    IDL,
-    VAULT_PROGRAM_ID,
-    driftClient.provider,
-  );
-  const vaultClient = new VaultClient({
-    driftClient,
-    // @ts-expect-error - type mismatch due to different dep versions
-    program: vaultProgram,
-    cliMode: false,
-  });
-  await driftClient.subscribe();
-
-  async function cleanUp() {
-    await driftClient.unsubscribe();
-  }
-
-  return { driftClient, vaultClient, cleanUp };
 }
 
 async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
@@ -236,9 +178,19 @@ export async function updateVault(
   },
 ) {
   try {
-    const { vaultClient, cleanUp } = await initClients(agent);
+    const { vaultClient, cleanUp, driftClient } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
+
+    const spotMarket = driftClient.getSpotMarketAccount(
+      vaultDetails.spotMarketIndex,
+    );
+
+    if (!spotMarket) {
+      throw new Error("Market not found");
+    }
+
+    const spotPrecision = TEN.pow(new BN(spotMarket.decimals));
 
     const tx = await vaultClient.managerUpdateVault(vaultPublicKey, {
       redeemPeriod: new BN(
@@ -246,17 +198,29 @@ export async function updateVault(
           ? params.redeemPeriod * 86400
           : vaultDetails.redeemPeriod,
       ),
-      maxTokens: new BN(params.maxTokens ?? vaultDetails.maxTokens),
-      minDepositAmount: new BN(
-        params.minDepositAmount ?? vaultDetails.minDepositAmount,
-      ),
-      managementFee: new BN(params.managementFee ?? vaultDetails.managementFee),
-      profitShare: new BN(
-        params.profitShare ?? vaultDetails.profitShare,
-      ).toNumber(),
-      hurdleRate: new BN(
-        params.hurdleRate ?? vaultDetails.hurdleRate,
-      ).toNumber(),
+      maxTokens: params.maxTokens
+        ? numberToSafeBN(params.maxTokens, spotPrecision)
+        : vaultDetails.maxTokens,
+      minDepositAmount: params.minDepositAmount
+        ? numberToSafeBN(params.minDepositAmount, spotPrecision)
+        : vaultDetails.minDepositAmount,
+      managementFee: params.managementFee
+        ? new BN(params.managementFee)
+            .mul(PERCENTAGE_PRECISION)
+            .div(new BN(100))
+        : vaultDetails.managementFee,
+      profitShare: params.profitShare
+        ? new BN(params.profitShare)
+            .mul(PERCENTAGE_PRECISION)
+            .div(new BN(100))
+            .toNumber()
+        : vaultDetails.profitShare,
+      hurdleRate: params.hurdleRate
+        ? new BN(params.hurdleRate)
+            .mul(PERCENTAGE_PRECISION)
+            .div(new BN(100))
+            .toNumber()
+        : vaultDetails.hurdleRate,
       permissioned: params.permissioned ?? vaultDetails.permissioned,
     });
 
@@ -494,15 +458,18 @@ export async function tradeDriftVault(
     const perpMarketIndexAndType = getMarketIndexAndType(
       `${symbol.toUpperCase()}-PERP`,
     );
+    const perpMarketAccount = driftClient.getPerpMarketAccount(
+      perpMarketIndexAndType.marketIndex,
+    );
 
-    if (!perpMarketIndexAndType) {
+    if (!perpMarketIndexAndType || !perpMarketAccount) {
       throw new Error(
         "Invalid symbol: Drift doesn't have a market for this token",
       );
     }
 
     const perpOracle = driftClient.getOracleDataForPerpMarket(
-      perpMarketIndexAndType.marketIndex,
+      perpMarketAccount.marketIndex,
     );
     const oraclePriceNumber = convertToNumber(
       perpOracle.price,
@@ -530,7 +497,7 @@ export async function tradeDriftVault(
               action === "buy"
                 ? PositionDirection.LONG
                 : PositionDirection.SHORT,
-            marketIndex: perpMarketIndexAndType.marketIndex,
+            marketIndex: perpMarketAccount.marketIndex,
             postOnly: PostOnlyParams.SLIDE,
           }),
         ),
@@ -548,7 +515,7 @@ export async function tradeDriftVault(
               action === "buy"
                 ? PositionDirection.LONG
                 : PositionDirection.SHORT,
-            marketIndex: perpMarketIndexAndType.marketIndex,
+            marketIndex: perpMarketAccount.marketIndex,
           }),
         ),
       ]);

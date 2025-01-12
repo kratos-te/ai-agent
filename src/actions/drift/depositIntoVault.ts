@@ -1,6 +1,5 @@
 import { z } from "zod";
 import type { Action } from "../../types";
-import type { SolanaAgentKit } from "../../agent";
 import { depositIntoVault } from "../../tools/drift_vault";
 
 const depositIntoDriftVaultAction: Action = {
@@ -31,7 +30,7 @@ const depositIntoDriftVaultAction: Action = {
       .positive()
       .describe("The amount in tokens you'd like to deposit into the vault"),
   }),
-  handler: async (agent: SolanaAgentKit, input) => {
+  handler: async (agent, input) => {
     try {
       const tx = await depositIntoVault(
         agent,
