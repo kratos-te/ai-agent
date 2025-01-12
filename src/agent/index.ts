@@ -2,8 +2,12 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
+import {
+  CreateCollectionOptions,
+  CreateSingleOptions,
+  StoreInitOptions,
+} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 import { DEFAULT_OPTIONS } from "../constants";
-import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -74,6 +78,8 @@ import {
   multisig_execute_proposal,
 } from "../tools";
 import {
+  Config,
+  TokenCheck,
   CollectionDeployment,
   CollectionOptions,
   GibworkCreateTaskReponse,
@@ -85,11 +91,6 @@ import {
   FlashTradeParams,
   FlashCloseTradeParams,
 } from "../types";
-import {
-  CreateCollectionOptions,
-  CreateSingleOptions,
-  StoreInitOptions,
-} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 
 /**
  * Main class for interacting with Solana blockchain
