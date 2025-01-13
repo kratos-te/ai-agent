@@ -1373,6 +1373,7 @@ export class SolanaMeteoraCreateDynamicPool extends Tool {
         activationPoint,
         hasAlphaVault,
         activationType,
+        computeUnitMicroLamports,
       );
 
       return JSON.stringify({
