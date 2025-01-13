@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Action } from "../../types";
 import type { SolanaAgentKit } from "../../agent";
-import { requestWithdrawalFromVault } from "../../tools/drift_vault";
+import { requestWithdrawalFromVault } from "../../tools";
 
 const requestWithdrawalFromVaultAction: Action = {
   name: "REQUEST_WITHDRAWAL_FROM_DRIFT_VAULT",

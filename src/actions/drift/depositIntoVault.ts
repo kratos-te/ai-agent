@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Action } from "../../types";
-import { depositIntoVault } from "../../tools/drift_vault";
+import { depositIntoVault } from "../../tools";
 
 const depositIntoDriftVaultAction: Action = {
   name: "DEPOSIT_INTO_DRIFT_VAULT",

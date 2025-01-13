@@ -2,8 +2,12 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
+import {
+  CreateCollectionOptions,
+  CreateSingleOptions,
+  StoreInitOptions,
+} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 import { DEFAULT_OPTIONS } from "../constants";
-import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -63,8 +67,25 @@ import {
   fetchPythPriceFeedID,
   flashOpenTrade,
   flashCloseTrade,
+  createCollection,
+  createSingle,
+  multisig_transfer_from_treasury,
+  create_squads_multisig,
+  multisig_create_proposal,
+  multisig_deposit_to_treasury,
+  multisig_reject_proposal,
+  multisig_approve_proposal,
+  multisig_execute_proposal,
+  parseTransaction,
+  sendTransactionWithPriorityFee,
+  getAssetsByOwner,
+  getHeliusWebhook,
+  create_HeliusWebhook,
+  deleteHeliusWebhook,
 } from "../tools";
 import {
+  Config,
+  TokenCheck,
   CollectionDeployment,
   CollectionOptions,
   GibworkCreateTaskReponse,
@@ -75,16 +96,9 @@ import {
   OrderParams,
   FlashTradeParams,
   FlashCloseTradeParams,
+  HeliusWebhookIdResponse,
+  HeliusWebhookResponse,
 } from "../types";
-import {
-  createCollection,
-  createSingle,
-} from "../tools/create_3land_collectible";
-import {
-  CreateCollectionOptions,
-  CreateSingleOptions,
-  StoreInitOptions,
-} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -580,6 +594,12 @@ export class SolanaAgentKit {
   async flashCloseTrade(params: FlashCloseTradeParams): Promise<string> {
     return flashCloseTrade(this, params);
   }
+  async heliusParseTransactions(transactionId: string): Promise<any> {
+    return parseTransaction(this, transactionId);
+  }
+  async getAllAssetsbyOwner(owner: PublicKey, limit: number): Promise<any> {
+    return getAssetsByOwner(this, owner, limit);
+  }
 
   async create3LandCollection(
     optionsWithBase58: StoreInitOptions,
@@ -602,5 +622,76 @@ export class SolanaAgentKit {
       isMainnet,
     );
     return `Transaction: ${tx}`;
+  }
+  async sendTranctionWithPriority(
+    priorityLevel: string,
+    amount: number,
+    to: PublicKey,
+    splmintAddress?: PublicKey,
+  ): Promise<{ transactionId: string; fee: number }> {
+    return sendTransactionWithPriorityFee(
+      this,
+      priorityLevel,
+      amount,
+      to,
+      splmintAddress,
+    );
+  }
+
+  async createSquadsMultisig(creator: PublicKey): Promise<string> {
+    return create_squads_multisig(this, creator);
+  }
+
+  async depositToMultisig(
+    amount: number,
+    vaultIndex: number = 0,
+    mint?: PublicKey,
+  ): Promise<string> {
+    return multisig_deposit_to_treasury(this, amount, vaultIndex, mint);
+  }
+
+  async transferFromMultisig(
+    amount: number,
+    to: PublicKey,
+    vaultIndex: number = 0,
+    mint?: PublicKey,
+  ): Promise<string> {
+    return multisig_transfer_from_treasury(this, amount, to, vaultIndex, mint);
+  }
+
+  async createMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_create_proposal(this, transactionIndex);
+  }
+
+  async approveMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_approve_proposal(this, transactionIndex);
+  }
+
+  async rejectMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_reject_proposal(this, transactionIndex);
+  }
+
+  async executeMultisigTransaction(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_execute_proposal(this, transactionIndex);
+  }
+  async CreateWebhook(
+    accountAddresses: string[],
+    webhookURL: string,
+  ): Promise<HeliusWebhookResponse> {
+    return create_HeliusWebhook(this, accountAddresses, webhookURL);
+  }
+  async getWebhook(id: string): Promise<HeliusWebhookIdResponse> {
+    return getHeliusWebhook(this, id);
+  }
+  async deleteWebhook(webhookID: string): Promise<any> {
+    return deleteHeliusWebhook(this, webhookID);
   }
 }

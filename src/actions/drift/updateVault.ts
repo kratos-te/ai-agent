@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Action } from "../../types";
 import type { SolanaAgentKit } from "../../agent";
-import { updateVault } from "../../tools/drift_vault";
+import { updateVault } from "../../tools";
 
 const updateDriftVaultAction: Action = {
   name: "UPDATE_DRIFT_VAULT",
