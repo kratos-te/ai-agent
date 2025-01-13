@@ -32,6 +32,20 @@ export async function createMeteoraDynamicAMMPool(
   customizableParams: CustomizableParams,
   computeUnitMicroLamports: number,
 ): Promise<string> {
+  // console.log(`>>> Creating Meteora Dynamic Pool...`);
+  // console.log(`- Using tokenAMint: ${tokenAMint.toString()}`);
+  // console.log(`- Using tokenBMint: ${tokenBMint.toString()}`);
+  // console.log(`- Using tokenAAmount: ${tokenAAmount.toString()}`);
+  // console.log(`- Using tokenBAmount: ${tokenBAmount.toString()}`);
+  // console.log(
+  //   `- Using tradeFeeNumerator ${customizableParams.tradeFeeNumerator}`,
+  // );
+  // console.log(`- Using activationType: ${customizableParams.activationType}`);
+  // console.log(
+  //   `- Using activationPoint: ${customizableParams.activationPoint?.toString()}`,
+  // );
+  // console.log(`- Using hasAlphaVault: ${customizableParams.hasAlphaVault}`);
+
   const initPoolTx =
     await AmmImpl.createCustomizablePermissionlessConstantProductPool(
       agent.connection,
@@ -57,6 +71,7 @@ export async function createMeteoraDynamicAMMPool(
     console.error(err);
     throw err;
   });
+  // console.log(`<<< Finished creating Meteora Dynamic Pool.`);
 
   return initPoolTxHash;
 }

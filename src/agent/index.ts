@@ -379,6 +379,7 @@ export class SolanaAgentKit {
     activationType: number,
     hasAlphaVault: boolean,
     activationPoint: BN | undefined,
+    computeUnitMicroLamports: number = 100000,
   ): Promise<string> {
     return createMeteoraDlmmPool(
       this,
@@ -391,6 +392,7 @@ export class SolanaAgentKit {
       activationType,
       hasAlphaVault,
       activationPoint,
+      computeUnitMicroLamports,
     );
   }
 

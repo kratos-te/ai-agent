@@ -15,7 +15,6 @@ import {
   CreateSingleOptions,
   StoreInitOptions,
 } from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
-import { METEORA_DYNAMIC_FEE_DENOMINATOR, TOKENS } from "../constants";
 
 export class SolanaBalanceTool extends Tool {
   name = "solana_balance";
@@ -1346,8 +1345,6 @@ export class SolanaMeteoraCreateDynamicPool extends Tool {
       }
       const inputFormat: CreateMeteoraDynamicAmmPoolInput = JSON.parse(input);
 
-      console.log(inputFormat);
-
       const tokenAMint = new PublicKey(inputFormat.tokenAMint);
       const tokenBMint = new PublicKey(inputFormat.tokenBMint);
       const tokenAAmount = new BN(inputFormat.tokenAAmount.toString());
@@ -1400,11 +1397,12 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
   - tokenBMint: string, token B mint (required).
   - binStep: number, pool bin step, e.g., 20 (required).
   - initialPrice: number, pool initial price, e.g., 0.25 (required).
-  - fee: number, trade fee in percentage, e.g. 0.2 (required).
+  - feeBps: number, trade fee in percentage, e.g. 20 for 0.2% (required).
   - priceRoundingUp: boolean, whether the initial price should be rounded up or not, default is true (optional).
   - activationType: number, pool start trading time indicator. 0 is slot and 1 is timestamp, default is 1 for timestamp (optional).
   - activationPoint: number, pool start trading slot / timestamp, default is null means pool can start trading immediately (optional).
   - hasAlphaVault: boolean, whether the pool supports alpha vault, default is false (optional).
+  - computeUnitMicroLamports: number, the priority fee in micro-lamports unit, default is 100000 (optional).
   `;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -1418,27 +1416,28 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
         tokenBMint: string;
         binStep: number;
         initialPrice: number;
-        fee: number;
+        feeBps: number;
         priceRoundingUp?: boolean;
         activationType?: number;
         activationPoint?: number;
         hasAlphaVault?: boolean;
+        computeUnitMicroLamports?: number;
       }
       const inputFormat: CreateMeteoraDlmmPoolInput = JSON.parse(input);
-
-      console.log(inputFormat);
 
       const tokenAMint = new PublicKey(inputFormat.tokenAMint);
       const tokenBMint = new PublicKey(inputFormat.tokenBMint);
       const binStep = inputFormat.binStep;
       const initialPrice = inputFormat.initialPrice;
-      const feeBps = inputFormat.fee * 10000;
+      const feeBps = inputFormat.feeBps;
       const priceRoundingUp = inputFormat.priceRoundingUp ?? true;
       const activationType = inputFormat.activationType ?? 1;
       const activationPoint = inputFormat.activationPoint
         ? new BN(inputFormat.activationPoint)
         : undefined;
       const hasAlphaVault = inputFormat.hasAlphaVault ?? false;
+      const computeUnitMicroLamports =
+        inputFormat.computeUnitMicroLamports ?? 100000;
 
       const txId = await this.solanaKit.meteoraCreateDlmmPool(
         tokenAMint,
@@ -1450,6 +1449,7 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
         activationType,
         hasAlphaVault,
         activationPoint,
+        computeUnitMicroLamports,
       );
 
       return JSON.stringify({

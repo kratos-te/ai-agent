@@ -1,6 +1,10 @@
 import { SolanaAgentKit } from "../agent";
 import BN from "bn.js";
-import { PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  ComputeBudgetProgram,
+  PublicKey,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import DLMM, { ActivationType } from "@meteora-ag/dlmm";
 import { getMint } from "@solana/spl-token";
 
@@ -29,6 +33,7 @@ export async function createMeteoraDlmmPool(
   activationType: ActivationType,
   hasAlphaVault: boolean,
   activationPoint: BN | undefined,
+  computeUnitMicroLamports: number,
 ): Promise<string> {
   const tokenAMintInfo = await getMint(agent.connection, tokenAMint);
   const tokenBMintInfo = await getMint(agent.connection, tokenBMint);
@@ -45,6 +50,17 @@ export async function createMeteoraDlmmPool(
     !priceRoundingUp,
   );
 
+  // console.log(`>>> Creating Meteora DLMM pool...`);
+  // console.log(`- Using tokenAMint: ${tokenAMint.toString()}`);
+  // console.log(`- Using tokenBMint: ${tokenBMint.toString()}`);
+  // console.log(`- Using binStep: ${binStep}`);
+  // console.log(`- Using initialPrice: ${initialPrice}`);
+  // console.log(`- Using priceRoundingUp: ${priceRoundingUp}`);
+  // console.log(`- Using feeBps ${feeBps}`);
+  // console.log(`- Using activationType: ${activationType}`);
+  // console.log(`- Using activationPoint: ${activationPoint?.toString()}`);
+  // console.log(`- Using hasAlphaVault: ${hasAlphaVault}`);
+
   const initPoolTx = await DLMM.createCustomizablePermissionlessLbPair(
     agent.connection,
     new BN(binStep),
@@ -56,6 +72,14 @@ export async function createMeteoraDlmmPool(
     hasAlphaVault,
     agent.wallet_address,
     activationPoint,
+    {
+      cluster: "mainnet-beta",
+    },
+  );
+  initPoolTx.add(
+    ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: computeUnitMicroLamports,
+    }),
   );
 
   const initPoolTxHash = await sendAndConfirmTransaction(
@@ -66,6 +90,8 @@ export async function createMeteoraDlmmPool(
     console.error(err);
     throw err;
   });
+
+  // console.log(`<<< Finished creating Meteora DLMM pool.`);
 
   return initPoolTxHash;
 }

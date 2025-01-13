@@ -1,5 +1,4 @@
 import { PublicKey } from "@solana/web3.js";
-import { BN } from "bn.js";
 
 /**
  * Common token addresses used across the toolkit
