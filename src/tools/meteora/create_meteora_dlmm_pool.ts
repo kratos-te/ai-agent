@@ -1,4 +1,4 @@
-import { SolanaAgentKit } from "../agent";
+import { SolanaAgentKit } from "../../agent";
 import BN from "bn.js";
 import {
   ComputeBudgetProgram,

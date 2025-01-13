@@ -1,5 +1,5 @@
 import AmmImpl from "@mercurial-finance/dynamic-amm-sdk";
-import { SolanaAgentKit } from "../agent";
+import { SolanaAgentKit } from "../../agent";
 import BN from "bn.js";
 import {
   ComputeBudgetProgram,
