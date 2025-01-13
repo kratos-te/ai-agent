@@ -24,3 +24,4 @@ export * from "./tiplink";
 export * from "./lightprotocol";
 export * from "./squads";
 export * from "./meteora";
+export * from "./helius";
