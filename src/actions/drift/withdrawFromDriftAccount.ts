@@ -3,12 +3,16 @@ import type { Action } from "../../types";
 import { withdrawFromDriftUserAccount } from "../../tools";
 
 const withdrawFromDriftAccountAction: Action = {
-  name: "WITHDRAW_FROM_DRIFT_ACCOUNT",
+  name: "WITHDRAW_OR_BORROW_FROM_DRIFT_ACCOUNT",
   description: "Withdraw funds from your drift account",
   similes: [
     "withdraw from drift account",
     "withdraw funds from drift account",
     "withdraw funds from my drift account",
+    "borrow from drift account",
+    "borrow funds from my drift account",
+    "borrow from drift",
+    "withdraw from drift",
   ],
   examples: [
     [
@@ -38,6 +42,13 @@ const withdrawFromDriftAccountAction: Action = {
       .string()
       .toUpperCase()
       .describe("The symbol of the token you'd like to withdraw"),
+    isBorrow: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe(
+        "Whether or not to borrow funds based on collateral provided instead of withdrawing",
+      ),
   }),
   handler: async (agent, input) => {
     try {
@@ -45,6 +56,7 @@ const withdrawFromDriftAccountAction: Action = {
         agent,
         input.amount,
         input.symbol,
+        input.isBorrow,
       );
 
       return {

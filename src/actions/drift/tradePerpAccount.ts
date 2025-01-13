@@ -47,7 +47,10 @@ export const tradeDriftPerpAccountAction: Action = {
   ],
   schema: z.object({
     amount: z.number().positive(),
-    symbol: z.string().min(3).max(10),
+    symbol: z
+      .string()
+      .toUpperCase()
+      .describe("Symbol of the token to open a position on "),
     action: z.enum(["long", "short"]),
     type: z.enum(["market", "limit"]),
     price: z.number().positive().optional(),

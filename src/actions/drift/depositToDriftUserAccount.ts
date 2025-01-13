@@ -10,6 +10,7 @@ const depositToDriftUserAccountAction: Action = {
     "deposit into drift user account",
     "add funds to drift user account",
     "add funds to my drift account",
+    "deposit collateral into drift account",
   ],
   examples: [
     [
@@ -27,22 +28,6 @@ const depositToDriftUserAccountAction: Action = {
         explanation: "Deposit 100 USDC into your drift user account",
       },
     ],
-    [
-      {
-        input: {
-          amount: 100,
-          symbol: "USDC",
-          address: "2nFeP7taii3wGVgrWk4YiLMPmhtu3Zg9iXCUu4zGBD",
-        },
-        output: {
-          status: "success",
-          message: "Funds deposited successfully",
-          signature:
-            "2nFeP7taii3wGVgrWk4YiLMPmhtu3Zg9iXCUu4zGBDadwunHw8reXFxRWT7khbFsQ9JT3zK4RYDLNDFDRYvM3wJk",
-        },
-        explanation: "Deposit 100 USDC into a drift user account",
-      },
-    ],
   ],
   schema: z.object({
     amount: z
@@ -55,7 +40,11 @@ const depositToDriftUserAccountAction: Action = {
       .string()
       .toUpperCase()
       .describe("The symbol of the token you'd like to deposit"),
-    address: z.string().optional().describe("The drift user account address"),
+    repay: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("Whether or not to repay the borrowed funds in the account"),
   }),
   handler: async (agent: SolanaAgentKit, input) => {
     try {
@@ -63,7 +52,7 @@ const depositToDriftUserAccountAction: Action = {
         agent,
         input.amount as number,
         input.symbol as string,
-        input.address,
+        input.repay as boolean,
       );
 
       return {

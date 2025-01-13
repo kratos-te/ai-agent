@@ -134,7 +134,7 @@ export async function createVault(
         .toNumber(),
       minDepositAmount: numberToSafeBN(params.minDepositAmount, spotPrecision),
       redeemPeriod: new BN(params.redeemPeriod * 86400),
-      maxTokens: new BN(params.maxTokens).mul(spotPrecision),
+      maxTokens: numberToSafeBN(params.maxTokens, spotPrecision),
       managementFee: new BN(params.managementFee)
         .mul(PERCENTAGE_PRECISION)
         .div(new BN(100)),

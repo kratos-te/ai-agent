@@ -42,6 +42,7 @@ import tradeDriftPerpAccountAction from "./drift/tradePerpAccount";
 import doesUserHaveDriftAccountAction from "./drift/doesUserHaveDriftAccount";
 import depositToDriftUserAccountAction from "./drift/depositToDriftUserAccount";
 import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
+import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -88,7 +89,8 @@ export const ACTIONS = {
   TRADE_DRIFT_PERP_ACCOUNT_ACTION: tradeDriftPerpAccountAction,
   DOES_USER_HAVE_DRIFT_ACCOUNT_ACTION: doesUserHaveDriftAccountAction,
   DEPOSIT_TO_DRIFT_USER_ACCOUNT_ACTION: depositToDriftUserAccountAction,
-  WITHDRAW_FROM_DRIFT_ACCOUNT_ACTION: withdrawFromDriftAccountAction,
+  WITHDRAW_OR_BORROW_FROM_DRIFT_ACCOUNT_ACTION: withdrawFromDriftAccountAction,
+  DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
