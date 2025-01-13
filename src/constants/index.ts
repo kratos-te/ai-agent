@@ -28,7 +28,7 @@ export const DEFAULT_OPTIONS = {
   LEVERAGE_BPS: 50000, // 10000 = x1, 50000 = x5, 100000 = x10, 1000000 = x100
 } as const;
 
-export const METEORA_DYNAMIC_FEE_DENOMINATOR = new BN(100000);
+export const METEORA_DYNAMIC_FEE_DENOMINATOR = 100000;
 
 /**
  * Jupiter API URL

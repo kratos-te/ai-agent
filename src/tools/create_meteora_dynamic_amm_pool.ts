@@ -1,7 +1,11 @@
 import AmmImpl from "@mercurial-finance/dynamic-amm-sdk";
 import { SolanaAgentKit } from "../agent";
 import BN from "bn.js";
-import { PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  ComputeBudgetProgram,
+  PublicKey,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { CustomizableParams } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/types";
 
 /**
@@ -26,6 +30,7 @@ export async function createMeteoraDynamicAMMPool(
   tokenAAmount: BN,
   tokenBAmount: BN,
   customizableParams: CustomizableParams,
+  computeUnitMicroLamports: number,
 ): Promise<string> {
   const initPoolTx =
     await AmmImpl.createCustomizablePermissionlessConstantProductPool(
@@ -37,6 +42,12 @@ export async function createMeteoraDynamicAMMPool(
       tokenBAmount,
       customizableParams,
     );
+
+  initPoolTx.add(
+    ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: computeUnitMicroLamports,
+    }),
+  );
 
   const initPoolTxHash = await sendAndConfirmTransaction(
     agent.connection,

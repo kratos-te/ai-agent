@@ -350,6 +350,7 @@ export class SolanaAgentKit {
     activationPoint: BN | null,
     hasAlphaVault: boolean,
     activationType: number,
+    computeUnitMicroLamports: number = 100000,
   ): Promise<string> {
     return createMeteoraDynamicAMMPool(
       this,
@@ -364,6 +365,7 @@ export class SolanaAgentKit {
         activationType,
         padding: new Array(90).fill(0),
       },
+      computeUnitMicroLamports,
     );
   }
 
