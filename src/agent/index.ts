@@ -67,6 +67,8 @@ import {
   fetchPythPriceFeedID,
   flashOpenTrade,
   flashCloseTrade,
+  createMeteoraDynamicAMMPool,
+  createMeteoraDlmmPool,
   createCollection,
   createSingle,
   multisig_transfer_from_treasury,
@@ -335,6 +337,61 @@ export class SolanaAgentKit {
       recipients.map((recipient) => new PublicKey(recipient)),
       priorityFeeInLamports,
       shouldLog,
+    );
+  }
+
+  async meteoraCreateDynamicPool(
+    tokenAMint: PublicKey,
+    tokenBMint: PublicKey,
+    tokenAAmount: BN,
+    tokenBAmount: BN,
+    tradeFeeNumerator: number,
+    activationPoint: BN | null,
+    hasAlphaVault: boolean,
+    activationType: number,
+    computeUnitMicroLamports: number = 100000,
+  ): Promise<string> {
+    return createMeteoraDynamicAMMPool(
+      this,
+      tokenAMint,
+      tokenBMint,
+      tokenAAmount,
+      tokenBAmount,
+      {
+        tradeFeeNumerator,
+        activationPoint,
+        hasAlphaVault,
+        activationType,
+        padding: new Array(90).fill(0),
+      },
+      computeUnitMicroLamports,
+    );
+  }
+
+  async meteoraCreateDlmmPool(
+    tokenAMint: PublicKey,
+    tokenBMint: PublicKey,
+    binStep: number,
+    initialPrice: number,
+    priceRoundingUp: boolean,
+    feeBps: number,
+    activationType: number,
+    hasAlphaVault: boolean,
+    activationPoint: BN | undefined,
+    computeUnitMicroLamports: number = 100000,
+  ): Promise<string> {
+    return createMeteoraDlmmPool(
+      this,
+      binStep,
+      tokenAMint,
+      tokenBMint,
+      initialPrice,
+      priceRoundingUp,
+      feeBps,
+      activationType,
+      hasAlphaVault,
+      activationPoint,
+      computeUnitMicroLamports,
     );
   }
 
