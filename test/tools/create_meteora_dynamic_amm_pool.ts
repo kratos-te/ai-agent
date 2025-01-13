@@ -34,10 +34,10 @@ async function main() {
   // Delay for 5 seconds
   await new Promise((resolve) => setTimeout(resolve, 5000));
 
-  const tokenAAmount = new BN(1000);
-  const tokenBAmount = new BN(5);
+  const tokenAAmount = new BN(1000 * 10 ** 6);
+  const tokenBAmount = new BN(5 * 10 ** 6);
   const params = {
-    tradeFeeNumerator: 250,
+    tradeFeeNumerator: 2500,
     activationPoint: null,
     hasAlphaVault: false,
     activationType: 0,
