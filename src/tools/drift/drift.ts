@@ -24,7 +24,14 @@ import { PublicKey } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import { ComputeBudgetProgram } from "@solana/web3.js";
 
-export async function initClients(agent: SolanaAgentKit) {
+export async function initClients(
+  agent: SolanaAgentKit,
+  params?: {
+    authority: PublicKey;
+    activeSubAccountId: number;
+    subAccountIds: number[];
+  },
+) {
   const wallet: IWallet = {
     publicKey: agent.wallet.publicKey,
     payer: agent.wallet,
@@ -40,10 +47,17 @@ export async function initClients(agent: SolanaAgentKit) {
     },
   };
 
+  // @ts-expect-error - false undefined type conflict
   const driftClient = new DriftClient({
     connection: agent.connection,
     wallet,
     env: "mainnet-beta",
+    authority: params?.authority,
+    activeSubAccountId: params?.activeSubAccountId,
+    subAccountIds: params?.subAccountIds,
+    txParams: {
+      computeUnitsPrice: 0.000001 * 1000000 * 1000000,
+    },
     txSender: new FastSingleTxSender({
       connection: agent.connection,
       wallet,

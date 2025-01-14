@@ -14,8 +14,10 @@ import {
   PRICE_PRECISION,
   QUOTE_PRECISION,
   TEN,
+  User,
 } from "@drift-labs/sdk";
 import {
+  VaultAccount,
   WithdrawUnit,
   encodeName,
   getVaultAddressSync,
@@ -34,7 +36,7 @@ export function getMarketIndexAndType(name: `${string}-${string}`) {
   const [symbol, type] = name.toUpperCase().split("-");
 
   if (type === "PERP") {
-    const token = MainnetPerpMarkets.find((v) => v.symbol === symbol);
+    const token = MainnetPerpMarkets.find((v) => v.baseAssetSymbol === symbol);
     if (!token) {
       throw new Error("Drift doesn't have that market");
     }
@@ -68,6 +70,31 @@ async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
     }
     await cleanUp();
     return vaultDepositor;
+  }
+}
+
+async function getVaultAvailableBalance(agent: SolanaAgentKit, vault: string) {
+  try {
+    const { cleanUp, vaultClient } = await initClients(agent);
+    const vaultDetails = await vaultClient.getVault(new PublicKey(vault));
+
+    const currentVaultBalance = convertToNumber(
+      vaultDetails.netDeposits,
+      QUOTE_PRECISION,
+    );
+    const vaultWithdrawalsRequested = convertToNumber(
+      vaultDetails.totalWithdrawRequested,
+      QUOTE_PRECISION,
+    );
+    const availableBalanceInUSD =
+      currentVaultBalance - vaultWithdrawalsRequested;
+
+    await cleanUp();
+
+    return availableBalanceInUSD;
+  } catch (e) {
+    // @ts-expect-error - error message is a string
+    throw new Error(`Failed to get vault available balance: ${e.message}`);
   }
 }
 
@@ -151,6 +178,27 @@ export async function createVault(
   }
 }
 
+export async function updateVaultDelegate(
+  agent: SolanaAgentKit,
+  vault: string,
+  delegateAddress: string,
+) {
+  try {
+    const { vaultClient, cleanUp } = await initClients(agent);
+    const signature = await vaultClient.updateDelegate(
+      new PublicKey(vault),
+      new PublicKey(delegateAddress),
+    );
+    await cleanUp();
+    return signature;
+  } catch (e) {
+    throw new Error(
+      // @ts-expect-error - error message is a string
+      `Failed to update vault delegate: ${e.message}`,
+    );
+  }
+}
+
 /**
   Update the vault's info
   @param agent SolanaAgentKit instance
@@ -194,34 +242,32 @@ export async function updateVault(
     const spotPrecision = TEN.pow(new BN(spotMarket.decimals));
 
     const tx = await vaultClient.managerUpdateVault(vaultPublicKey, {
-      redeemPeriod: new BN(
-        params.redeemPeriod
-          ? params.redeemPeriod * 86400
-          : vaultDetails.redeemPeriod,
-      ),
+      redeemPeriod: params.redeemPeriod
+        ? new BN(params.redeemPeriod * 86400)
+        : null,
       maxTokens: params.maxTokens
         ? numberToSafeBN(params.maxTokens, spotPrecision)
-        : vaultDetails.maxTokens,
+        : null,
       minDepositAmount: params.minDepositAmount
         ? numberToSafeBN(params.minDepositAmount, spotPrecision)
-        : vaultDetails.minDepositAmount,
+        : null,
       managementFee: params.managementFee
         ? new BN(params.managementFee)
             .mul(PERCENTAGE_PRECISION)
             .div(new BN(100))
-        : vaultDetails.managementFee,
+        : null,
       profitShare: params.profitShare
         ? new BN(params.profitShare)
             .mul(PERCENTAGE_PRECISION)
             .div(new BN(100))
             .toNumber()
-        : vaultDetails.profitShare,
+        : null,
       hurdleRate: params.hurdleRate
         ? new BN(params.hurdleRate)
             .mul(PERCENTAGE_PRECISION)
             .div(new BN(100))
             .toNumber()
-        : vaultDetails.hurdleRate,
+        : null,
       permissioned: params.permissioned ?? vaultDetails.permissioned,
     });
 
@@ -234,6 +280,12 @@ export async function updateVault(
   }
 }
 
+/**
+ * Get information on a particular vault given its name
+ * @param agent
+ * @param vaultName
+ * @returns
+ */
 export async function getVaultInfo(agent: SolanaAgentKit, vaultName: string) {
   try {
     const { vaultClient, cleanUp } = await initClients(agent);
@@ -241,15 +293,20 @@ export async function getVaultInfo(agent: SolanaAgentKit, vaultName: string) {
       vaultClient.program.programId,
       encodeName(vaultName),
     );
-    const vaultDetails = await vaultClient.getVault(vaultPublicKey);
+    const [vaultDetails, vaultBalance] = await Promise.all([
+      vaultClient.getVault(vaultPublicKey),
+      getVaultAvailableBalance(agent, vaultPublicKey.toBase58()),
+    ]);
 
     await cleanUp();
 
     const spotToken = MainnetSpotMarkets[vaultDetails.spotMarketIndex];
     const data = {
       name: vaultName,
+      delegate: vaultDetails.delegate.toBase58(),
       address: vaultPublicKey.toBase58(),
       marketName: `${spotToken.symbol}-SPOT`,
+      balance: `${vaultBalance} ${spotToken.symbol}`,
       redeemPeriod: vaultDetails.redeemPeriod.toNumber(),
       maxTokens: vaultDetails.maxTokens.div(spotToken.precision).toNumber(),
       minDepositAmount: vaultDetails.minDepositAmount
@@ -340,7 +397,7 @@ export async function requestWithdrawalFromVault(
       return await vaultClient.managerRequestWithdraw(
         vaultPublicKey,
         new BN(amount.toFixed(0)),
-        WithdrawUnit.SHARES,
+        WithdrawUnit.TOKEN,
       );
     }
 
@@ -349,7 +406,7 @@ export async function requestWithdrawalFromVault(
     const tx = await vaultClient.requestWithdraw(
       vaultDepositor,
       new BN(amount.toFixed(0)),
-      WithdrawUnit.SHARES,
+      WithdrawUnit.TOKEN,
     );
 
     await cleanUp();
@@ -406,7 +463,7 @@ async function getIsOwned(agent: SolanaAgentKit, vault: string) {
     const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
-    const isOwned = vaultDetails.delegate.equals(agent.wallet.publicKey);
+    const isOwned = vaultDetails.manager.equals(agent.wallet.publicKey);
 
     await cleanUp();
 
@@ -461,10 +518,13 @@ export async function tradeDriftVault(
   price?: number,
 ) {
   try {
-    const { driftClient, vaultClient, cleanUp } = await initClients(agent);
-    const [isOwned, vaultDetails, driftLookupTableAccount] = await Promise.all([
+    const { driftClient, cleanUp } = await initClients(agent, {
+      authority: new PublicKey(vault),
+      activeSubAccountId: 0,
+      subAccountIds: [0],
+    });
+    const [isOwned, driftLookupTableAccount] = await Promise.all([
       getIsOwned(agent, vault),
-      vaultClient.getVault(new PublicKey(vault)),
       driftClient.fetchMarketLookupTableAccount(),
     ]);
 
@@ -474,32 +534,9 @@ export async function tradeDriftVault(
       );
     }
 
-    driftClient.authority = new PublicKey(vault);
-    driftClient.activeSubAccountId = 0;
-    vaultClient.driftClient = driftClient;
-
     const usdcSpotMarket = driftClient.getSpotMarketAccount(0);
     if (!usdcSpotMarket) {
       throw new Error("USDC-SPOT market not found");
-    }
-
-    const usdcPrecision = TEN.pow(new BN(usdcSpotMarket.decimals));
-    const vaultWithdrawalsRequested = convertToNumber(
-      vaultDetails.totalWithdrawRequested,
-      usdcPrecision,
-    );
-    // this is actually the authority provided
-    const user = driftClient.getUser();
-    const currentVaultBalance =
-      convertToNumber(user.getNetSpotMarketValue(), QUOTE_PRECISION) +
-      convertToNumber(user.getUnrealizedPNL(true), QUOTE_PRECISION);
-    const availableBalanceInUSD =
-      currentVaultBalance - vaultWithdrawalsRequested;
-
-    if (amount > availableBalanceInUSD) {
-      throw new Error(
-        "Insufficient balance: You don't have enough balance to make this trade",
-      );
     }
 
     const perpMarketIndexAndType = getMarketIndexAndType(
@@ -569,12 +606,14 @@ export async function tradeDriftVault(
       instructions.push(instruction);
     }
 
+    const latestBlockhash = await driftClient.connection.getLatestBlockhash();
     const tx = await driftClient.txSender.sendVersionedTransaction(
       await driftClient.txSender.getVersionedTransaction(
         instructions,
         [driftLookupTableAccount],
         [],
         driftClient.opts,
+        latestBlockhash,
       ),
     );
 
