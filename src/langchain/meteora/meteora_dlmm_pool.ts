@@ -17,7 +17,6 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
   - activationType: number, pool start trading time indicator. 0 is slot and 1 is timestamp, default is 1 for timestamp (optional).
   - activationPoint: number, pool start trading slot / timestamp, default is null means pool can start trading immediately (optional).
   - hasAlphaVault: boolean, whether the pool supports alpha vault, default is false (optional).
-  - computeUnitMicroLamports: number, the priority fee in micro-lamports unit, default is 100000 (optional).
   `;
 
   constructor(private solanaKit: SolanaAgentKit) {
@@ -36,7 +35,6 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
         activationType?: number;
         activationPoint?: number;
         hasAlphaVault?: boolean;
-        computeUnitMicroLamports?: number;
       }
       const inputFormat: CreateMeteoraDlmmPoolInput = JSON.parse(input);
 
@@ -51,8 +49,6 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
         ? new BN(inputFormat.activationPoint)
         : undefined;
       const hasAlphaVault = inputFormat.hasAlphaVault ?? false;
-      const computeUnitMicroLamports =
-        inputFormat.computeUnitMicroLamports ?? 100000;
 
       const txId = await this.solanaKit.meteoraCreateDlmmPool(
         tokenAMint,
@@ -64,7 +60,6 @@ export class SolanaMeteoraCreateDlmmPool extends Tool {
         activationType,
         hasAlphaVault,
         activationPoint,
-        computeUnitMicroLamports,
       );
 
       return JSON.stringify({

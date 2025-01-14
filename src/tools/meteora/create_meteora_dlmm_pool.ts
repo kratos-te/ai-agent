@@ -1,12 +1,9 @@
 import { SolanaAgentKit } from "../../agent";
 import BN from "bn.js";
-import {
-  ComputeBudgetProgram,
-  PublicKey,
-  sendAndConfirmTransaction,
-} from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import DLMM, { ActivationType } from "@meteora-ag/dlmm";
 import { getMint } from "@solana/spl-token";
+import { sendTx } from "../../utils/send_tx";
 
 /**
  * Create Meteora DLMM pool
@@ -33,7 +30,6 @@ export async function createMeteoraDlmmPool(
   activationType: ActivationType,
   hasAlphaVault: boolean,
   activationPoint: BN | undefined,
-  computeUnitMicroLamports: number,
 ): Promise<string> {
   const tokenAMintInfo = await getMint(agent.connection, tokenAMint);
   const tokenBMintInfo = await getMint(agent.connection, tokenBMint);
@@ -65,20 +61,10 @@ export async function createMeteoraDlmmPool(
       cluster: "mainnet-beta",
     },
   );
-  initPoolTx.add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: computeUnitMicroLamports,
-    }),
-  );
 
-  const initPoolTxHash = await sendAndConfirmTransaction(
-    agent.connection,
-    initPoolTx,
-    [agent.wallet],
-  ).catch((err) => {
-    console.error(err);
-    throw err;
-  });
+  const initPoolTxHash = await sendTx(agent, initPoolTx.instructions, [
+    agent.wallet,
+  ]);
 
   return initPoolTxHash;
 }
