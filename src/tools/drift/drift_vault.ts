@@ -14,10 +14,8 @@ import {
   PRICE_PRECISION,
   QUOTE_PRECISION,
   TEN,
-  User,
 } from "@drift-labs/sdk";
 import {
-  VaultAccount,
   WithdrawUnit,
   decodeName,
   encodeName,
