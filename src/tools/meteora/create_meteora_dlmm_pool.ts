@@ -50,17 +50,6 @@ export async function createMeteoraDlmmPool(
     !priceRoundingUp,
   );
 
-  // console.log(`>>> Creating Meteora DLMM pool...`);
-  // console.log(`- Using tokenAMint: ${tokenAMint.toString()}`);
-  // console.log(`- Using tokenBMint: ${tokenBMint.toString()}`);
-  // console.log(`- Using binStep: ${binStep}`);
-  // console.log(`- Using initialPrice: ${initialPrice}`);
-  // console.log(`- Using priceRoundingUp: ${priceRoundingUp}`);
-  // console.log(`- Using feeBps ${feeBps}`);
-  // console.log(`- Using activationType: ${activationType}`);
-  // console.log(`- Using activationPoint: ${activationPoint?.toString()}`);
-  // console.log(`- Using hasAlphaVault: ${hasAlphaVault}`);
-
   const initPoolTx = await DLMM.createCustomizablePermissionlessLbPair(
     agent.connection,
     new BN(binStep),
@@ -90,8 +79,6 @@ export async function createMeteoraDlmmPool(
     console.error(err);
     throw err;
   });
-
-  // console.log(`<<< Finished creating Meteora DLMM pool.`);
 
   return initPoolTxHash;
 }
