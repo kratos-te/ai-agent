@@ -43,6 +43,21 @@ import getAssetsByOwnerAction from "./helius/getAssetsbyOwner";
 import getWebhookAction from "./helius/getWebhook";
 import parseSolanaTransactionAction from "./helius/parseTransaction";
 import sendTransactionWithPriorityFeeAction from "./helius/sendTransactionWithPriority";
+import createDriftVaultAction from "./drift/createVault";
+import updateDriftVaultAction from "./drift/updateVault";
+import depositIntoDriftVaultAction from "./drift/depositIntoVault";
+import requestWithdrawalFromVaultAction from "./drift/requestWithdrawalFromVault";
+import withdrawFromVaultAction from "./drift/withdrawFromVault";
+import tradeDelegatedDriftVaultAction from "./drift/tradeDelegatedDriftVault";
+import vaultInfoAction from "./drift/vaultInfo";
+import createDriftUserAccountAction from "./drift/createDriftUserAccount";
+import tradeDriftPerpAccountAction from "./drift/tradePerpAccount";
+import doesUserHaveDriftAccountAction from "./drift/doesUserHaveDriftAccount";
+import depositToDriftUserAccountAction from "./drift/depositToDriftUserAccount";
+import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
+import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
+import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
+import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -91,6 +106,21 @@ export const ACTIONS = {
   GET_WEBHOOK_ACTION: getWebhookAction,
   PARSE_TRANSACTION_ACTION: parseSolanaTransactionAction,
   SEND_TRANSACTION_WITH_PRIORITY_ACTION: sendTransactionWithPriorityFeeAction,
+  CREATE_DRIFT_VAULT_ACTION: createDriftVaultAction,
+  UPDATE_DRIFT_VAULT_ACTION: updateDriftVaultAction,
+  DEPOSIT_INTO_DRIFT_VAULT_ACTION: depositIntoDriftVaultAction,
+  REQUEST_WITHDRAWAL_FROM_DRIFT_VAULT_ACTION: requestWithdrawalFromVaultAction,
+  WITHDRAW_FROM_DRIFT_VAULT_ACTION: withdrawFromVaultAction,
+  TRADE_DELEGATED_DRIFT_VAULT_ACTION: tradeDelegatedDriftVaultAction,
+  DRIFT_VAULT_INFO_ACTION: vaultInfoAction,
+  CREATE_DRIFT_USER_ACCOUNT_ACTION: createDriftUserAccountAction,
+  TRADE_DRIFT_PERP_ACCOUNT_ACTION: tradeDriftPerpAccountAction,
+  DOES_USER_HAVE_DRIFT_ACCOUNT_ACTION: doesUserHaveDriftAccountAction,
+  DEPOSIT_TO_DRIFT_USER_ACCOUNT_ACTION: depositToDriftUserAccountAction,
+  WITHDRAW_OR_BORROW_FROM_DRIFT_ACCOUNT_ACTION: withdrawFromDriftAccountAction,
+  DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
+  DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
+  UPDATE_DRIFT_VAULT_DELEGATE_ACTION: updateDriftVaultDelegateAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
