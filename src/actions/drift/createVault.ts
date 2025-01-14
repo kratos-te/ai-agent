@@ -90,7 +90,9 @@ const createDriftVaultAction: Action = {
 
       return {
         status: "success",
-        message: "Drift vault created successfully",
+        message:
+          "Drift vault created successfully. Please note down the name of your vault as it is unique and was used to derive your vault address",
+        vaultName: input.name,
         signature: tx,
       };
     } catch (e) {

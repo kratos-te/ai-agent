@@ -13,7 +13,7 @@ const vaultInfoAction: Action = {
     [
       {
         input: {
-          vaultAddress: "2nFeP7taii",
+          vaultName: "test-vault",
         },
         output: {
           status: "success",
@@ -35,35 +35,16 @@ const vaultInfoAction: Action = {
     ],
   ],
   schema: z.object({
-    vaultAddress: z.string(),
+    vaultName: z.string(),
   }),
   handler: async (agent: SolanaAgentKit, input) => {
     try {
-      const vaultInfo = await getVaultInfo(agent, input.vaultAddress as string);
-      const spotToken = MainnetSpotMarkets[vaultInfo.spotMarketIndex];
-      const data = {
-        name: decodeName(vaultInfo.name),
-        marketName: `${spotToken.symbol}-SPOT`,
-        redeemPeriod: vaultInfo.redeemPeriod.toNumber(),
-        maxTokens: vaultInfo.maxTokens.div(spotToken.precision).toNumber(),
-        minDepositAmount: vaultInfo.minDepositAmount
-          .div(spotToken.precision)
-          .toNumber(),
-        managementFee:
-          (vaultInfo.managementFee.toNumber() /
-            PERCENTAGE_PRECISION.toNumber()) *
-          100,
-        profitShare:
-          (vaultInfo.profitShare / PERCENTAGE_PRECISION.toNumber()) * 100,
-        hurdleRate:
-          (vaultInfo.hurdleRate / PERCENTAGE_PRECISION.toNumber()) * 100,
-        permissioned: vaultInfo.permissioned,
-      };
+      const vaultInfo = await getVaultInfo(agent, input.vaultName as string);
 
       return {
         status: "success",
         message: "Vault info retrieved successfully",
-        data,
+        data: vaultInfo,
       };
     } catch (e) {
       return {

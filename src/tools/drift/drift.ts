@@ -276,7 +276,7 @@ export async function driftPerpTrade(
     symbol: string;
     action: "long" | "short";
     type: "market" | "limit";
-    price?: number;
+    price?: number | undefined;
   },
 ) {
   try {

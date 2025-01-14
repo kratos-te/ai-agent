@@ -18,6 +18,7 @@ import {
 import {
   WithdrawUnit,
   encodeName,
+  getVaultAddressSync,
   getVaultDepositorAddressSync,
 } from "@drift-labs/vaults-sdk";
 import {
@@ -233,18 +234,39 @@ export async function updateVault(
   }
 }
 
-export async function getVaultInfo(
-  agent: SolanaAgentKit,
-  vaultAddress: string,
-) {
+export async function getVaultInfo(agent: SolanaAgentKit, vaultName: string) {
   try {
     const { vaultClient, cleanUp } = await initClients(agent);
-    const vaultPublicKey = new PublicKey(vaultAddress);
+    const vaultPublicKey = getVaultAddressSync(
+      vaultClient.program.programId,
+      encodeName(vaultName),
+    );
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
 
     await cleanUp();
 
-    return vaultDetails;
+    const spotToken = MainnetSpotMarkets[vaultDetails.spotMarketIndex];
+    const data = {
+      name: vaultName,
+      address: vaultPublicKey.toBase58(),
+      marketName: `${spotToken.symbol}-SPOT`,
+      redeemPeriod: vaultDetails.redeemPeriod.toNumber(),
+      maxTokens: vaultDetails.maxTokens.div(spotToken.precision).toNumber(),
+      minDepositAmount: vaultDetails.minDepositAmount
+        .div(spotToken.precision)
+        .toNumber(),
+      managementFee:
+        (vaultDetails.managementFee.toNumber() /
+          PERCENTAGE_PRECISION.toNumber()) *
+        100,
+      profitShare:
+        (vaultDetails.profitShare / PERCENTAGE_PRECISION.toNumber()) * 100,
+      hurdleRate:
+        (vaultDetails.hurdleRate / PERCENTAGE_PRECISION.toNumber()) * 100,
+      permissioned: vaultDetails.permissioned,
+    };
+
+    return data;
   } catch (e) {
     // @ts-expect-error - error message is a string
     throw new Error(`Failed to get vault info: ${e.message}`);
@@ -396,6 +418,31 @@ async function getIsOwned(agent: SolanaAgentKit, vault: string) {
 }
 
 /**
+ * Get a vaults address using the vault's name
+ * @param agent
+ * @param name
+ */
+export async function getVaultAddress(agent: SolanaAgentKit, name: string) {
+  const encodedName = encodeName(name);
+
+  try {
+    const { vaultClient, cleanUp } = await initClients(agent);
+    const vaultAddress = getVaultAddressSync(
+      vaultClient.program.programId,
+      encodedName,
+    );
+
+    await cleanUp();
+    return vaultAddress;
+  } catch (e) {
+    throw new Error(
+      // @ts-expect-error - error message is a string
+      `Failed to get vault address: ${e.message}`,
+    );
+  }
+}
+
+/**
   Carry out a trade with a delegated vault
   @param agent SolanaAgentKit instance
   @param amount Amount to trade (in tokens)
@@ -409,7 +456,7 @@ export async function tradeDriftVault(
   vault: string,
   amount: number,
   symbol: string,
-  action: "buy" | "sell",
+  action: "long" | "short",
   type: "market" | "limit",
   price?: number,
 ) {
@@ -494,7 +541,7 @@ export async function tradeDriftVault(
             marketType: MarketType.PERP,
             baseAssetAmount: numberToSafeBN(baseAmount, BASE_PRECISION),
             direction:
-              action === "buy"
+              action === "long"
                 ? PositionDirection.LONG
                 : PositionDirection.SHORT,
             marketIndex: perpMarketAccount.marketIndex,
@@ -512,7 +559,7 @@ export async function tradeDriftVault(
             marketType: MarketType.PERP,
             baseAssetAmount: numberToSafeBN(baseAmount, BASE_PRECISION),
             direction:
-              action === "buy"
+              action === "long"
                 ? PositionDirection.LONG
                 : PositionDirection.SHORT,
             marketIndex: perpMarketAccount.marketIndex,

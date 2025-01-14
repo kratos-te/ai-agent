@@ -56,6 +56,7 @@ import doesUserHaveDriftAccountAction from "./drift/doesUserHaveDriftAccount";
 import depositToDriftUserAccountAction from "./drift/depositToDriftUserAccount";
 import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
 import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
+import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -117,6 +118,7 @@ export const ACTIONS = {
   DEPOSIT_TO_DRIFT_USER_ACCOUNT_ACTION: depositToDriftUserAccountAction,
   WITHDRAW_OR_BORROW_FROM_DRIFT_ACCOUNT_ACTION: withdrawFromDriftAccountAction,
   DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
+  DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

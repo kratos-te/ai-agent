@@ -66,7 +66,7 @@ const tradeDelegatedDriftVaultAction: Action = {
     vaultAddress: z.string().describe("Address of the Drift vault to trade in"),
     amount: z.number().positive().describe("Amount to trade"),
     symbol: z.string().describe("Symbol of the token to trade"),
-    action: z.enum(["buy", "sell"]).describe("Trade action - buy or sell"),
+    action: z.enum(["long", "short"]).describe("Trade action - long or short"),
     type: z.enum(["market", "limit"]).describe("Trade type - market or limit"),
     price: z.number().positive().optional().describe("Price for limit order"),
   }),
@@ -76,7 +76,7 @@ const tradeDelegatedDriftVaultAction: Action = {
         vaultAddress: input.vaultAddress as string,
         amount: input.amount as number,
         symbol: input.symbol as string,
-        action: input.action as "buy" | "sell",
+        action: input.action as "long" | "short",
         type: input.type as "market" | "limit",
         price: input.price as number | undefined,
       };
