@@ -56,6 +56,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Pyth Price feeds for fetching Asset Prices
   - Register/resolve Alldomains
   - Perpetuals Trading with Adrena Protocol
+  - Drift Vaults, Perps, Lending and Borrowing
 
 - **Solana Blinks**
    - Lending by Lulo (Best APR for USDC)
@@ -309,6 +310,34 @@ const signature = await agent.closePerpTradeLong({
 const { signature } = await agent.closeEmptyTokenAccounts();
 ```
 
+### Create a Drift account
+
+Create a drift account with an initial token deposit.
+
+```typescript
+const result = await agent.createDriftUserAccount()
+```
+
+### Create a Drift Vault
+
+Create a drift vault.
+
+```typescript
+const signature = await agent.createDriftVault({
+  name: "my-drift-vault",
+  marketName: "USDC-SPOT",
+  redeemPeriod: 1, // in days
+  maxTokens: 100000, // in token units e.g 100000 USDC
+  minDepositAmount: 5, // in token units e.g 5 USDC
+  managementFee: 1, // 1%
+  profitShare: 10, // 10%
+  hurdleRate: 5, // 5%
+  permissioned: false, // public vault or whitelist
+})
+```
+
+### Deposit into a Drift Vault
+
 ## Examples
 
 ### LangGraph Multi-Agent System
@@ -357,7 +386,7 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to co
 
 Apache-2 License
 
-## Funding 
+## Funding
 
 If you wanna give back any tokens or donations to the OSS community -- The Public Solana Agent Kit Treasury Address:
 

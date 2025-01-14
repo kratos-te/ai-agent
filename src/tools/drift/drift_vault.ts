@@ -19,6 +19,7 @@ import {
 import {
   VaultAccount,
   WithdrawUnit,
+  decodeName,
   encodeName,
   getVaultAddressSync,
   getVaultDepositorAddressSync,
@@ -65,9 +66,13 @@ async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
     return vaultDepositor;
   } catch (e) {
     // @ts-expect-error - error message is a string
-    if (e.message === "Account not found") {
-      await vaultClient.initializeVaultDepositor(vaultDepositor);
+    if (e.message.includes("Account does not exist")) {
+      await vaultClient.initializeVaultDepositor(
+        vaultPublicKey,
+        agent.wallet.publicKey,
+      );
     }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     await cleanUp();
     return vaultDepositor;
   }
@@ -280,18 +285,29 @@ export async function updateVault(
   }
 }
 
+export const validateAndEncodeAddress = (input: string, programId: string) => {
+  try {
+    return new PublicKey(input);
+  } catch {
+    return getVaultAddressSync(new PublicKey(programId), encodeName(input));
+  }
+};
+
 /**
  * Get information on a particular vault given its name
  * @param agent
- * @param vaultName
+ * @param vaultNameOrAddress
  * @returns
  */
-export async function getVaultInfo(agent: SolanaAgentKit, vaultName: string) {
+export async function getVaultInfo(
+  agent: SolanaAgentKit,
+  vaultNameOrAddress: string,
+) {
   try {
     const { vaultClient, cleanUp } = await initClients(agent);
-    const vaultPublicKey = getVaultAddressSync(
-      vaultClient.program.programId,
-      encodeName(vaultName),
+    const vaultPublicKey = validateAndEncodeAddress(
+      vaultNameOrAddress,
+      vaultClient.program.programId.toBase58(),
     );
     const [vaultDetails, vaultBalance] = await Promise.all([
       vaultClient.getVault(vaultPublicKey),
@@ -302,7 +318,7 @@ export async function getVaultInfo(agent: SolanaAgentKit, vaultName: string) {
 
     const spotToken = MainnetSpotMarkets[vaultDetails.spotMarketIndex];
     const data = {
-      name: vaultName,
+      name: decodeName(vaultDetails.name),
       delegate: vaultDetails.delegate.toBase58(),
       address: vaultPublicKey.toBase58(),
       marketName: `${spotToken.symbol}-SPOT`,
@@ -346,9 +362,10 @@ export async function depositIntoVault(
 
   try {
     const vaultPublicKey = new PublicKey(vault);
-    const [isOwned, vaultDetails] = await Promise.all([
+    const [isOwned, vaultDetails, vaultDepositor] = await Promise.all([
       getIsOwned(agent, vault),
       vaultClient.getVault(vaultPublicKey),
+      getOrCreateVaultDepositor(agent, vault),
     ]);
     const spotMarket = driftClient.getSpotMarketAccount(
       vaultDetails.spotMarketIndex,
@@ -365,7 +382,6 @@ export async function depositIntoVault(
       return await vaultClient.managerDeposit(vaultPublicKey, amountBN);
     }
 
-    const vaultDepositor = await getOrCreateVaultDepositor(agent, vault);
     const tx = await vaultClient.deposit(vaultDepositor, amountBN);
 
     await cleanUp();
@@ -396,7 +412,7 @@ export async function requestWithdrawalFromVault(
     if (isOwned) {
       return await vaultClient.managerRequestWithdraw(
         vaultPublicKey,
-        new BN(amount.toFixed(0)),
+        numberToSafeBN(amount, QUOTE_PRECISION),
         WithdrawUnit.TOKEN,
       );
     }
@@ -405,7 +421,7 @@ export async function requestWithdrawalFromVault(
 
     const tx = await vaultClient.requestWithdraw(
       vaultDepositor,
-      new BN(amount.toFixed(0)),
+      numberToSafeBN(amount, QUOTE_PRECISION),
       WithdrawUnit.TOKEN,
     );
 

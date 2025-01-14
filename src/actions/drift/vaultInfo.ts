@@ -2,8 +2,6 @@ import { z } from "zod";
 import type { Action } from "../../types";
 import { getVaultInfo } from "../../tools";
 import type { SolanaAgentKit } from "../../agent";
-import { decodeName } from "@drift-labs/vaults-sdk";
-import { MainnetSpotMarkets, PERCENTAGE_PRECISION } from "@drift-labs/sdk";
 
 const vaultInfoAction: Action = {
   name: "DRIFT_VAULT_INFO",
@@ -13,7 +11,7 @@ const vaultInfoAction: Action = {
     [
       {
         input: {
-          vaultName: "test-vault",
+          vaultNameOrAddress: "test-vault",
         },
         output: {
           status: "success",
@@ -35,11 +33,11 @@ const vaultInfoAction: Action = {
     ],
   ],
   schema: z.object({
-    vaultName: z.string(),
+    vaultNameOrAddress: z.string().describe("Name or address of the vault"),
   }),
   handler: async (agent: SolanaAgentKit, input) => {
     try {
-      const vaultInfo = await getVaultInfo(agent, input.vaultName as string);
+      const vaultInfo = await getVaultInfo(agent, input.vaultNameOrAddress);
 
       return {
         status: "success",
