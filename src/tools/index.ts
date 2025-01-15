@@ -25,6 +25,4 @@ export * from "./tiplink";
 export * from "./lightprotocol";
 export * from "./squads";
 export * from "./helius";
-export * from "./voltr/voltr_deposit_strategy";
-export * from "./voltr/voltr_withdraw_strategy";
-export * from "./voltr/voltr_get_position_values";
+export * from "./voltr";
