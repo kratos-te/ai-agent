@@ -6,6 +6,8 @@ export interface Config {
   OPENAI_API_KEY?: string;
   JUPITER_REFERRAL_ACCOUNT?: string;
   JUPITER_FEE_BPS?: number;
+  FLASH_PRIVILEGE?: string;
+  HELIUS_API_KEY?: string;
 }
 
 export interface Creator {
@@ -88,7 +90,8 @@ export interface FetchPriceResponse {
 
 export interface PythFetchPriceResponse {
   status: "success" | "error";
-  priceFeedID: string;
+  tokenSymbol: string;
+  priceFeedID?: string;
   price?: string;
   message?: string;
   code?: string;
@@ -164,4 +167,96 @@ export interface TokenCheck {
     score: number;
   }>;
   score: number;
+}
+
+export interface PythPriceFeedIDItem {
+  id: string;
+  attributes: {
+    asset_type: string;
+    base: string;
+  };
+}
+
+export interface PythPriceItem {
+  binary: {
+    data: string[];
+    encoding: string;
+  };
+  parsed: [
+    Array<{
+      id: string;
+      price: {
+        price: string;
+        conf: string;
+        expo: number;
+        publish_time: number;
+      };
+      ema_price: {
+        price: string;
+        conf: string;
+        expo: number;
+        publish_time: number;
+      };
+      metadata: {
+        slot: number;
+        proof_available_time: number;
+        prev_publish_time: number;
+      };
+    }>,
+  ];
+}
+
+export interface OrderParams {
+  quantity: number;
+  side: string;
+  price: number;
+}
+
+export interface BatchOrderPattern {
+  side: string;
+  totalQuantity?: number;
+  priceRange?: {
+    min?: number;
+    max?: number;
+  };
+  spacing?: {
+    type: "percentage" | "fixed";
+    value: number;
+  };
+  numberOfOrders?: number;
+  individualQuantity?: number;
+}
+
+export interface FlashTradeParams {
+  token: string;
+  side: "long" | "short";
+  collateralUsd: number;
+  leverage: number;
+}
+
+export interface FlashCloseTradeParams {
+  token: string;
+  side: "long" | "short";
+}
+
+export interface HeliusWebhookResponse {
+  webhookURL: string;
+  webhookID: string;
+}
+export interface HeliusWebhookIdResponse {
+  wallet: string;
+  webhookURL: string;
+  transactionTypes: string[];
+  accountAddresses: string[];
+  webhookType: string;
+}
+
+export interface PriorityFeeResponse {
+  jsonrpc: string;
+  id: string;
+  method: string;
+  params: Array<{
+    transaction: string;
+    options: { priorityLevel: string };
+  }>;
 }

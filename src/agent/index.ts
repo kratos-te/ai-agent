@@ -1,8 +1,13 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
 import bs58 from "bs58";
 import Decimal from "decimal.js";
+import {
+  CreateCollectionOptions,
+  CreateSingleOptions,
+  StoreInitOptions,
+} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 import { DEFAULT_OPTIONS } from "../constants";
-import { Config, TokenCheck } from "../types";
 import {
   deploy_collection,
   deploy_token,
@@ -26,6 +31,10 @@ import {
   batchOrder,
   cancelAllOrders,
   withdrawAll,
+  closePerpTradeShort,
+  closePerpTradeLong,
+  openPerpTradeShort,
+  openPerpTradeLong,
   transfer,
   getTokenDataByAddress,
   getTokenDataByTicker,
@@ -38,7 +47,6 @@ import {
   orcaOpenSingleSidedPosition,
   FEE_TIERS,
   fetchPrice,
-  pythFetchPrice,
   getAllDomainsTLDs,
   getAllRegisteredAllDomains,
   getOwnedDomainsForTLD,
@@ -52,15 +60,50 @@ import {
   create_TipLink,
   listNFTForSale,
   cancelListing,
+  closeEmptyTokenAccounts,
   fetchTokenReportSummary,
   fetchTokenDetailedReport,
-  OrderParams,
+  fetchPythPrice,
+  fetchPythPriceFeedID,
+  flashOpenTrade,
+  flashCloseTrade,
+  createCollection,
+  createSingle,
+  multisig_transfer_from_treasury,
+  create_squads_multisig,
+  multisig_create_proposal,
+  multisig_deposit_to_treasury,
+  multisig_reject_proposal,
+  multisig_approve_proposal,
+  multisig_execute_proposal,
+  parseTransaction,
+  sendTransactionWithPriorityFee,
+  getAssetsByOwner,
+  getHeliusWebhook,
+  create_HeliusWebhook,
+  deleteHeliusWebhook,
+  createDriftUserAccount,
+  createVault,
+  depositIntoVault,
+  depositToDriftUserAccount,
+  getVaultAddress,
+  doesUserHaveDriftAccount,
+  driftUserAccountInfo,
+  requestWithdrawalFromVault,
+  tradeDriftVault,
+  driftPerpTrade,
+  updateVault,
+  getVaultInfo,
+  withdrawFromDriftUserAccount,
+  withdrawFromDriftVault,
+  updateVaultDelegate,
   voltrGetPositionValues,
   voltrDepositStrategy,
   voltrWithdrawStrategy,
 } from "../tools";
-
 import {
+  Config,
+  TokenCheck,
   CollectionDeployment,
   CollectionOptions,
   GibworkCreateTaskReponse,
@@ -68,8 +111,12 @@ import {
   MintCollectionNFTResponse,
   PumpfunLaunchResponse,
   PumpFunTokenOptions,
+  OrderParams,
+  FlashTradeParams,
+  FlashCloseTradeParams,
+  HeliusWebhookIdResponse,
+  HeliusWebhookResponse,
 } from "../types";
-import { BN } from "@coral-xyz/anchor";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -211,6 +258,42 @@ export class SolanaAgentKit {
 
   async withdrawAll(marketId: PublicKey): Promise<string> {
     return withdrawAll(this, marketId);
+  }
+
+  async openPerpTradeLong(
+    args: Omit<Parameters<typeof openPerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeLong({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async openPerpTradeShort(
+    args: Omit<Parameters<typeof openPerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return openPerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeShort(
+    args: Omit<Parameters<typeof closePerpTradeShort>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeShort({
+      agent: this,
+      ...args,
+    });
+  }
+
+  async closePerpTradeLong(
+    args: Omit<Parameters<typeof closePerpTradeLong>[0], "agent">,
+  ): Promise<string> {
+    return closePerpTradeLong({
+      agent: this,
+      ...args,
+    });
   }
 
   async lendAssets(amount: number): Promise<string> {
@@ -450,8 +533,12 @@ export class SolanaAgentKit {
     return manifestCreateMarket(this, baseMint, quoteMint);
   }
 
-  async pythFetchPrice(priceFeedID: string): Promise<string> {
-    return pythFetchPrice(priceFeedID);
+  async getPythPriceFeedID(tokenSymbol: string): Promise<string> {
+    return fetchPythPriceFeedID(tokenSymbol);
+  }
+
+  async getPythPrice(priceFeedID: string): Promise<string> {
+    return fetchPythPrice(priceFeedID);
   }
 
   async createGibworkTask(
@@ -493,12 +580,235 @@ export class SolanaAgentKit {
     return cancelListing(this, nftMint);
   }
 
+  async closeEmptyTokenAccounts(): Promise<{
+    signature: string;
+    size: number;
+  }> {
+    return closeEmptyTokenAccounts(this);
+  }
+
   async fetchTokenReportSummary(mint: string): Promise<TokenCheck> {
     return fetchTokenReportSummary(mint);
   }
 
   async fetchTokenDetailedReport(mint: string): Promise<TokenCheck> {
     return fetchTokenDetailedReport(mint);
+  }
+
+  /**
+   * Opens a new trading position on Flash.Trade
+   * @param params Flash trade parameters including market, side, collateral, leverage, and pool name
+   * @returns Transaction signature
+   */
+  async flashOpenTrade(params: FlashTradeParams): Promise<string> {
+    return flashOpenTrade(this, params);
+  }
+
+  /**
+   * Closes an existing trading position on Flash.Trade
+   * @param params Flash trade close parameters
+   * @returns Transaction signature
+   */
+  async flashCloseTrade(params: FlashCloseTradeParams): Promise<string> {
+    return flashCloseTrade(this, params);
+  }
+  async heliusParseTransactions(transactionId: string): Promise<any> {
+    return parseTransaction(this, transactionId);
+  }
+  async getAllAssetsbyOwner(owner: PublicKey, limit: number): Promise<any> {
+    return getAssetsByOwner(this, owner, limit);
+  }
+
+  async create3LandCollection(
+    optionsWithBase58: StoreInitOptions,
+    collectionOpts: CreateCollectionOptions,
+  ): Promise<string> {
+    const tx = await createCollection(optionsWithBase58, collectionOpts);
+    return `Transaction: ${tx}`;
+  }
+
+  async create3LandNft(
+    optionsWithBase58: StoreInitOptions,
+    collectionAccount: string,
+    createItemOptions: CreateSingleOptions,
+    isMainnet: boolean,
+  ): Promise<string> {
+    const tx = await createSingle(
+      optionsWithBase58,
+      collectionAccount,
+      createItemOptions,
+      isMainnet,
+    );
+    return `Transaction: ${tx}`;
+  }
+  async sendTranctionWithPriority(
+    priorityLevel: string,
+    amount: number,
+    to: PublicKey,
+    splmintAddress?: PublicKey,
+  ): Promise<{ transactionId: string; fee: number }> {
+    return sendTransactionWithPriorityFee(
+      this,
+      priorityLevel,
+      amount,
+      to,
+      splmintAddress,
+    );
+  }
+
+  async createSquadsMultisig(creator: PublicKey): Promise<string> {
+    return create_squads_multisig(this, creator);
+  }
+
+  async depositToMultisig(
+    amount: number,
+    vaultIndex: number = 0,
+    mint?: PublicKey,
+  ): Promise<string> {
+    return multisig_deposit_to_treasury(this, amount, vaultIndex, mint);
+  }
+
+  async transferFromMultisig(
+    amount: number,
+    to: PublicKey,
+    vaultIndex: number = 0,
+    mint?: PublicKey,
+  ): Promise<string> {
+    return multisig_transfer_from_treasury(this, amount, to, vaultIndex, mint);
+  }
+
+  async createMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_create_proposal(this, transactionIndex);
+  }
+
+  async approveMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_approve_proposal(this, transactionIndex);
+  }
+
+  async rejectMultisigProposal(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_reject_proposal(this, transactionIndex);
+  }
+
+  async executeMultisigTransaction(
+    transactionIndex?: number | bigint,
+  ): Promise<string> {
+    return multisig_execute_proposal(this, transactionIndex);
+  }
+  async CreateWebhook(
+    accountAddresses: string[],
+    webhookURL: string,
+  ): Promise<HeliusWebhookResponse> {
+    return create_HeliusWebhook(this, accountAddresses, webhookURL);
+  }
+  async getWebhook(id: string): Promise<HeliusWebhookIdResponse> {
+    return getHeliusWebhook(this, id);
+  }
+  async deleteWebhook(webhookID: string): Promise<any> {
+    return deleteHeliusWebhook(this, webhookID);
+  }
+
+  async createDriftUserAccount(depositAmount: number, depositSymbol: string) {
+    return await createDriftUserAccount(this, depositAmount, depositSymbol);
+  }
+  async createDriftVault(params: {
+    name: string;
+    marketName: `${string}-${string}`;
+    redeemPeriod: number;
+    maxTokens: number;
+    minDepositAmount: number;
+    managementFee: number;
+    profitShare: number;
+    hurdleRate?: number;
+    permissioned?: boolean;
+  }) {
+    return await createVault(this, params);
+  }
+  async depositIntoDriftVault(amount: number, vault: string) {
+    return await depositIntoVault(this, amount, vault);
+  }
+  async depositToDriftUserAccount(
+    amount: number,
+    symbol: string,
+    isRepayment?: boolean,
+  ) {
+    return await depositToDriftUserAccount(this, amount, symbol, isRepayment);
+  }
+  async deriveDriftVaultAddress(name: string) {
+    return await getVaultAddress(this, name);
+  }
+  async doesUserHaveDriftAccount() {
+    return await doesUserHaveDriftAccount(this);
+  }
+  async driftUserAccountInfo() {
+    return await driftUserAccountInfo(this);
+  }
+  async requestWithdrawalFromDriftVault(amount: number, vault: string) {
+    return await requestWithdrawalFromVault(this, amount, vault);
+  }
+  async tradeUsingDelegatedDriftVault(
+    vault: string,
+    amount: number,
+    symbol: string,
+    action: "long" | "short",
+    type: "market" | "limit",
+    price?: number,
+  ) {
+    return await tradeDriftVault(
+      this,
+      vault,
+      amount,
+      symbol,
+      action,
+      type,
+      price,
+    );
+  }
+  async tradeUsingDriftPerpAccount(
+    amount: number,
+    symbol: string,
+    action: "long" | "short",
+    type: "market" | "limit",
+    price?: number,
+  ) {
+    return await driftPerpTrade(this, { action, amount, symbol, type, price });
+  }
+  async updateDriftVault(
+    vaultAddress: string,
+    params: {
+      name: string;
+      marketName: `${string}-${string}`;
+      redeemPeriod: number;
+      maxTokens: number;
+      minDepositAmount: number;
+      managementFee: number;
+      profitShare: number;
+      hurdleRate?: number;
+      permissioned?: boolean;
+    },
+  ) {
+    return await updateVault(this, vaultAddress, params);
+  }
+  async getDriftVaultInfo(vaultName: string) {
+    return await getVaultInfo(this, vaultName);
+  }
+  async withdrawFromDriftAccount(
+    amount: number,
+    symbol: string,
+    isBorrow?: boolean,
+  ) {
+    return await withdrawFromDriftUserAccount(this, amount, symbol, isBorrow);
+  }
+  async withdrawFromDriftVault(vault: string) {
+    return await withdrawFromDriftVault(this, vault);
+  }
+  async updateDriftVaultDelegate(vaultAddress: string, delegate: string) {
+    return await updateVaultDelegate(this, vaultAddress, delegate);
   }
 
   async voltrDepositStrategy(
