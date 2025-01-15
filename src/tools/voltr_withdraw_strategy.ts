@@ -1,4 +1,3 @@
-import { VoltrClient } from "@voltr/sdk";
 import { SolanaAgentKit } from "../agent";
 import {
   PublicKey,
@@ -6,12 +5,8 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import BN from "bn.js";
-import {
-  Account,
-  getAccount,
-  TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { VoltrClient } from "@voltr/vault-sdk";
 
 /**
  * Withdraws assets from a Voltr strategy
@@ -28,34 +23,24 @@ export async function voltrWithdrawStrategy(
   strategy: PublicKey,
 ): Promise<string> {
   const vc = new VoltrClient(agent.connection, agent.wallet);
-  const { vaultAssetIdleAuth } = vc.findVaultAddresses(vault);
   const vaultAccount = await vc.fetchVaultAccount(vault);
-  const vaultAssetMint = vaultAccount.asset.assetMint;
-  const strategyAccount = await vc.fetchStrategyAccount(strategy);
-  const liquidityReserve = strategyAccount.counterpartyAssetTa;
-  const protocolProgram = strategyAccount.protocolProgram;
-  const vaultStrategy = vc.findVaultStrategy(vaultAssetIdleAuth, strategy);
+  const vaultAssetMint = vaultAccount.asset.mint;
+  const assetTokenProgram = await agent.connection
+    .getAccountInfo(new PublicKey(vaultAssetMint))
+    .then((account) => account?.owner);
 
-  let liquidityReserveAccount: Account;
-  try {
-    liquidityReserveAccount = await getAccount(
-      agent.connection,
-      liquidityReserve,
-      "confirmed",
-      TOKEN_PROGRAM_ID,
-    );
-  } catch (error) {
-    liquidityReserveAccount = await getAccount(
-      agent.connection,
-      liquidityReserve,
-      "confirmed",
-      TOKEN_2022_PROGRAM_ID,
-    );
+  if (
+    !assetTokenProgram ||
+    !(
+      assetTokenProgram.equals(TOKEN_PROGRAM_ID) ||
+      assetTokenProgram.equals(TOKEN_2022_PROGRAM_ID)
+    )
+  ) {
+    throw new Error("Invalid asset token program");
   }
-  const liquidityReserveAuth = liquidityReserveAccount.owner;
 
   const response = await fetch(
-    `https://voltr.xyz/api/remaining-accounts/withdraw-strategy?vault=${vault.toBase58()}&strategy=${strategy.toBase58()}`,
+    `https://voltr.xyz/api/remaining-accounts/deposit-strategy?vault=${vault.toBase58()}&strategy=${strategy.toBase58()}`,
     {
       method: "GET",
       headers: {
@@ -65,27 +50,44 @@ export async function voltrWithdrawStrategy(
   );
 
   const data = (await response.json()).data as {
-    pubkey: string;
-    isSigner: boolean;
-    isWritable: boolean;
-  }[];
+    instructionDiscriminator: number[] | null;
+    additionalArgs: number[] | null;
+    remainingAccounts:
+      | {
+          pubkey: string;
+          isSigner: boolean;
+          isWritable: boolean;
+        }[]
+      | null;
+  };
 
-  const remainingAccounts = data.map((account) => ({
-    pubkey: new PublicKey(account.pubkey),
-    isSigner: account.isSigner,
-    isWritable: account.isWritable,
-  }));
+  const additionalArgs = data.additionalArgs
+    ? Buffer.from(data.additionalArgs)
+    : null;
+  const instructionDiscriminator = data.instructionDiscriminator
+    ? Buffer.from(data.instructionDiscriminator)
+    : null;
+  const remainingAccounts =
+    data.remainingAccounts?.map((account) => ({
+      pubkey: new PublicKey(account.pubkey),
+      isSigner: account.isSigner,
+      isWritable: account.isWritable,
+    })) ?? [];
 
-  const withdrawIx = await vc.createWithdrawStrategyIx(withdrawAmount, {
-    vault,
-    vaultAssetMint,
-    strategy: strategy,
-    vaultStrategy: vaultStrategy,
-    counterpartyAssetTa: liquidityReserve,
-    counterpartyAssetTaAuth: liquidityReserveAuth,
-    protocolProgram: protocolProgram,
-    remainingAccounts,
-  });
+  const withdrawIx = await vc.createWithdrawStrategyIx(
+    {
+      withdrawAmount,
+      additionalArgs,
+      instructionDiscriminator,
+    },
+    {
+      vault,
+      vaultAssetMint,
+      strategy,
+      assetTokenProgram,
+      remainingAccounts,
+    },
+  );
 
   const transaction = new Transaction();
   transaction.add(withdrawIx);

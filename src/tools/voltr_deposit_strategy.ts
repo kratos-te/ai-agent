@@ -1,10 +1,11 @@
-import { VoltrClient } from "@voltr/sdk";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { SolanaAgentKit } from "../agent";
 import {
   PublicKey,
   sendAndConfirmTransaction,
   Transaction,
 } from "@solana/web3.js";
+import { VoltrClient } from "@voltr/vault-sdk";
 import BN from "bn.js";
 
 /**
@@ -22,13 +23,21 @@ export async function voltrDepositStrategy(
   strategy: PublicKey,
 ): Promise<string> {
   const vc = new VoltrClient(agent.connection, agent.wallet);
-  const { vaultAssetIdleAuth } = vc.findVaultAddresses(vault);
   const vaultAccount = await vc.fetchVaultAccount(vault);
-  const vaultAssetMint = vaultAccount.asset.assetMint;
-  const strategyAccount = await vc.fetchStrategyAccount(strategy);
-  const liquidityReserve = strategyAccount.counterpartyAssetTa;
-  const protocolProgram = strategyAccount.protocolProgram;
-  const vaultStrategy = vc.findVaultStrategy(vaultAssetIdleAuth, strategy);
+  const vaultAssetMint = vaultAccount.asset.mint;
+  const assetTokenProgram = await agent.connection
+    .getAccountInfo(new PublicKey(vaultAssetMint))
+    .then((account) => account?.owner);
+
+  if (
+    !assetTokenProgram ||
+    !(
+      assetTokenProgram.equals(TOKEN_PROGRAM_ID) ||
+      assetTokenProgram.equals(TOKEN_2022_PROGRAM_ID)
+    )
+  ) {
+    throw new Error("Invalid asset token program");
+  }
 
   const response = await fetch(
     `https://voltr.xyz/api/remaining-accounts/deposit-strategy?vault=${vault.toBase58()}&strategy=${strategy.toBase58()}`,
@@ -41,37 +50,50 @@ export async function voltrDepositStrategy(
   );
 
   const data = (await response.json()).data as {
-    pubkey: string;
-    isSigner: boolean;
-    isWritable: boolean;
-  }[];
+    instructionDiscriminator: number[] | null;
+    additionalArgs: number[] | null;
+    remainingAccounts:
+      | {
+          pubkey: string;
+          isSigner: boolean;
+          isWritable: boolean;
+        }[]
+      | null;
+  };
 
-  const remainingAccounts = data.map((account) => ({
-    pubkey: new PublicKey(account.pubkey),
-    isSigner: account.isSigner,
-    isWritable: account.isWritable,
-  }));
+  const additionalArgs = data.additionalArgs
+    ? Buffer.from(data.additionalArgs)
+    : null;
+  const instructionDiscriminator = data.instructionDiscriminator
+    ? Buffer.from(data.instructionDiscriminator)
+    : null;
+  const remainingAccounts =
+    data.remainingAccounts?.map((account) => ({
+      pubkey: new PublicKey(account.pubkey),
+      isSigner: account.isSigner,
+      isWritable: account.isWritable,
+    })) ?? [];
 
-  const depositIx = await vc.createDepositStrategyIx(depositAmount, {
-    vault,
-    vaultAssetMint,
-    strategy: strategy,
-    vaultStrategy: vaultStrategy,
-    counterpartyAssetTa: liquidityReserve,
-    protocolProgram: protocolProgram,
-    remainingAccounts,
-  });
+  const depositIx = await vc.createDepositStrategyIx(
+    {
+      depositAmount,
+      additionalArgs,
+      instructionDiscriminator,
+    },
+    {
+      vault,
+      vaultAssetMint,
+      strategy: strategy,
+      assetTokenProgram,
+      remainingAccounts,
+    },
+  );
 
   const transaction = new Transaction();
   transaction.add(depositIx);
 
-  const txSig = await sendAndConfirmTransaction(
-    agent.connection,
-    transaction,
-    [agent.wallet],
-    {
-      commitment: "confirmed",
-    },
-  );
+  const txSig = await sendAndConfirmTransaction(agent.connection, transaction, [
+    agent.wallet,
+  ]);
   return txSig;
 }

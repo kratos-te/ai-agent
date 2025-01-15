@@ -55,7 +55,7 @@ import {
   fetchTokenReportSummary,
   fetchTokenDetailedReport,
   OrderParams,
-  voltrGetAssetAmount,
+  voltrGetPositionValues,
   voltrDepositStrategy,
   voltrWithdrawStrategy,
 } from "../tools";
@@ -517,7 +517,7 @@ export class SolanaAgentKit {
     return voltrWithdrawStrategy(this, withdrawAmount, vault, strategy);
   }
 
-  async voltrGetAssetAmount(vault: PublicKey): Promise<string> {
-    return voltrGetAssetAmount(this, vault);
+  async voltrGetPositionValues(vault: PublicKey): Promise<string> {
+    return voltrGetPositionValues(this, vault);
   }
 }

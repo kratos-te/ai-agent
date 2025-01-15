@@ -48,7 +48,7 @@
 		"@tensor-oss/tensorswap-sdk": "^4.5.0",
 		"@solana/web3.js": "^1.98.0",
 		"@tiplink/api": "^0.3.1",
-		"@voltr/sdk": "^0.1.0",
+		"@voltr/vault-sdk": "^0.1.1",
 		"bn.js": "^5.2.1",
 		"bs58": "^6.0.0",
 		"chai": "^5.1.2",

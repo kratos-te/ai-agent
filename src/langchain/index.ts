@@ -2083,9 +2083,9 @@ export class SolanaVoltrWithdrawStrategy extends Tool {
   }
 }
 
-export class SolanaVoltrGetAssetAmount extends Tool {
-  name = "solana_voltr_get_asset_amount";
-  description = `Get the total asset amount and current amount for each strategy of a given Voltr vault
+export class SolanaVoltrGetPositionValues extends Tool {
+  name = "solana_voltr_get_position_values";
+  description = `Get the total asset value and current value for each strategy of a given Voltr vault
   
   Inputs:
   vault: string (required)
@@ -2094,7 +2094,7 @@ export class SolanaVoltrGetAssetAmount extends Tool {
     super();
   }
   async _call(input: string): Promise<string> {
-    return this.solanaKit.voltrGetAssetAmount(new PublicKey(input));
+    return this.solanaKit.voltrGetPositionValues(new PublicKey(input));
   }
 }
 
@@ -2152,6 +2152,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaFetchTokenDetailedReportTool(solanaKit),
     new SolanaVoltrDepositStrategy(solanaKit),
     new SolanaVoltrWithdrawStrategy(solanaKit),
-    new SolanaVoltrGetAssetAmount(solanaKit),
+    new SolanaVoltrGetPositionValues(solanaKit),
   ];
 }
