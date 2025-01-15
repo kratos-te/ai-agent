@@ -471,6 +471,38 @@ Update the address a drift vault is delegated to.
 const signature = await agent.updateDriftVaultDelegate("41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU", "new-address")
 ```
 
+### Get Voltr Vault Position Values
+
+Get the current position values and total value of assets in a Voltr vault.
+
+```typescript
+const values = await agent.voltrGetPositionValues("7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K")
+```
+
+### Deposit into Voltr Strategy
+
+Deposit assets into a specific strategy within a Voltr vault.
+
+```typescript
+const signature = await agent.voltrDepositStrategy(
+  new BN("1000000000"), // amount in base units (e.g., 1 USDC = 1000000)
+  "7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K", // vault
+  "9ZQQYvr4x7AMqd6abVa1f5duGjti5wk1MHsX6hogPsLk"  // strategy
+)
+```
+
+### Withdraw from Voltr Strategy
+
+Withdraw assets from a specific strategy within a Voltr vault.
+
+```typescript
+const signature = await agent.voltrWithdrawStrategy(
+  new BN("1000000000"), // amount in base units (e.g., 1 USDC = 1000000)
+  "7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K", // vault
+  "9ZQQYvr4x7AMqd6abVa1f5duGjti5wk1MHsX6hogPsLk"  // strategy
+)
+```
+
 ## Examples
 
 ### LangGraph Multi-Agent System
