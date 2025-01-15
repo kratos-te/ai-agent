@@ -4,7 +4,6 @@
 
 ![Solana Agent Kit Cover 1 (3)](https://github.com/user-attachments/assets/cfa380f6-79d9-474d-9852-3e1976c6de70)
 
-
 ![NPM Downloads](https://img.shields.io/npm/dm/solana-agent-kit?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/sendaifun/solana-agent-kit?style=for-the-badge)
 ![GitHub License](https://img.shields.io/github/license/sendaifun/solana-agent-kit?style=for-the-badge)
@@ -22,7 +21,6 @@ An open-source toolkit for connecting AI agents to Solana protocols. Now, any ag
 - And more...
 
 Anyone - whether an SF-based AI researcher or a crypto-native builder - can bring their AI agents trained with any model and seamlessly integrate with Solana.
-
 
 [![Run on Repl.it](https://replit.com/badge/github/sendaifun/solana-agent-kit)](https://replit.com/@sendaifun/Solana-Agent-Kit)
 > Replit template created by [Arpit Singh](https://github.com/The-x-35)
@@ -58,6 +56,7 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Pyth Price feeds for fetching Asset Prices
   - Register/resolve Alldomains
   - Perpetuals Trading with Adrena Protocol
+  - Drift Vaults, Perps, Lending and Borrowing
 
 - **Solana Blinks**
    - Lending by Lulo (Best APR for USDC)
@@ -92,6 +91,9 @@ Anyone - whether an SF-based AI researcher or a crypto-native builder - can brin
   - Natural language processing for blockchain commands
   - Price feed integration for market analysis
   - Automated decision-making capabilities
+
+## 📃 Documentation
+You can view the full documentation of the kit at [docs.solanaagentkit.xyz](https://docs.solanaagentkit.xyz)
 
 ## 📦 Installation
 
@@ -294,6 +296,174 @@ const signature = await agent.closePerpTradeLong({
 });
 ```
 
+### Close Empty Token Accounts
+
+``` typescript
+
+const { signature } = await agent.closeEmptyTokenAccounts();
+```
+
+### Create a Drift account
+
+Create a drift account with an initial token deposit.
+
+```typescript
+const result = await agent.createDriftUserAccount()
+```
+
+### Create a Drift Vault
+
+Create a drift vault.
+
+```typescript
+const signature = await agent.createDriftVault({
+  name: "my-drift-vault",
+  marketName: "USDC-SPOT",
+  redeemPeriod: 1, // in days
+  maxTokens: 100000, // in token units e.g 100000 USDC
+  minDepositAmount: 5, // in token units e.g 5 USDC
+  managementFee: 1, // 1%
+  profitShare: 10, // 10%
+  hurdleRate: 5, // 5%
+  permissioned: false, // public vault or whitelist
+})
+```
+
+### Deposit into a Drift Vault
+
+Deposit tokens into a drift vault.
+
+```typescript
+const signature = await agent.depositIntoDriftVault(100, "41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU")
+```
+
+### Deposit into your Drift account
+
+Deposit tokens into your drift account.
+
+```typescript
+const {txSig} = await agent.depositToDriftUserAccount(100, "USDC")
+```
+
+### Derive a Drift Vault address
+
+Derive a drift vault address.
+
+```typescript
+const vaultPublicKey = await agent.deriveDriftVaultAddress("my-drift-vault")
+```
+
+### Do you have a Drift account
+
+Check if agent has a drift account.
+
+```typescript
+const {hasAccount, account} = await agent.doesUserHaveDriftAccount()
+```
+
+### Get Drift account information
+
+Get drift account information.
+
+```typescript
+const accountInfo = await agent.driftUserAccountInfo()
+```
+
+### Request withdrawal from Drift vault
+
+Request withdrawal from drift vault.
+
+```typescript
+const signature = await agent.requestWithdrawalFromDriftVault(100, "41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU")
+```
+
+### Carry out a perpetual trade using a Drift vault
+
+Open a perpertual trade using a drift vault that is delegated to you.
+
+```typescript
+const signature = await agent.tradeUsingDelegatedDriftVault({
+  vault: "41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU",
+  amount: 500,
+  symbol: "SOL",
+  action: "long",
+  type: "limit",
+  price: 180 // Please long limit order at $180/SOL
+})
+```
+
+### Carry out a perpetual trade using your Drift account
+
+Open a perpertual trade using your drift account.
+
+```typescript
+const signature = await agent.tradeUsingDriftPerpAccount({
+  amount: 500,
+  symbol: "SOL",
+  action: "long",
+  type: "limit",
+  price: 180 // Please long limit order at $180/SOL
+})
+```
+
+### Update Drift vault parameters
+
+Update drift vault parameters.
+
+```typescript
+const signature = await agent.updateDriftVault({
+  name: "my-drift-vault",
+  marketName: "USDC-SPOT",
+  redeemPeriod: 1, // in days
+  maxTokens: 100000, // in token units e.g 100000 USDC
+  minDepositAmount: 5, // in token units e.g 5 USDC
+  managementFee: 1, // 1%
+  profitShare: 10, // 10%
+  hurdleRate: 5, // 5%
+  permissioned: false, // public vault or whitelist
+})
+```
+
+### Withdraw from Drift account
+
+Withdraw tokens from your drift account.
+
+```typescript
+const {txSig} = await agent.withdrawFromDriftAccount(100, "USDC")
+```
+
+### Borrow from Drift
+
+Borrow tokens from drift.
+
+```typescript
+const {txSig} = await agent.withdrawFromDriftAccount(1, "SOL", true)
+```
+
+### Repay Drift loan
+
+Repay a loan from drift.
+
+```typescript
+const {txSig} = await agent.depositToDriftUserAccount(1, "SOL", true)
+```
+
+### Withdraw from Drift vault
+
+Withdraw tokens from a drift vault after the redemption period has elapsed.
+
+```typescript
+const signature = await agent.withdrawFromDriftVault( "41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU")
+```
+
+### Update the address a Drift vault is delegated to
+
+Update the address a drift vault is delegated to.
+
+```typescript
+const signature = await agent.updateDriftVaultDelegate("41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU", "new-address")
+```
+
 ## Examples
 
 ### LangGraph Multi-Agent System
@@ -334,7 +504,6 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to co
   <img src="https://contrib.rocks/image?repo=sendaifun/solana-agent-kit" />
 </a>
 
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=sendaifun/solana-agent-kit&type=Date)](https://star-history.com/#sendaifun/solana-agent-kit&Date)
@@ -343,7 +512,7 @@ Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to co
 
 Apache-2 License
 
-## Funding 
+## Funding
 
 If you wanna give back any tokens or donations to the OSS community -- The Public Solana Agent Kit Treasury Address:
 
