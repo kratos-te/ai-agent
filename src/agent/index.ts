@@ -98,6 +98,12 @@ import {
   withdrawFromDriftVault,
   updateVaultDelegate,
   get_token_balance,
+  getAvailableDriftSpotMarkets,
+  getAvailableDriftPerpMarkets,
+  stakeToDriftInsuranceFund,
+  requestUnstakeFromDriftInsuranceFund,
+  unstakeFromDriftInsuranceFund,
+  swapSpotToken,
 } from "../tools";
 import {
   Config,
@@ -820,5 +826,49 @@ export class SolanaAgentKit {
   }
   async updateDriftVaultDelegate(vaultAddress: string, delegate: string) {
     return await updateVaultDelegate(this, vaultAddress, delegate);
+  }
+  getAvailableDriftMarkets(type?: "spot" | "perp") {
+    switch (type) {
+      case "spot":
+        return getAvailableDriftSpotMarkets();
+      case "perp":
+        return getAvailableDriftPerpMarkets();
+      default:
+        return {
+          spot: getAvailableDriftSpotMarkets(),
+          perp: getAvailableDriftPerpMarkets(),
+        };
+    }
+  }
+  async stakeToDriftInsuranceFund(amount: number, symbol: string) {
+    return await stakeToDriftInsuranceFund(this, amount, symbol);
+  }
+  async requestUnstakeFromDriftInsuranceFund(amount: number, symbol: string) {
+    return await requestUnstakeFromDriftInsuranceFund(this, amount, symbol);
+  }
+  async unstakeFromDriftInsuranceFund(symbol: string) {
+    return await unstakeFromDriftInsuranceFund(this, symbol);
+  }
+  async driftSpotTokenSwap(
+    params: {
+      fromSymbol: string;
+      toSymbol: string;
+      slippage?: number;
+    } & (
+      | {
+          toAmount: number;
+        }
+      | { fromAmount: number }
+    ),
+  ) {
+    return await swapSpotToken(this, {
+      fromSymbol: params.fromSymbol,
+      toSymbol: params.toSymbol,
+      // @ts-expect-error - fromAmount and toAmount are mutually exclusive
+      fromAmount: params.fromAmount,
+      // @ts-expect-error - fromAmount and toAmount are mutually exclusive
+      toAmount: params.toAmount,
+      slippage: params.slippage,
+    });
   }
 }

@@ -7,6 +7,8 @@ import {
   getLimitOrderParams,
   getMarketOrderParams,
   getUserAccountPublicKeySync,
+  JupiterClient,
+  MainnetPerpMarkets,
   MainnetSpotMarkets,
   numberToSafeBN,
   PositionDirection,
@@ -115,7 +117,10 @@ export async function createDriftUserAccount(
     );
 
     if (!token) {
-      throw new Error(`Token with symbol ${symbol} not found`);
+      throw new Error(`Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+        (v) => v.symbol,
+      ).join(", ")}
+      `);
     }
 
     if (!userAccountExists) {
@@ -171,7 +176,11 @@ export async function depositToDriftUserAccount(
     );
 
     if (!token) {
-      throw new Error(`Token with symbol ${symbol} not found`);
+      throw new Error(
+        `Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
     }
 
     if (!userAccountExists) {
@@ -237,7 +246,11 @@ export async function withdrawFromDriftUserAccount(
     );
 
     if (!token) {
-      throw new Error(`Token with symbol ${symbol} not found`);
+      throw new Error(
+        `Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
     }
 
     const withdrawAmount = numberToSafeBN(amount, token.precision);
@@ -313,7 +326,11 @@ export async function driftPerpTrade(
     );
 
     if (!market) {
-      throw new Error(`Token with symbol ${params.symbol} not found`);
+      throw new Error(
+        `Token with symbol ${params.symbol} not found. Here's a list of available perp markets: ${MainnetPerpMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
     }
 
     const baseAssetPrice = driftClient.getOracleDataForPerpMarket(
@@ -435,10 +452,9 @@ export async function driftUserAccountInfo(agent: SolanaAgentKit) {
     }));
     const spotPositions = account.spotPositions.map((pos) => ({
       ...pos,
-      scaledBalance: convertToNumber(pos.scaledBalance, BASE_PRECISION),
-      cumulativeDeposits: convertToNumber(
-        pos.cumulativeDeposits,
-        BASE_PRECISION,
+      availableBalance: convertToNumber(
+        pos.scaledBalance,
+        MainnetSpotMarkets[pos.marketIndex].precision,
       ),
       symbol: MainnetSpotMarkets.find((v) => v.marketIndex === pos.marketIndex)
         ?.symbol,
@@ -448,8 +464,6 @@ export async function driftUserAccountInfo(agent: SolanaAgentKit) {
       ...account,
       name: account.name,
       authority: account.authority,
-      totalDeposits: `$${convertToNumber(account.totalDeposits, QUOTE_PRECISION)}`,
-      totalWithdraws: `$${convertToNumber(account.totalWithdraws, QUOTE_PRECISION)}`,
       settledPerpPnl: `$${convertToNumber(account.settledPerpPnl, QUOTE_PRECISION)}`,
       lastActiveSlot: account.lastActiveSlot.toNumber(),
       perpPositions,
@@ -458,5 +472,241 @@ export async function driftUserAccountInfo(agent: SolanaAgentKit) {
   } catch (e) {
     // @ts-expect-error - error message is a string
     throw new Error(`Failed to check user account: ${e.message}`);
+  }
+}
+
+/**
+ * Get available spot markets on drift protocol
+ */
+export function getAvailableDriftSpotMarkets() {
+  return MainnetSpotMarkets;
+}
+
+/**
+ * Get available perp markets on drift protocol
+ */
+export function getAvailableDriftPerpMarkets() {
+  return MainnetPerpMarkets;
+}
+
+/**
+ * Stake a token to the drift insurance fund
+ * @param agent
+ * @param amount
+ * @param symbol
+ */
+export async function stakeToDriftInsuranceFund(
+  agent: SolanaAgentKit,
+  amount: number,
+  symbol: string,
+) {
+  try {
+    const { cleanUp, driftClient } = await initClients(agent);
+    const token = MainnetSpotMarkets.find(
+      (v) => v.symbol === symbol.toUpperCase(),
+    );
+
+    if (!token) {
+      throw new Error(
+        `Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
+    }
+
+    const signature = await driftClient.addInsuranceFundStake({
+      amount: numberToSafeBN(amount, token.precision),
+      marketIndex: token.marketIndex,
+      collateralAccountPublicKey: getAssociatedTokenAddressSync(
+        token.mint,
+        agent.wallet.publicKey,
+      ),
+      txParams: {
+        computeUnitsPrice: 0.000002 * 1000000 * 1000000,
+      },
+    });
+
+    await cleanUp();
+    return signature;
+  } catch (e) {
+    // @ts-expect-error - error message is a string
+    throw new Error(`Failed to get APYs: ${e.message}`);
+  }
+}
+
+/**
+ * Request an unstake from the drift insurance fund
+ * @param agent
+ * @param amount
+ * @param symbol
+ */
+export async function requestUnstakeFromDriftInsuranceFund(
+  agent: SolanaAgentKit,
+  amount: number,
+  symbol: string,
+) {
+  try {
+    const { driftClient, cleanUp } = await initClients(agent);
+    const token = MainnetSpotMarkets.find(
+      (v) => v.symbol === symbol.toUpperCase(),
+    );
+
+    if (!token) {
+      throw new Error(
+        `Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
+    }
+
+    const signature = await driftClient.requestRemoveInsuranceFundStake(
+      token.marketIndex,
+      numberToSafeBN(amount, token.precision),
+      { computeUnitsPrice: 0.000002 * 1000000 * 1000000 },
+    );
+
+    await cleanUp();
+    return signature;
+  } catch (e) {
+    // @ts-expect-error error message is a string
+    throw new Error(`Failed to unstake from insurance fund: ${e.message}`);
+  }
+}
+
+/**
+ * Unstake requested funds from the drift insurance fund once cool down period is elapsed
+ * @param agent
+ * @param symbol
+ */
+export async function unstakeFromDriftInsuranceFund(
+  agent: SolanaAgentKit,
+  symbol: string,
+) {
+  try {
+    const { driftClient, cleanUp } = await initClients(agent);
+    const token = MainnetSpotMarkets.find(
+      (v) => v.symbol === symbol.toUpperCase(),
+    );
+
+    if (!token) {
+      throw new Error(
+        `Token with symbol ${symbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
+    }
+
+    const signature = await driftClient.removeInsuranceFundStake(
+      token.marketIndex,
+      getAssociatedTokenAddressSync(token.mint, agent.wallet.publicKey),
+      {
+        computeUnitsPrice: 0.000002 * 1000000 * 1000000,
+      },
+    );
+
+    await cleanUp();
+    return signature;
+  } catch (e) {
+    // @ts-expect-error error message is a string
+    throw new Error(`Failed to unstake from insurance fund: ${e.message}`);
+  }
+}
+
+/**
+ * Swap a spot token for another on drift
+ * @param agent
+ * @param params
+ * @param params.fromSymbol symbol of the token to deposit
+ * @param params.toSymbol symbol of the token to receive
+ * @param params.fromAmount amount of the token to deposit
+ * @param params.toAmount amount of the token to receive
+ */
+export async function swapSpotToken(
+  agent: SolanaAgentKit,
+  params: {
+    fromSymbol: string;
+    toSymbol: string;
+    slippage?: number | undefined;
+  } & (
+    | {
+        fromAmount: number;
+      }
+    | {
+        toAmount: number;
+      }
+  ),
+) {
+  try {
+    const { driftClient, cleanUp } = await initClients(agent);
+    const fromToken = MainnetSpotMarkets.find(
+      (v) => v.symbol === params.fromSymbol.toUpperCase(),
+    );
+    const toToken = MainnetSpotMarkets.find(
+      (v) => v.symbol === params.toSymbol.toUpperCase(),
+    );
+
+    if (!fromToken) {
+      throw new Error(
+        `Token with symbol ${params.fromSymbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
+    }
+
+    if (!toToken) {
+      throw new Error(
+        `Token with symbol ${params.toSymbol} not found. Here's a list of available spot markets: ${MainnetSpotMarkets.map(
+          (v) => v.symbol,
+        ).join(", ")}`,
+      );
+    }
+
+    let txSig: string;
+
+    // @ts-expect-error - false undefined type conflict
+    if (params.fromAmount) {
+      const jupiterClient = new JupiterClient({ connection: agent.connection });
+      // @ts-expect-error - false undefined type conflict
+      const fromAmount = numberToSafeBN(params.fromAmount, fromToken.precision);
+      const signature = await driftClient.swap({
+        amount: fromAmount,
+        inMarketIndex: fromToken.marketIndex,
+        outMarketIndex: toToken.marketIndex,
+        jupiterClient: jupiterClient,
+        slippageBps: params.slippage ?? 100,
+        swapMode: "ExactIn",
+      });
+
+      txSig = signature;
+    }
+
+    // @ts-expect-error - false undefined type conflict
+    if (params.toAmount) {
+      const jupiterClient = new JupiterClient({ connection: agent.connection });
+      // @ts-expect-error - false undefined type conflict
+      const toAmount = numberToSafeBN(params.toAmount, toToken.precision);
+      const signature = await driftClient.swap({
+        amount: toAmount,
+        inMarketIndex: toToken.marketIndex,
+        outMarketIndex: fromToken.marketIndex,
+        jupiterClient: jupiterClient,
+        slippageBps: params.slippage ?? 100,
+        swapMode: "ExactOut",
+      });
+
+      txSig = signature;
+    }
+
+    await cleanUp();
+
+    // @ts-expect-error - false use before assignment
+    if (txSig) {
+      return txSig;
+    }
+
+    throw new Error("Either fromAmount or toAmount must be provided");
+  } catch (e) {
+    // @ts-expect-error error message is a string
+    throw new Error(`Failed to swap token: ${e.message}`);
   }
 }

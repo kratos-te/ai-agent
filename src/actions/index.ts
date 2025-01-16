@@ -59,6 +59,11 @@ import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
 import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
 import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
 import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
+import availableDriftMarketsAction from "./drift/availableMarkets";
+import stakeToDriftInsuranceFundAction from "./drift/stakeToDriftInsuranceFund";
+import requestUnstakeFromDriftInsuranceFundAction from "./drift/requestUnstakeFromDriftInsuranceFund";
+import unstakeFromDriftInsuranceFundAction from "./drift/unstakeFromDriftInsuranceFund";
+import driftSpotTokenSwapAction from "./drift/swapSpotToken";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -123,6 +128,12 @@ export const ACTIONS = {
   DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
   DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
   UPDATE_DRIFT_VAULT_DELEGATE_ACTION: updateDriftVaultDelegateAction,
+  AVAILABLE_DRIFT_MARKETS_ACTION: availableDriftMarketsAction,
+  STAKE_TO_DRIFT_INSURANCE_FUND_ACTION: stakeToDriftInsuranceFundAction,
+  REQUEST_UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION:
+    requestUnstakeFromDriftInsuranceFundAction,
+  UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION: unstakeFromDriftInsuranceFundAction,
+  DRIFT_SPOT_TOKEN_SWAP_ACTION: driftSpotTokenSwapAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
