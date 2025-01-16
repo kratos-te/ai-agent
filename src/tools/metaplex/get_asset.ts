@@ -19,11 +19,8 @@ export async function get_asset(
   try {
     const endpoint = agent.connection.rpcEndpoint;
     const umi = createUmi(endpoint).use(dasApi());
-    const assetPublicKey = publicKey(assetId);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return await umi.rpc.getAsset(assetPublicKey);
+    return await umi.rpc.getAsset(publicKey(assetId));
   } catch (error: any) {
     console.error("Error retrieving asset: ", error.message);
     throw new Error(`Asset retrieval failed: ${error.message}`);

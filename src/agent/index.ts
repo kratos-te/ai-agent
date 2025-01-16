@@ -99,6 +99,7 @@ import {
   updateVaultDelegate,
   get_token_balance,
   get_asset,
+  get_assets_by_authority,
 } from "../tools";
 import {
   Config,
@@ -116,7 +117,10 @@ import {
   HeliusWebhookIdResponse,
   HeliusWebhookResponse,
 } from "../types";
-import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import {
+  DasApiAsset,
+  GetAssetsByAuthorityRpcInput,
+} from "@metaplex-foundation/digital-asset-standard-api";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -826,5 +830,10 @@ export class SolanaAgentKit {
 
   async getAsset(assetId: string): Promise<DasApiAsset> {
     return get_asset(this, assetId);
+  }
+  async getAssetsByAuthority(
+    params: GetAssetsByAuthorityRpcInput,
+  ): Promise<DasApiAsset[]> {
+    return get_assets_by_authority(this, params);
   }
 }
