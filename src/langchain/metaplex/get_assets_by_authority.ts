@@ -6,7 +6,7 @@ export class SolanaGetAssetsByAuthorityTool extends Tool {
   description = `Fetch a list of assets owned by a specific address using the Metaplex DAS API.
 
   Inputs (input is a JSON string):
-  authorityAddress: string, eg "N4f6zftYsuu4yT7icsjLwh4i6pB1zvvKbseHj2NmSQw" (required)
+  authority: string, eg "mRdta4rc2RtsxEUDYuvKLamMZAdW6qHcwuq866Skxxv" (required)
   sortBy: { sortBy: "created" | "updated" | "recentAction" | "none", sortDirection: "asc" | "desc" } (optional)
   limit: number (optional)
   page: number (optional)

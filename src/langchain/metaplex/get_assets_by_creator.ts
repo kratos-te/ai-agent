@@ -6,7 +6,7 @@ export class SolanaGetAssetsByCreatorTool extends Tool {
   description = `Fetch a list of assets created by a specific address using the Metaplex DAS API.
 
   Inputs (input is a JSON string):
-  creatorAddress: string, eg "N4f6zftYsuu4yT7icsjLwh4i6pB1zvvKbseHj2NmSQw" (required)
+  creator: string, eg "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3" (required)
   onlyVerified: boolean (optional)
   sortBy: { sortBy: "created" | "updated" | "recentAction" | "none", sortDirection: "asc" | "desc" } (optional)
   limit: number (optional)

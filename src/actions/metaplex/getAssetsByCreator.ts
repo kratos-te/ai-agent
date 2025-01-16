@@ -16,7 +16,7 @@ const getAssetsByCreatorAction: Action = {
     [
       {
         input: {
-          creatorAddress: "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3",
+          creator: "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3",
           onlyVerified: true,
           limit: 10,
         },
@@ -75,7 +75,7 @@ const getAssetsByCreatorAction: Action = {
     ],
   ],
   schema: z.object({
-    creatorAddress: z.string().min(1, "Creator address is required"),
+    creator: z.string().min(1, "Creator address is required"),
     onlyVerified: z.boolean(),
     sortBy: z
       .object({

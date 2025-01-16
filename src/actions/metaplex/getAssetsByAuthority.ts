@@ -16,7 +16,7 @@ const getAssetsByAuthorityAction: Action = {
     [
       {
         input: {
-          authorityAddress: "mRdta4rc2RtsxEUDYuvKLamMZAdW6qHcwuq866Skxxv",
+          authority: "mRdta4rc2RtsxEUDYuvKLamMZAdW6qHcwuq866Skxxv",
           limit: 10,
         },
         output: {
@@ -74,7 +74,7 @@ const getAssetsByAuthorityAction: Action = {
     ],
   ],
   schema: z.object({
-    authorityAddress: z.string().min(1, "Authority address is required"),
+    authority: z.string().min(1, "Authority address is required"),
     sortBy: z
       .object({
         sortBy: z.enum(["created", "updated", "recentAction", "none"]),
