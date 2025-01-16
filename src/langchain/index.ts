@@ -115,6 +115,7 @@ import {
   SolanaWithdrawFromDriftAccountTool,
   SolanaWithdrawFromDriftVaultTool,
 } from "./index";
+import { SolanaGetAssetTool } from "./metaplex/get_asset";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
@@ -208,5 +209,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaDriftVaultInfoTool(solanaKit),
     new SolanaWithdrawFromDriftAccountTool(solanaKit),
     new SolanaWithdrawFromDriftVaultTool(solanaKit),
+    new SolanaGetAssetTool(solanaKit),
   ];
 }
