@@ -8,8 +8,7 @@ const requestUnstakeFromDriftInsuranceFundAction: Action = {
     "Request to unstake a certain amount of a token from the Drift Insurance Fund",
   similes: [
     "request an unstake from the drift insurance fund",
-    "unstake an amount from the drift insurance fund",
-    "ask to unstake a certain amount from the drift insurance fund",
+    "request to unstake an amount from the drift insurance fund",
   ],
   examples: [
     [

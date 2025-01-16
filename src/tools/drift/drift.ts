@@ -4,6 +4,7 @@ import {
   DRIFT_PROGRAM_ID,
   DriftClient,
   FastSingleTxSender,
+  getInsuranceFundStakeAccountPublicKey,
   getLimitOrderParams,
   getMarketOrderParams,
   getUserAccountPublicKeySync,
@@ -514,6 +515,25 @@ export async function stakeToDriftInsuranceFund(
       );
     }
 
+    const deriveInsuranceFundStakeAccount =
+      getInsuranceFundStakeAccountPublicKey(
+        driftClient.program.programId,
+        agent.wallet.publicKey,
+        token.marketIndex,
+      );
+    let shouldCreateAccount = false;
+
+    try {
+      await driftClient.connection.getAccountInfo(
+        deriveInsuranceFundStakeAccount,
+      );
+    } catch (e) {
+      // @ts-expect-error - error message is a string
+      if (e.message.includes("Account not found")) {
+        shouldCreateAccount = true;
+      }
+    }
+
     const signature = await driftClient.addInsuranceFundStake({
       amount: numberToSafeBN(amount, token.precision),
       marketIndex: token.marketIndex,
@@ -521,6 +541,7 @@ export async function stakeToDriftInsuranceFund(
         token.mint,
         agent.wallet.publicKey,
       ),
+      initializeStakeAccount: shouldCreateAccount,
       txParams: {
         computeUnitsPrice: 0.000002 * 1000000 * 1000000,
       },
@@ -620,6 +641,7 @@ export async function unstakeFromDriftInsuranceFund(
  * @param params.toSymbol symbol of the token to receive
  * @param params.fromAmount amount of the token to deposit
  * @param params.toAmount amount of the token to receive
+ * @param params.slippage slippage tolerance in percentage
  */
 export async function swapSpotToken(
   agent: SolanaAgentKit,
@@ -668,12 +690,20 @@ export async function swapSpotToken(
       const jupiterClient = new JupiterClient({ connection: agent.connection });
       // @ts-expect-error - false undefined type conflict
       const fromAmount = numberToSafeBN(params.fromAmount, fromToken.precision);
+      const res = await (
+        await fetch(
+          `https://quote-api.jup.ag/v6/quote?inputMint=${fromToken.mint}&outputMint=${toToken.mint}&amount=${fromAmount.toNumber()}&slippageBps=${(params.slippage ?? 0.5) * 100}&swapMode=ExactIn`,
+        )
+      ).json();
       const signature = await driftClient.swap({
         amount: fromAmount,
         inMarketIndex: fromToken.marketIndex,
         outMarketIndex: toToken.marketIndex,
         jupiterClient: jupiterClient,
-        slippageBps: params.slippage ?? 100,
+        v6: {
+          quote: res,
+        },
+        slippageBps: (params.slippage ?? 0.5) * 100,
         swapMode: "ExactIn",
       });
 
@@ -685,12 +715,20 @@ export async function swapSpotToken(
       const jupiterClient = new JupiterClient({ connection: agent.connection });
       // @ts-expect-error - false undefined type conflict
       const toAmount = numberToSafeBN(params.toAmount, toToken.precision);
+      const res = await (
+        await fetch(
+          `https://quote-api.jup.ag/v6/quote?inputMint=${fromToken.mint}&outputMint=${toToken.mint}&amount=${toAmount.toNumber()}&slippageBps=${(params.slippage ?? 0.5) * 100}&swapMode=ExactOut`,
+        )
+      ).json();
       const signature = await driftClient.swap({
         amount: toAmount,
         inMarketIndex: toToken.marketIndex,
         outMarketIndex: fromToken.marketIndex,
         jupiterClient: jupiterClient,
-        slippageBps: params.slippage ?? 100,
+        v6: {
+          quote: res,
+        },
+        slippageBps: (params.slippage ?? 0.5) * 100,
         swapMode: "ExactOut",
       });
 

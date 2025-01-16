@@ -4,11 +4,13 @@ import { swapSpotToken } from "../../tools";
 
 const driftSpotTokenSwapAction: Action = {
   name: "DRIFT_SPOT_TOKEN_SWAP_ACTION",
-  description: "Swap a spot token for another spot token on Drift",
+  description: "Swap a token for another token on Drift",
   similes: [
     "swap a token for another token on drift",
     "exchange a token for another token on drift",
     "trade a token for another token on drift",
+    "swap usdc to 5 sol on drift (in this case 5 sol is the toAmount)",
+    "swap 5 usdt to DRIFT on drift (in this case 5 usdt is the fromAmount)",
   ],
   examples: [
     [
@@ -33,18 +35,18 @@ const driftSpotTokenSwapAction: Action = {
     fromAmount: z
       .number()
       .positive()
-      .describe("Amount to swap from in normal units e.g 50 === 50 SOL")
+      .describe("Amount to swap from e.g 50 === 50 SOL")
       .optional(),
     toAmount: z
       .number()
       .positive()
-      .describe("Amount to swap to in normal units e.g 5000 === 5000 USDC")
+      .describe("Amount to swap to e.g 5000 === 5000 USDC")
       .optional(),
     slippage: z
       .number()
       .positive()
       .describe("Slippage tolerance in percentage e.g 0.5 === 0.5%")
-      .optional(),
+      .default(0.5),
   }),
   handler: async (agent, input) => {
     try {

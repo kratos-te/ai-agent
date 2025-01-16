@@ -5,7 +5,7 @@ import { unstakeFromDriftInsuranceFund } from "../../tools";
 const unstakeFromDriftInsuranceFundAction: Action = {
   name: "UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION",
   description:
-    "Unstake requested unstake amount from the Drift Insurance fund once the cool period has elapsed",
+    "Unstake requested unstake token from the Drift Insurance fund once the cool period has elapsed",
   similes: [
     "unstake from the drift insurance fund",
     "withdraw from the drift insurance fund",
