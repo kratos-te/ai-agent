@@ -62,6 +62,7 @@ import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
 import getAssetAction from "./metaplex/getAsset";
 import getAssetsByAuthorityAction from "./metaplex/getAssetsByAuthority";
 import getAssetsByCreatorAction from "./metaplex/getAssetsByCreator";
+import searchAssetsAction from "./metaplex/searchAssets";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -129,6 +130,7 @@ export const ACTIONS = {
   GET_ASSET_ACTION: getAssetAction,
   GET_ASSETS_BY_AUTHORITY_ACTION: getAssetsByAuthorityAction,
   GET_ASSETS_BY_CREATOR_ACTION: getAssetsByCreatorAction,
+  SEARCH_ASSETS_ACTION: searchAssetsAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

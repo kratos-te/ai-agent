@@ -100,6 +100,8 @@ import {
   get_token_balance,
   get_asset,
   get_assets_by_authority,
+  get_assets_by_creator,
+  search_assets,
 } from "../tools";
 import {
   Config,
@@ -122,8 +124,8 @@ import {
   DasApiAssetList,
   GetAssetsByAuthorityRpcInput,
   GetAssetsByCreatorRpcInput,
+  SearchAssetsRpcInput,
 } from "@metaplex-foundation/digital-asset-standard-api";
-import { get_assets_by_creator } from "../tools/metaplex/get_assets_by_creator";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -843,5 +845,8 @@ export class SolanaAgentKit {
     params: GetAssetsByCreatorRpcInput,
   ): Promise<DasApiAssetList> {
     return get_assets_by_creator(this, params);
+  }
+  async searchAssets(params: SearchAssetsRpcInput): Promise<DasApiAssetList> {
+    return search_assets(this, params);
   }
 }
