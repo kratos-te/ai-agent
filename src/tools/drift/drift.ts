@@ -254,7 +254,7 @@ export async function withdrawFromDriftUserAccount(
 
     const tx = new Transaction().add(...withdrawInstruction).add(
       ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: 0.000001 * 1000000 * 1000000,
+        microLamports: 0.000003 * 1000000 * 1000000,
       }),
     );
     tx.recentBlockhash = latestBlockhash.blockhash;
@@ -388,9 +388,11 @@ export async function doesUserHaveDriftAccount(agent: SolanaAgentKit) {
         agent.wallet.publicKey,
       ),
     });
+    await user.subscribe();
     user.getActivePerpPositions();
     const userAccountExists = await user.exists();
     await cleanUp();
+    await user.unsubscribe();
     return {
       hasAccount: userAccountExists,
       account: user.userAccountPublicKey,
