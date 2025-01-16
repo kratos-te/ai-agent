@@ -119,8 +119,11 @@ import {
 } from "../types";
 import {
   DasApiAsset,
+  DasApiAssetList,
   GetAssetsByAuthorityRpcInput,
+  GetAssetsByCreatorRpcInput,
 } from "@metaplex-foundation/digital-asset-standard-api";
+import { get_assets_by_creator } from "../tools/metaplex/get_assets_by_creator";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -833,7 +836,12 @@ export class SolanaAgentKit {
   }
   async getAssetsByAuthority(
     params: GetAssetsByAuthorityRpcInput,
-  ): Promise<DasApiAsset[]> {
+  ): Promise<DasApiAssetList> {
     return get_assets_by_authority(this, params);
+  }
+  async getAssetsByCreator(
+    params: GetAssetsByCreatorRpcInput,
+  ): Promise<DasApiAssetList> {
+    return get_assets_by_creator(this, params);
   }
 }

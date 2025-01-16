@@ -116,6 +116,7 @@ import {
   SolanaWithdrawFromDriftVaultTool,
   SolanaGetAssetTool,
   SolanaGetAssetsByAuthorityTool,
+  SolanaGetAssetsByCreatorTool,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -212,5 +213,6 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaWithdrawFromDriftVaultTool(solanaKit),
     new SolanaGetAssetTool(solanaKit),
     new SolanaGetAssetsByAuthorityTool(solanaKit),
+    new SolanaGetAssetsByCreatorTool(solanaKit),
   ];
 }

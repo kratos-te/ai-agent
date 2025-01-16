@@ -60,7 +60,8 @@ import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
 import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
 import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
 import getAssetAction from "./metaplex/getAsset";
-import getAssetByAuthorityAction from "./metaplex/getAssetByAuthority";
+import getAssetsByAuthorityAction from "./metaplex/getAssetsByAuthority";
+import getAssetsByCreatorAction from "./metaplex/getAssetsByCreator";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -126,7 +127,8 @@ export const ACTIONS = {
   DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
   UPDATE_DRIFT_VAULT_DELEGATE_ACTION: updateDriftVaultDelegateAction,
   GET_ASSET_ACTION: getAssetAction,
-  GET_ASSET_BY_AUTHORITY_ACTION: getAssetByAuthorityAction,
+  GET_ASSETS_BY_AUTHORITY_ACTION: getAssetsByAuthorityAction,
+  GET_ASSETS_BY_CREATOR_ACTION: getAssetsByCreatorAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
