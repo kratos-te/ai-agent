@@ -25,6 +25,7 @@ export * from "./sns";
 export * from "./lightprotocol";
 export * from "./squads";
 export * from "./helius";
+export * from "./drift";
 export * from "./voltr";
 
 import { SolanaAgentKit } from "../agent";
@@ -99,6 +100,21 @@ import {
   SolanaDeleteHeliusWebhookTool,
   SolanaParseTransactionHeliusTool,
   SolanaGetAllAssetsByOwner,
+  SolanaCheckDriftAccountTool,
+  SolanaCreateDriftUserAccountTool,
+  SolanaCreateDriftVaultTool,
+  SolanaDepositIntoDriftVaultTool,
+  SolanaDepositToDriftUserAccountTool,
+  SolanaDeriveVaultAddressTool,
+  SolanaDriftUserAccountInfoTool,
+  SolanaDriftVaultInfoTool,
+  SolanaRequestDriftWithdrawalTool,
+  SolanaTradeDelegatedDriftVaultTool,
+  SolanaTradeDriftPerpAccountTool,
+  SolanaUpdateDriftVaultDelegateTool,
+  SolanaUpdateDriftVaultTool,
+  SolanaWithdrawFromDriftAccountTool,
+  SolanaWithdrawFromDriftVaultTool,
   SolanaVoltrGetPositionValues,
   SolanaVoltrDepositStrategy,
   SolanaVoltrWithdrawStrategy,
@@ -181,6 +197,21 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaHeliusWebhookTool(solanaKit),
     new SolanaGetHeliusWebhookTool(solanaKit),
     new SolanaDeleteHeliusWebhookTool(solanaKit),
+    new SolanaCreateDriftUserAccountTool(solanaKit),
+    new SolanaCreateDriftVaultTool(solanaKit),
+    new SolanaDepositIntoDriftVaultTool(solanaKit),
+    new SolanaDepositToDriftUserAccountTool(solanaKit),
+    new SolanaDeriveVaultAddressTool(solanaKit),
+    new SolanaCheckDriftAccountTool(solanaKit),
+    new SolanaDriftUserAccountInfoTool(solanaKit),
+    new SolanaRequestDriftWithdrawalTool(solanaKit),
+    new SolanaTradeDelegatedDriftVaultTool(solanaKit),
+    new SolanaTradeDriftPerpAccountTool(solanaKit),
+    new SolanaUpdateDriftVaultDelegateTool(solanaKit),
+    new SolanaUpdateDriftVaultTool(solanaKit),
+    new SolanaDriftVaultInfoTool(solanaKit),
+    new SolanaWithdrawFromDriftAccountTool(solanaKit),
+    new SolanaWithdrawFromDriftVaultTool(solanaKit),
     new SolanaVoltrGetPositionValues(solanaKit),
     new SolanaVoltrDepositStrategy(solanaKit),
     new SolanaVoltrWithdrawStrategy(solanaKit),

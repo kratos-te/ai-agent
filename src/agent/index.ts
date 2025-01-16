@@ -97,6 +97,7 @@ import {
   withdrawFromDriftUserAccount,
   withdrawFromDriftVault,
   updateVaultDelegate,
+  get_token_balance,
   voltrGetPositionValues,
   voltrDepositStrategy,
   voltrWithdrawStrategy,
@@ -190,6 +191,19 @@ export class SolanaAgentKit {
 
   async getBalance(token_address?: PublicKey): Promise<number> {
     return get_balance(this, token_address);
+  }
+
+  async getTokenBalances(wallet_address?: PublicKey): Promise<{
+    sol: number;
+    tokens: Array<{
+      tokenAddress: string;
+      name: string;
+      symbol: string;
+      balance: number;
+      decimals: number;
+    }>;
+  }> {
+    return get_token_balance(this, wallet_address);
   }
 
   async getBalanceOther(
