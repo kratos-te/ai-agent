@@ -98,6 +98,9 @@ import {
   withdrawFromDriftVault,
   updateVaultDelegate,
   get_token_balance,
+  voltrGetPositionValues,
+  voltrDepositStrategy,
+  voltrWithdrawStrategy,
 } from "../tools";
 import {
   Config,
@@ -839,5 +842,25 @@ export class SolanaAgentKit {
   }
   async updateDriftVaultDelegate(vaultAddress: string, delegate: string) {
     return await updateVaultDelegate(this, vaultAddress, delegate);
+  }
+
+  async voltrDepositStrategy(
+    depositAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrDepositStrategy(this, depositAmount, vault, strategy);
+  }
+
+  async voltrWithdrawStrategy(
+    withdrawAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrWithdrawStrategy(this, withdrawAmount, vault, strategy);
+  }
+
+  async voltrGetPositionValues(vault: PublicKey): Promise<string> {
+    return voltrGetPositionValues(this, vault);
   }
 }

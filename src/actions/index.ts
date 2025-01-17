@@ -59,6 +59,9 @@ import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
 import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
 import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
 import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
+import getVoltrPositionValuesAction from "./voltr/getPositionValues";
+import depositVoltrStrategyAction from "./voltr/depositStrategy";
+import withdrawVoltrStrategyAction from "./voltr/withdrawStrategy";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -123,6 +126,9 @@ export const ACTIONS = {
   DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
   DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
   UPDATE_DRIFT_VAULT_DELEGATE_ACTION: updateDriftVaultDelegateAction,
+  GET_VOLTR_POSITION_VALUES_ACTION: getVoltrPositionValuesAction,
+  DEPOSIT_VOLTR_STRATEGY_ACTION: depositVoltrStrategyAction,
+  WITHDRAW_VOLTR_STRATEGY_ACTION: withdrawVoltrStrategyAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

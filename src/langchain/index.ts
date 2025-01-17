@@ -26,6 +26,7 @@ export * from "./lightprotocol";
 export * from "./squads";
 export * from "./helius";
 export * from "./drift";
+export * from "./voltr";
 
 import { SolanaAgentKit } from "../agent";
 import {
@@ -114,6 +115,9 @@ import {
   SolanaUpdateDriftVaultTool,
   SolanaWithdrawFromDriftAccountTool,
   SolanaWithdrawFromDriftVaultTool,
+  SolanaVoltrGetPositionValues,
+  SolanaVoltrDepositStrategy,
+  SolanaVoltrWithdrawStrategy,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -208,5 +212,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaDriftVaultInfoTool(solanaKit),
     new SolanaWithdrawFromDriftAccountTool(solanaKit),
     new SolanaWithdrawFromDriftVaultTool(solanaKit),
+    new SolanaVoltrGetPositionValues(solanaKit),
+    new SolanaVoltrDepositStrategy(solanaKit),
+    new SolanaVoltrWithdrawStrategy(solanaKit),
   ];
 }
