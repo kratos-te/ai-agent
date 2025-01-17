@@ -14,6 +14,8 @@ import stakeWithJupAction from "./jupiter/stakeWithJup";
 import stakeWithSolayerAction from "./solayer/stakeWithSolayer";
 import registerDomainAction from "./sns/registerDomain";
 import lendAssetAction from "./lulo/lendAsset";
+import luloLendAction from "./lulo/luloLend";
+import luloWithdrawAction from "./lulo/luloWithdraw";
 import createGibworkTaskAction from "./gibwork/createGibworkTask";
 import resolveSolDomainAction from "./sns/resolveSolDomain";
 import pythFetchPriceAction from "./pyth/pythFetchPrice";
@@ -67,6 +69,9 @@ import driftSpotTokenSwapAction from "./drift/swapSpotToken";
 import perpMarktetFundingRateAction from "./drift/perpMarketFundingRate";
 import entryQuoteOfPerpTradeAction from "./drift/entryQuoteOfPerpTrade";
 import lendAndBorrowAPYAction from "./drift/getLendAndBorrowAPY";
+import getVoltrPositionValuesAction from "./voltr/getPositionValues";
+import depositVoltrStrategyAction from "./voltr/depositStrategy";
+import withdrawVoltrStrategyAction from "./voltr/withdrawStrategy";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -86,6 +91,8 @@ export const ACTIONS = {
   STAKE_WITH_SOLAYER_ACTION: stakeWithSolayerAction,
   REGISTER_DOMAIN_ACTION: registerDomainAction,
   LEND_ASSET_ACTION: lendAssetAction,
+  LULO_LEND_ACTION: luloLendAction,
+  LULO_WITHDRAW_ACTION: luloWithdrawAction,
   CREATE_GIBWORK_TASK_ACTION: createGibworkTaskAction,
   RESOLVE_SOL_DOMAIN_ACTION: resolveSolDomainAction,
   PYTH_FETCH_PRICE_ACTION: pythFetchPriceAction,
@@ -140,6 +147,9 @@ export const ACTIONS = {
   DRIFT_PERP_MARKET_FUNDING_RATE_ACTION: perpMarktetFundingRateAction,
   DRIFT_GET_ENTRY_QUOTE_OF_PERP_TRADE_ACTION: entryQuoteOfPerpTradeAction,
   DRIFT_GET_LEND_AND_BORROW_APY_ACTION: lendAndBorrowAPYAction,
+  GET_VOLTR_POSITION_VALUES_ACTION: getVoltrPositionValuesAction,
+  DEPOSIT_VOLTR_STRATEGY_ACTION: depositVoltrStrategyAction,
+  WITHDRAW_VOLTR_STRATEGY_ACTION: withdrawVoltrStrategyAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";

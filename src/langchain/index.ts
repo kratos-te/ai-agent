@@ -26,6 +26,7 @@ export * from "./lightprotocol";
 export * from "./squads";
 export * from "./helius";
 export * from "./drift";
+export * from "./voltr";
 
 import type { SolanaAgentKit } from "../agent";
 import {
@@ -42,6 +43,8 @@ import {
   SolanaPumpfunTokenLaunchTool,
   SolanaCreateImageTool,
   SolanaLendAssetTool,
+  SolanaLuloLendTool,
+  SolanaLuloWithdrawTool,
   SolanaTPSCalculatorTool,
   SolanaStakeTool,
   SolanaRestakeTool,
@@ -121,6 +124,9 @@ import {
   SolanaRequestUnstakeFromDriftInsuranceFundTool,
   SolanaStakeToDriftInsuranceFundTool,
   SolanaUnstakeFromDriftInsuranceFundTool,
+  SolanaVoltrGetPositionValues,
+  SolanaVoltrDepositStrategy,
+  SolanaVoltrWithdrawStrategy,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -138,6 +144,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPumpfunTokenLaunchTool(solanaKit),
     new SolanaCreateImageTool(solanaKit),
     new SolanaLendAssetTool(solanaKit),
+    new SolanaLuloLendTool(solanaKit),
+    new SolanaLuloWithdrawTool(solanaKit),
     new SolanaTPSCalculatorTool(solanaKit),
     new SolanaStakeTool(solanaKit),
     new SolanaRestakeTool(solanaKit),
@@ -222,5 +230,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaDriftLendAndBorrowAPYTool(solanaKit),
     new SolanaDriftEntryQuoteOfPerpTradeTool(solanaKit),
     new SolanaDriftPerpMarketFundingRateTool(solanaKit),
+    new SolanaVoltrGetPositionValues(solanaKit),
+    new SolanaVoltrDepositStrategy(solanaKit),
+    new SolanaVoltrWithdrawStrategy(solanaKit),
   ];
 }

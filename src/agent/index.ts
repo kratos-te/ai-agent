@@ -18,6 +18,8 @@ import {
   getPrimaryDomain,
   launchPumpFunToken,
   lendAsset,
+  luloLend,
+  luloWithdraw,
   mintCollectionNFT,
   openbookCreateMarket,
   manifestCreateMarket,
@@ -107,6 +109,9 @@ import {
   calculatePerpMarketFundingRate,
   getEntryQuoteOfPerpTrade,
   getLendingAndBorrowAPY,
+  voltrGetPositionValues,
+  voltrDepositStrategy,
+  voltrWithdrawStrategy,
 } from "../tools";
 import {
   Config,
@@ -318,6 +323,14 @@ export class SolanaAgentKit {
 
   async lendAssets(amount: number): Promise<string> {
     return lendAsset(this, amount);
+  }
+
+  async luloLend(mintAddress: string, amount: number): Promise<string> {
+    return luloLend(this, mintAddress, amount);
+  }
+
+  async luloWithdraw(mintAddress: string, amount: number): Promise<string> {
+    return luloWithdraw(this, mintAddress, amount);
   }
 
   async getTPS(): Promise<number> {
@@ -640,24 +653,43 @@ export class SolanaAgentKit {
   }
 
   async create3LandCollection(
-    optionsWithBase58: StoreInitOptions,
     collectionOpts: CreateCollectionOptions,
+    isDevnet: boolean = false,
   ): Promise<string> {
+    let optionsWithBase58: StoreInitOptions = {
+      privateKey: this.wallet.secretKey,
+    };
+    if (isDevnet) {
+      optionsWithBase58.isMainnet = false;
+    } else {
+      optionsWithBase58.isMainnet = true;
+    }
+
     const tx = await createCollection(optionsWithBase58, collectionOpts);
     return `Transaction: ${tx}`;
   }
 
   async create3LandNft(
-    optionsWithBase58: StoreInitOptions,
     collectionAccount: string,
     createItemOptions: CreateSingleOptions,
-    isMainnet: boolean,
+    isDevnet: boolean = false,
+    withPool: boolean = false,
   ): Promise<string> {
+    let optionsWithBase58: StoreInitOptions = {
+      privateKey: this.wallet.secretKey,
+    };
+    if (isDevnet) {
+      optionsWithBase58.isMainnet = false;
+    } else {
+      optionsWithBase58.isMainnet = true;
+    }
+
     const tx = await createSingle(
       optionsWithBase58,
       collectionAccount,
       createItemOptions,
-      isMainnet,
+      !isDevnet,
+      withPool,
     );
     return `Transaction: ${tx}`;
   }
@@ -736,6 +768,7 @@ export class SolanaAgentKit {
   async createDriftUserAccount(depositAmount: number, depositSymbol: string) {
     return await createDriftUserAccount(this, depositAmount, depositSymbol);
   }
+
   async createDriftVault(params: {
     name: string;
     marketName: `${string}-${string}`;
@@ -749,6 +782,7 @@ export class SolanaAgentKit {
   }) {
     return await createVault(this, params);
   }
+  
   async depositIntoDriftVault(amount: number, vault: string) {
     return await depositIntoVault(this, amount, vault);
   }
@@ -830,6 +864,7 @@ export class SolanaAgentKit {
   async updateDriftVaultDelegate(vaultAddress: string, delegate: string) {
     return await updateVaultDelegate(this, vaultAddress, delegate);
   }
+
   getAvailableDriftMarkets(type?: "spot" | "perp") {
     switch (type) {
       case "spot":
@@ -889,5 +924,24 @@ export class SolanaAgentKit {
   }
   async getLendAndBorrowAPY(symbol: string) {
     return getLendingAndBorrowAPY(this, symbol);
+
+  async voltrDepositStrategy(
+    depositAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrDepositStrategy(this, depositAmount, vault, strategy);
+  }
+
+  async voltrWithdrawStrategy(
+    withdrawAmount: BN,
+    vault: PublicKey,
+    strategy: PublicKey,
+  ): Promise<string> {
+    return voltrWithdrawStrategy(this, withdrawAmount, vault, strategy);
+  }
+
+  async voltrGetPositionValues(vault: PublicKey): Promise<string> {
+    return voltrGetPositionValues(this, vault);
   }
 }
