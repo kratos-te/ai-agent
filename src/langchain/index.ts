@@ -24,6 +24,7 @@ export * from "./tiplink";
 export * from "./sns";
 export * from "./lightprotocol";
 export * from "./squads";
+export * from "./meteora";
 export * from "./helius";
 export * from "./drift";
 export * from "./voltr";
@@ -96,6 +97,8 @@ import {
   SolanaApproveProposal2by2Multisig,
   SolanaExecuteProposal2by2Multisig,
   SolanaRejectProposal2by2Multisig,
+  SolanaMeteoraCreateDynamicPool,
+  SolanaMeteoraCreateDlmmPool,
   SolanaSendTransactionWithPriorityFee,
   SolanaHeliusWebhookTool,
   SolanaGetHeliusWebhookTool,
@@ -163,6 +166,8 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaBatchOrderTool(solanaKit),
     new SolanaCancelAllOrdersTool(solanaKit),
     new SolanaWithdrawAllTool(solanaKit),
+    new SolanaMeteoraCreateDynamicPool(solanaKit),
+    new SolanaMeteoraCreateDlmmPool(solanaKit),
     new SolanaClosePosition(solanaKit),
     new SolanaOrcaCreateCLMM(solanaKit),
     new SolanaOrcaCreateSingleSideLiquidityPool(solanaKit),

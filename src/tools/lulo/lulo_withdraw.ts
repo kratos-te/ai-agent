@@ -25,7 +25,7 @@ export async function luloWithdraw(
         headers: {
           "Content-Type": "application/json",
           "x-wallet-pubkey": agent.wallet.publicKey.toBase58(),
-          "x-api-key": agent.config.FLEXLEND_API_KEY
+          "x-api-key": agent.config.FLEXLEND_API_KEY,
         },
         body: JSON.stringify({
           owner: agent.wallet.publicKey.toBase58(),
@@ -35,7 +35,9 @@ export async function luloWithdraw(
       },
     );
 
-    const { data: { transactionMeta } } = await response.json()
+    const {
+      data: { transactionMeta },
+    } = await response.json();
 
     // Deserialize the transaction
     const luloTxn = VersionedTransaction.deserialize(

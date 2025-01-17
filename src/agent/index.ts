@@ -69,6 +69,8 @@ import {
   fetchPythPriceFeedID,
   flashOpenTrade,
   flashCloseTrade,
+  createMeteoraDynamicAMMPool,
+  createMeteoraDlmmPool,
   createCollection,
   createSingle,
   multisig_transfer_from_treasury,
@@ -397,6 +399,57 @@ export class SolanaAgentKit {
     );
   }
 
+  async meteoraCreateDynamicPool(
+    tokenAMint: PublicKey,
+    tokenBMint: PublicKey,
+    tokenAAmount: BN,
+    tokenBAmount: BN,
+    tradeFeeNumerator: number,
+    activationPoint: BN | null,
+    hasAlphaVault: boolean,
+    activationType: number,
+  ): Promise<string> {
+    return createMeteoraDynamicAMMPool(
+      this,
+      tokenAMint,
+      tokenBMint,
+      tokenAAmount,
+      tokenBAmount,
+      {
+        tradeFeeNumerator,
+        activationPoint,
+        hasAlphaVault,
+        activationType,
+        padding: new Array(90).fill(0),
+      },
+    );
+  }
+
+  async meteoraCreateDlmmPool(
+    tokenAMint: PublicKey,
+    tokenBMint: PublicKey,
+    binStep: number,
+    initialPrice: number,
+    priceRoundingUp: boolean,
+    feeBps: number,
+    activationType: number,
+    hasAlphaVault: boolean,
+    activationPoint: BN | undefined,
+  ): Promise<string> {
+    return createMeteoraDlmmPool(
+      this,
+      binStep,
+      tokenAMint,
+      tokenBMint,
+      initialPrice,
+      priceRoundingUp,
+      feeBps,
+      activationType,
+      hasAlphaVault,
+      activationPoint,
+    );
+  }
+
   async orcaClosePosition(positionMintAddress: PublicKey) {
     return orcaClosePosition(this, positionMintAddress);
   }
@@ -656,7 +709,7 @@ export class SolanaAgentKit {
     collectionOpts: CreateCollectionOptions,
     isDevnet: boolean = false,
   ): Promise<string> {
-    let optionsWithBase58: StoreInitOptions = {
+    const optionsWithBase58: StoreInitOptions = {
       privateKey: this.wallet.secretKey,
     };
     if (isDevnet) {
@@ -675,7 +728,7 @@ export class SolanaAgentKit {
     isDevnet: boolean = false,
     withPool: boolean = false,
   ): Promise<string> {
-    let optionsWithBase58: StoreInitOptions = {
+    const optionsWithBase58: StoreInitOptions = {
       privateKey: this.wallet.secretKey,
     };
     if (isDevnet) {
@@ -782,7 +835,7 @@ export class SolanaAgentKit {
   }) {
     return await createVault(this, params);
   }
-  
+
   async depositIntoDriftVault(amount: number, vault: string) {
     return await depositIntoVault(this, amount, vault);
   }
@@ -924,6 +977,7 @@ export class SolanaAgentKit {
   }
   async getLendAndBorrowAPY(symbol: string) {
     return getLendingAndBorrowAPY(this, symbol);
+  }
 
   async voltrDepositStrategy(
     depositAmount: BN,
