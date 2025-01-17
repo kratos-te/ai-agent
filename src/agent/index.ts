@@ -104,6 +104,9 @@ import {
   requestUnstakeFromDriftInsuranceFund,
   unstakeFromDriftInsuranceFund,
   swapSpotToken,
+  calculatePerpMarketFundingRate,
+  getEntryQuoteOfPerpTrade,
+  getLendingAndBorrowAPY,
 } from "../tools";
 import {
   Config,
@@ -870,5 +873,21 @@ export class SolanaAgentKit {
       toAmount: params.toAmount,
       slippage: params.slippage,
     });
+  }
+  async getPerpMarketFundingRate(
+    symbol: `${string}-PERP`,
+    period: "year" | "hour" = "year",
+  ) {
+    return calculatePerpMarketFundingRate(this, symbol, period);
+  }
+  async getEntryQuoteOfPerpTrade(
+    amount: number,
+    symbol: `${string}-PERP`,
+    action: "short" | "long",
+  ) {
+    return getEntryQuoteOfPerpTrade(symbol, amount, action);
+  }
+  async getLendAndBorrowAPY(symbol: string) {
+    return getLendingAndBorrowAPY(this, symbol);
   }
 }

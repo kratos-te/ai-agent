@@ -27,7 +27,7 @@ export * from "./squads";
 export * from "./helius";
 export * from "./drift";
 
-import { SolanaAgentKit } from "../agent";
+import type { SolanaAgentKit } from "../agent";
 import {
   SolanaBalanceTool,
   SolanaBalanceOtherTool,
@@ -114,6 +114,13 @@ import {
   SolanaUpdateDriftVaultTool,
   SolanaWithdrawFromDriftAccountTool,
   SolanaWithdrawFromDriftVaultTool,
+  SolanaDriftLendAndBorrowAPYTool,
+  SolanaDriftEntryQuoteOfPerpTradeTool,
+  SolanaDriftPerpMarketFundingRateTool,
+  SolanaDriftSpotTokenSwapTool,
+  SolanaRequestUnstakeFromDriftInsuranceFundTool,
+  SolanaStakeToDriftInsuranceFundTool,
+  SolanaUnstakeFromDriftInsuranceFundTool,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -208,5 +215,12 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaDriftVaultInfoTool(solanaKit),
     new SolanaWithdrawFromDriftAccountTool(solanaKit),
     new SolanaWithdrawFromDriftVaultTool(solanaKit),
+    new SolanaDriftSpotTokenSwapTool(solanaKit),
+    new SolanaStakeToDriftInsuranceFundTool(solanaKit),
+    new SolanaRequestUnstakeFromDriftInsuranceFundTool(solanaKit),
+    new SolanaUnstakeFromDriftInsuranceFundTool(solanaKit),
+    new SolanaDriftLendAndBorrowAPYTool(solanaKit),
+    new SolanaDriftEntryQuoteOfPerpTradeTool(solanaKit),
+    new SolanaDriftPerpMarketFundingRateTool(solanaKit),
   ];
 }

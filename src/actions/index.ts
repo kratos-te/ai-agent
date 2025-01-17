@@ -64,6 +64,9 @@ import stakeToDriftInsuranceFundAction from "./drift/stakeToDriftInsuranceFund";
 import requestUnstakeFromDriftInsuranceFundAction from "./drift/requestUnstakeFromDriftInsuranceFund";
 import unstakeFromDriftInsuranceFundAction from "./drift/unstakeFromDriftInsuranceFund";
 import driftSpotTokenSwapAction from "./drift/swapSpotToken";
+import perpMarktetFundingRateAction from "./drift/perpMarketFundingRate";
+import entryQuoteOfPerpTradeAction from "./drift/entryQuoteOfPerpTrade";
+import lendAndBorrowAPYAction from "./drift/getLendAndBorrowAPY";
 
 export const ACTIONS = {
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
@@ -134,6 +137,9 @@ export const ACTIONS = {
     requestUnstakeFromDriftInsuranceFundAction,
   UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION: unstakeFromDriftInsuranceFundAction,
   DRIFT_SPOT_TOKEN_SWAP_ACTION: driftSpotTokenSwapAction,
+  DRIFT_PERP_MARKET_FUNDING_RATE_ACTION: perpMarktetFundingRateAction,
+  DRIFT_GET_ENTRY_QUOTE_OF_PERP_TRADE_ACTION: entryQuoteOfPerpTradeAction,
+  DRIFT_GET_LEND_AND_BORROW_APY_ACTION: lendAndBorrowAPYAction,
 };
 
 export type { Action, ActionExample, Handler } from "../types/action";
