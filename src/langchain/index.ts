@@ -23,6 +23,10 @@ export * from "./3land";
 export * from "./tiplink";
 export * from "./sns";
 export * from "./lightprotocol";
+export * from "./squads";
+export * from "./helius";
+export * from "./drift";
+export * from "./voltr";
 
 import { SolanaAgentKit } from "../agent";
 import {
@@ -85,6 +89,37 @@ import {
   SolanaPerpCloseTradeTool,
   SolanaFlashOpenTrade,
   SolanaFlashCloseTrade,
+  SolanaCreate2by2Multisig,
+  SolanaDepositTo2by2Multisig,
+  SolanaTransferFrom2by2Multisig,
+  SolanaCreateProposal2by2Multisig,
+  SolanaApproveProposal2by2Multisig,
+  SolanaExecuteProposal2by2Multisig,
+  SolanaRejectProposal2by2Multisig,
+  SolanaSendTransactionWithPriorityFee,
+  SolanaHeliusWebhookTool,
+  SolanaGetHeliusWebhookTool,
+  SolanaDeleteHeliusWebhookTool,
+  SolanaParseTransactionHeliusTool,
+  SolanaGetAllAssetsByOwner,
+  SolanaCheckDriftAccountTool,
+  SolanaCreateDriftUserAccountTool,
+  SolanaCreateDriftVaultTool,
+  SolanaDepositIntoDriftVaultTool,
+  SolanaDepositToDriftUserAccountTool,
+  SolanaDeriveVaultAddressTool,
+  SolanaDriftUserAccountInfoTool,
+  SolanaDriftVaultInfoTool,
+  SolanaRequestDriftWithdrawalTool,
+  SolanaTradeDelegatedDriftVaultTool,
+  SolanaTradeDriftPerpAccountTool,
+  SolanaUpdateDriftVaultDelegateTool,
+  SolanaUpdateDriftVaultTool,
+  SolanaWithdrawFromDriftAccountTool,
+  SolanaWithdrawFromDriftVaultTool,
+  SolanaVoltrGetPositionValues,
+  SolanaVoltrDepositStrategy,
+  SolanaVoltrWithdrawStrategy,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
@@ -148,5 +183,41 @@ export function createSolanaTools(solanaKit: SolanaAgentKit) {
     new SolanaPerpCloseTradeTool(solanaKit),
     new SolanaFlashOpenTrade(solanaKit),
     new SolanaFlashCloseTrade(solanaKit),
+    new SolanaCreate2by2Multisig(solanaKit),
+    new SolanaCreateProposal2by2Multisig(solanaKit),
+    new SolanaApproveProposal2by2Multisig(solanaKit),
+    new SolanaRejectProposal2by2Multisig(solanaKit),
+    new SolanaExecuteProposal2by2Multisig(solanaKit),
+    new SolanaDepositTo2by2Multisig(solanaKit),
+    new SolanaTransferFrom2by2Multisig(solanaKit),
+    new SolanaSendTransactionWithPriorityFee(solanaKit),
+    new SolanaHeliusWebhookTool(solanaKit),
+    new SolanaGetHeliusWebhookTool(solanaKit),
+    new SolanaDeleteHeliusWebhookTool(solanaKit),
+    new SolanaParseTransactionHeliusTool(solanaKit),
+    new SolanaGetAllAssetsByOwner(solanaKit),
+    new Solana3LandCreateSingle(solanaKit),
+    new SolanaSendTransactionWithPriorityFee(solanaKit),
+    new SolanaHeliusWebhookTool(solanaKit),
+    new SolanaGetHeliusWebhookTool(solanaKit),
+    new SolanaDeleteHeliusWebhookTool(solanaKit),
+    new SolanaCreateDriftUserAccountTool(solanaKit),
+    new SolanaCreateDriftVaultTool(solanaKit),
+    new SolanaDepositIntoDriftVaultTool(solanaKit),
+    new SolanaDepositToDriftUserAccountTool(solanaKit),
+    new SolanaDeriveVaultAddressTool(solanaKit),
+    new SolanaCheckDriftAccountTool(solanaKit),
+    new SolanaDriftUserAccountInfoTool(solanaKit),
+    new SolanaRequestDriftWithdrawalTool(solanaKit),
+    new SolanaTradeDelegatedDriftVaultTool(solanaKit),
+    new SolanaTradeDriftPerpAccountTool(solanaKit),
+    new SolanaUpdateDriftVaultDelegateTool(solanaKit),
+    new SolanaUpdateDriftVaultTool(solanaKit),
+    new SolanaDriftVaultInfoTool(solanaKit),
+    new SolanaWithdrawFromDriftAccountTool(solanaKit),
+    new SolanaWithdrawFromDriftVaultTool(solanaKit),
+    new SolanaVoltrGetPositionValues(solanaKit),
+    new SolanaVoltrDepositStrategy(solanaKit),
+    new SolanaVoltrWithdrawStrategy(solanaKit),
   ];
 }
