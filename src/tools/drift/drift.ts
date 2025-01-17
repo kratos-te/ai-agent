@@ -800,17 +800,13 @@ export async function calculatePerpMarketFundingRate(
       throw new Error("Market account not found");
     }
 
-    const [
-      _marketTwapLive,
-      _oracleTwapLive,
-      longFundingRate,
-      shortFundingRate,
-    ] = await calculateLongShortFundingRateAndLiveTwaps(
-      marketAccount,
-      driftClient.getOracleDataForPerpMarket(market.marketIndex),
-      undefined,
-      new anchor.BN(Date.now()),
-    );
+    const [, , longFundingRate, shortFundingRate] =
+      await calculateLongShortFundingRateAndLiveTwaps(
+        marketAccount,
+        driftClient.getOracleDataForPerpMarket(market.marketIndex),
+        undefined,
+        new anchor.BN(Date.now()),
+      );
 
     await cleanUp();
 
@@ -915,7 +911,7 @@ export async function getL2OrderBook(marketSymbol: `${string}-PERP`) {
       slot: serializedOrderbook.slot,
     };
   } catch (e) {
-    throw new Error();
+    throw new Error(`Failed to get ${marketSymbol} order book: ${e}`);
   }
 }
 

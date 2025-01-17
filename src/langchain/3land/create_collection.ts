@@ -1,9 +1,6 @@
 import { Tool } from "langchain/tools";
 import { SolanaAgentKit } from "../../agent";
-import {
-  CreateCollectionOptions,
-  StoreInitOptions,
-} from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
+import { CreateCollectionOptions } from "@3land/listings-sdk/dist/types/implementation/implementationTypes";
 
 export class Solana3LandCreateCollection extends Tool {
   name = "3land_minting_tool";

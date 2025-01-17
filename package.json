@@ -1,6 +1,6 @@
 {
   "name": "solana-agent-kit",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "connect any ai agents to solana protocols",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,7 @@
     "node": ">=22.0.0",
     "pnpm": ">=8.0.0"
   },
-  "keywords": [],
+  "keywords": ["solana", "agent", "ai", "solana agent kit", "sendai"],
   "author": "sendaifun",
   "license": "Apache-2.0",
   "dependencies": {
