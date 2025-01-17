@@ -18,6 +18,8 @@ import {
   getPrimaryDomain,
   launchPumpFunToken,
   lendAsset,
+  luloLend,
+  luloWithdraw,
   mintCollectionNFT,
   openbookCreateMarket,
   manifestCreateMarket,
@@ -312,6 +314,14 @@ export class SolanaAgentKit {
 
   async lendAssets(amount: number): Promise<string> {
     return lendAsset(this, amount);
+  }
+
+  async luloLend(mintAddress: string, amount: number): Promise<string> {
+    return luloLend(this, mintAddress, amount);
+  }
+
+  async luloWithdraw(mintAddress: string, amount: number): Promise<string> {
+    return luloWithdraw(this, mintAddress, amount);
   }
 
   async getTPS(): Promise<number> {
