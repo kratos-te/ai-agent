@@ -35,6 +35,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import { ComputeBudgetProgram } from "@solana/web3.js";
 import type { RawL2Output } from "./types";
+import { MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS } from "../../constants";
 
 export async function initClients(
   agent: SolanaAgentKit,
@@ -68,7 +69,7 @@ export async function initClients(
     activeSubAccountId: params?.activeSubAccountId,
     subAccountIds: params?.subAccountIds,
     txParams: {
-      computeUnitsPrice: 0.000001 * 1000000 * 1000000,
+      computeUnitsPrice: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
     },
     txSender: new FastSingleTxSender({
       connection: agent.connection,
@@ -212,7 +213,7 @@ export async function depositToDriftUserAccount(
 
     const tx = new Transaction().add(...depInstruction).add(
       ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: 0.000001 * 1000000 * 1000000,
+        microLamports: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
       }),
     );
     tx.recentBlockhash = latestBlockhash.blockhash;
@@ -277,7 +278,7 @@ export async function withdrawFromDriftUserAccount(
 
     const tx = new Transaction().add(...withdrawInstruction).add(
       ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: 0.000003 * 1000000 * 1000000,
+        microLamports: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
       }),
     );
     tx.recentBlockhash = latestBlockhash.blockhash;
@@ -384,7 +385,7 @@ export async function driftPerpTrade(
           marketIndex: market.marketIndex,
         }),
         {
-          computeUnitsPrice: 0.000001 * 1000000 * 1000000,
+          computeUnitsPrice: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
         },
       );
     }
@@ -552,7 +553,7 @@ export async function stakeToDriftInsuranceFund(
       ),
       initializeStakeAccount: shouldCreateAccount,
       txParams: {
-        computeUnitsPrice: 0.000002 * 1000000 * 1000000,
+        computeUnitsPrice: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
       },
     });
 
@@ -592,7 +593,7 @@ export async function requestUnstakeFromDriftInsuranceFund(
     const signature = await driftClient.requestRemoveInsuranceFundStake(
       token.marketIndex,
       numberToSafeBN(amount, token.precision),
-      { computeUnitsPrice: 0.000002 * 1000000 * 1000000 },
+      { computeUnitsPrice: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS },
     );
 
     await cleanUp();
@@ -630,7 +631,7 @@ export async function unstakeFromDriftInsuranceFund(
       token.marketIndex,
       getAssociatedTokenAddressSync(token.mint, agent.wallet.publicKey),
       {
-        computeUnitsPrice: 0.000002 * 1000000 * 1000000,
+        computeUnitsPrice: MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS,
       },
     );
 
