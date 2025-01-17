@@ -42,3 +42,8 @@ export const METEORA_DYNAMIC_AMM_PROGRAM_ID = new PublicKey(
 export const METEORA_DLMM_PROGRAM_ID = new PublicKey(
   "LbVRzDTvBDEcrthxfZ4RL6yiq3uZw8bS6MwtdY6UhFQ",
 );
+/**
+ * Minimum compute price required to carry out complex transactions on the Drift protocol
+ */
+export const MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS =
+  0.000003 * 1000000 * 1000000;
