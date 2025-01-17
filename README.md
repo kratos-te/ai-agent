@@ -153,7 +153,7 @@ const result = await agent.create3LandCollection(
 When creating an NFT using 3Land's tool, it automatically goes for sale on 3.land website
 ```typescript
 const isDevnet = true; // (Optional) if not present TX takes place in Mainnet
-
+const withPool = true; // (Optional) only present if NFT will be created with a Liquidity Pool for a specific SPL token
 const collectionAccount = ""; //hash for the collection
 const createItemOptions: CreateSingleOptions = {
   itemName: "",
@@ -165,13 +165,15 @@ const createItemOptions: CreateSingleOptions = {
     { trait_type: "", value: "" },
   ],
   price: 0, //100000000 == 0.1 sol, can be set to 0 for a free mint
+  splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL, must be present if "withPool" is true
+  poolName: "", // Only present if "withPool" is true
   mainImageUrl: "",
-  splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL
 };
 const result = await agent.create3LandNft(
   collectionAccount,
   createItemOptions,
   isDevnet, // (Optional) if not present TX takes place in Mainnet
+  withPool
 );
 
 ```

@@ -38,19 +38,24 @@ const collectionAccount = "";
 const createItemOptions: CreateSingleOptions = {
   itemName: "",
   sellerFee: 500, //5%
-  itemAmount: 100,
+  itemAmount: 333,
   itemSymbol: "",
   itemDescription: "",
   traits: [{ trait_type: "", value: "" }],
-  price: 0, //100000000 == 0.1 sol
+  price: 100000000, //100000000 == 0.1 sol,
+  splHash: "",
+  poolName: "",
   mainImageUrl: "",
 };
+
+const withPool = true;
 
 (async () => {
   const result = agent.create3LandNft(
     collectionAccount,
     createItemOptions,
     isDevnet,
+    withPool,
   );
   console.log("result: ", result);
 })();

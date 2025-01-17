@@ -651,6 +651,7 @@ export class SolanaAgentKit {
     collectionAccount: string,
     createItemOptions: CreateSingleOptions,
     isDevnet: boolean = false,
+    withPool: boolean = false,
   ): Promise<string> {
     let optionsWithBase58: StoreInitOptions = {
       privateKey: this.wallet.secretKey,
@@ -666,6 +667,7 @@ export class SolanaAgentKit {
       collectionAccount,
       createItemOptions,
       !isDevnet,
+      withPool,
     );
     return `Transaction: ${tx}`;
   }
