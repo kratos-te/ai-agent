@@ -33,3 +33,9 @@ export const DEFAULT_OPTIONS = {
 export const JUP_API = "https://quote-api.jup.ag/v6";
 export const JUP_REFERRAL_ADDRESS =
   "REFER4ZgmyYx9c6He5XfaTMiGfdLwRnkV4RPp9t9iF3";
+
+/**
+ * Minimum compute price required to carry out complex transactions on the Drift protocol
+ */
+export const MINIMUM_COMPUTE_PRICE_FOR_COMPLEX_ACTIONS =
+  0.000003 * 1000000 * 1000000;

@@ -61,6 +61,14 @@ import withdrawFromDriftAccountAction from "./drift/withdrawFromDriftAccount";
 import driftUserAccountInfoAction from "./drift/driftUserAccountInfo";
 import deriveDriftVaultAddressAction from "./drift/deriveVaultAddress";
 import updateDriftVaultDelegateAction from "./drift/updateDriftVaultDelegate";
+import availableDriftMarketsAction from "./drift/availableMarkets";
+import stakeToDriftInsuranceFundAction from "./drift/stakeToDriftInsuranceFund";
+import requestUnstakeFromDriftInsuranceFundAction from "./drift/requestUnstakeFromDriftInsuranceFund";
+import unstakeFromDriftInsuranceFundAction from "./drift/unstakeFromDriftInsuranceFund";
+import driftSpotTokenSwapAction from "./drift/swapSpotToken";
+import perpMarktetFundingRateAction from "./drift/perpMarketFundingRate";
+import entryQuoteOfPerpTradeAction from "./drift/entryQuoteOfPerpTrade";
+import lendAndBorrowAPYAction from "./drift/getLendAndBorrowAPY";
 import getVoltrPositionValuesAction from "./voltr/getPositionValues";
 import depositVoltrStrategyAction from "./voltr/depositStrategy";
 import withdrawVoltrStrategyAction from "./voltr/withdrawStrategy";
@@ -130,6 +138,15 @@ export const ACTIONS = {
   DRIFT_USER_ACCOUNT_INFO_ACTION: driftUserAccountInfoAction,
   DERIVE_DRIFT_VAULT_ADDRESS_ACTION: deriveDriftVaultAddressAction,
   UPDATE_DRIFT_VAULT_DELEGATE_ACTION: updateDriftVaultDelegateAction,
+  AVAILABLE_DRIFT_MARKETS_ACTION: availableDriftMarketsAction,
+  STAKE_TO_DRIFT_INSURANCE_FUND_ACTION: stakeToDriftInsuranceFundAction,
+  REQUEST_UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION:
+    requestUnstakeFromDriftInsuranceFundAction,
+  UNSTAKE_FROM_DRIFT_INSURANCE_FUND_ACTION: unstakeFromDriftInsuranceFundAction,
+  DRIFT_SPOT_TOKEN_SWAP_ACTION: driftSpotTokenSwapAction,
+  DRIFT_PERP_MARKET_FUNDING_RATE_ACTION: perpMarktetFundingRateAction,
+  DRIFT_GET_ENTRY_QUOTE_OF_PERP_TRADE_ACTION: entryQuoteOfPerpTradeAction,
+  DRIFT_GET_LEND_AND_BORROW_APY_ACTION: lendAndBorrowAPYAction,
   GET_VOLTR_POSITION_VALUES_ACTION: getVoltrPositionValuesAction,
   DEPOSIT_VOLTR_STRATEGY_ACTION: depositVoltrStrategyAction,
   WITHDRAW_VOLTR_STRATEGY_ACTION: withdrawVoltrStrategyAction,

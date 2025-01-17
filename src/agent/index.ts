@@ -100,6 +100,15 @@ import {
   withdrawFromDriftVault,
   updateVaultDelegate,
   get_token_balance,
+  getAvailableDriftSpotMarkets,
+  getAvailableDriftPerpMarkets,
+  stakeToDriftInsuranceFund,
+  requestUnstakeFromDriftInsuranceFund,
+  unstakeFromDriftInsuranceFund,
+  swapSpotToken,
+  calculatePerpMarketFundingRate,
+  getEntryQuoteOfPerpTrade,
+  getLendingAndBorrowAPY,
   voltrGetPositionValues,
   voltrDepositStrategy,
   voltrWithdrawStrategy,
@@ -759,6 +768,7 @@ export class SolanaAgentKit {
   async createDriftUserAccount(depositAmount: number, depositSymbol: string) {
     return await createDriftUserAccount(this, depositAmount, depositSymbol);
   }
+
   async createDriftVault(params: {
     name: string;
     marketName: `${string}-${string}`;
@@ -772,6 +782,7 @@ export class SolanaAgentKit {
   }) {
     return await createVault(this, params);
   }
+  
   async depositIntoDriftVault(amount: number, vault: string) {
     return await depositIntoVault(this, amount, vault);
   }
@@ -853,6 +864,66 @@ export class SolanaAgentKit {
   async updateDriftVaultDelegate(vaultAddress: string, delegate: string) {
     return await updateVaultDelegate(this, vaultAddress, delegate);
   }
+
+  getAvailableDriftMarkets(type?: "spot" | "perp") {
+    switch (type) {
+      case "spot":
+        return getAvailableDriftSpotMarkets();
+      case "perp":
+        return getAvailableDriftPerpMarkets();
+      default:
+        return {
+          spot: getAvailableDriftSpotMarkets(),
+          perp: getAvailableDriftPerpMarkets(),
+        };
+    }
+  }
+  async stakeToDriftInsuranceFund(amount: number, symbol: string) {
+    return await stakeToDriftInsuranceFund(this, amount, symbol);
+  }
+  async requestUnstakeFromDriftInsuranceFund(amount: number, symbol: string) {
+    return await requestUnstakeFromDriftInsuranceFund(this, amount, symbol);
+  }
+  async unstakeFromDriftInsuranceFund(symbol: string) {
+    return await unstakeFromDriftInsuranceFund(this, symbol);
+  }
+  async driftSpotTokenSwap(
+    params: {
+      fromSymbol: string;
+      toSymbol: string;
+      slippage?: number;
+    } & (
+      | {
+          toAmount: number;
+        }
+      | { fromAmount: number }
+    ),
+  ) {
+    return await swapSpotToken(this, {
+      fromSymbol: params.fromSymbol,
+      toSymbol: params.toSymbol,
+      // @ts-expect-error - fromAmount and toAmount are mutually exclusive
+      fromAmount: params.fromAmount,
+      // @ts-expect-error - fromAmount and toAmount are mutually exclusive
+      toAmount: params.toAmount,
+      slippage: params.slippage,
+    });
+  }
+  async getPerpMarketFundingRate(
+    symbol: `${string}-PERP`,
+    period: "year" | "hour" = "year",
+  ) {
+    return calculatePerpMarketFundingRate(this, symbol, period);
+  }
+  async getEntryQuoteOfPerpTrade(
+    amount: number,
+    symbol: `${string}-PERP`,
+    action: "short" | "long",
+  ) {
+    return getEntryQuoteOfPerpTrade(symbol, amount, action);
+  }
+  async getLendAndBorrowAPY(symbol: string) {
+    return getLendingAndBorrowAPY(this, symbol);
 
   async voltrDepositStrategy(
     depositAmount: BN,
