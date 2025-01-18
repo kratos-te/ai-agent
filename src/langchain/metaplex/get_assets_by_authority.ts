@@ -3,7 +3,7 @@ import { SolanaAgentKit } from "../../agent";
 
 export class SolanaGetAssetsByAuthorityTool extends Tool {
   name = "solana_get_assets_by_authority";
-  description = `Fetch a list of assets owned by a specific address using the Metaplex DAS API.
+  description = `Fetch a list of assets by a specific authority address using the Metaplex DAS API.
 
   Inputs (input is a JSON string):
   authority: string, eg "mRdta4rc2RtsxEUDYuvKLamMZAdW6qHcwuq866Skxxv" (required)

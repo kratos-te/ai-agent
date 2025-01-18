@@ -3,10 +3,10 @@ import { SolanaAgentKit } from "../../agent";
 
 export class SolanaGetAssetTool extends Tool {
   name = "solana_get_asset";
-  description = `Fetch asset details using the Metaplex DAS API.
+  description = `Fetch asset details for a given asset ID using the Metaplex DAS API.
 
-  Inputs (input is a JSON string):
-  assetId: string, eg "Asset ID" (required)`;
+  Inputs (input is a string):
+  eg "8TrvJBRa6Pzb9BDadqroHhWTHxaxK8Ws8r91oZ2jxaVV" (required)`;
 
   constructor(private solanaKit: SolanaAgentKit) {
     super();
@@ -14,9 +14,7 @@ export class SolanaGetAssetTool extends Tool {
 
   protected async _call(input: string): Promise<string> {
     try {
-      const parsedInput = JSON.parse(input);
-
-      const result = await this.solanaKit.getAsset(parsedInput.assetId);
+      const result = await this.solanaKit.getAsset(input);
 
       return JSON.stringify({
         status: "success",
