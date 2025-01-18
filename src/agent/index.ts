@@ -114,6 +114,10 @@ import {
   voltrGetPositionValues,
   voltrDepositStrategy,
   voltrWithdrawStrategy,
+  get_asset,
+  get_assets_by_authority,
+  get_assets_by_creator,
+  search_assets,
 } from "../tools";
 import {
   Config,
@@ -131,6 +135,13 @@ import {
   HeliusWebhookIdResponse,
   HeliusWebhookResponse,
 } from "../types";
+import {
+  DasApiAsset,
+  DasApiAssetList,
+  GetAssetsByAuthorityRpcInput,
+  GetAssetsByCreatorRpcInput,
+  SearchAssetsRpcInput,
+} from "@metaplex-foundation/digital-asset-standard-api";
 
 /**
  * Main class for interacting with Solana blockchain
@@ -997,5 +1008,22 @@ export class SolanaAgentKit {
 
   async voltrGetPositionValues(vault: PublicKey): Promise<string> {
     return voltrGetPositionValues(this, vault);
+  }
+
+  async getAsset(assetId: string): Promise<DasApiAsset> {
+    return get_asset(this, assetId);
+  }
+  async getAssetsByAuthority(
+    params: GetAssetsByAuthorityRpcInput,
+  ): Promise<DasApiAssetList> {
+    return get_assets_by_authority(this, params);
+  }
+  async getAssetsByCreator(
+    params: GetAssetsByCreatorRpcInput,
+  ): Promise<DasApiAssetList> {
+    return get_assets_by_creator(this, params);
+  }
+  async searchAssets(params: SearchAssetsRpcInput): Promise<DasApiAssetList> {
+    return search_assets(this, params);
   }
 }
