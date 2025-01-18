@@ -134,10 +134,7 @@ console.log("Token Mint Address:", result.mint.toString());
 ```
 ### Create NFT Collection on 3Land
 ```typescript
-const optionsWithBase58: StoreInitOptions = {
-  privateKey: "",
-  isMainnet: true, // if false, collection will be created on devnet 3.land (dev.3.land)
-};
+const isDevnet = true; // (Optional) if not present TX takes place in Mainnet
 
  const collectionOpts: CreateCollectionOptions = {
     collectionName: "",
@@ -147,18 +144,16 @@ const optionsWithBase58: StoreInitOptions = {
   };
 
 const result = await agent.create3LandCollection(
-      optionsWithBase58,
-      collectionOpts
+      collectionOpts,
+      isDevnet, // (Optional) if not present TX takes place in Mainnet
     );
 ```
 
 ### Create NFT on 3Land
 When creating an NFT using 3Land's tool, it automatically goes for sale on 3.land website
 ```typescript
-const optionsWithBase58: StoreInitOptions = {
-  privateKey: "",
-  isMainnet: true, // if false, listing will be on devnet 3.land (dev.3.land)
-};
+const isDevnet = true; // (Optional) if not present TX takes place in Mainnet
+const withPool = true; // (Optional) only present if NFT will be created with a Liquidity Pool for a specific SPL token
 const collectionAccount = ""; //hash for the collection
 const createItemOptions: CreateSingleOptions = {
   itemName: "",
@@ -170,15 +165,15 @@ const createItemOptions: CreateSingleOptions = {
     { trait_type: "", value: "" },
   ],
   price: 0, //100000000 == 0.1 sol, can be set to 0 for a free mint
+  splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL, must be present if "withPool" is true
+  poolName: "", // Only present if "withPool" is true
   mainImageUrl: "",
-  splHash: "", //present if listing is on a specific SPL token, if not present sale will be on $SOL
 };
-const isMainnet = true;
 const result = await agent.create3LandNft(
-  optionsWithBase58,
   collectionAccount,
   createItemOptions,
-  isMainnet
+  isDevnet, // (Optional) if not present TX takes place in Mainnet
+  withPool
 );
 
 ```
@@ -469,6 +464,38 @@ Update the address a drift vault is delegated to.
 
 ```typescript
 const signature = await agent.updateDriftVaultDelegate("41Y8C4oxk4zgJT1KXyQr35UhZcfsp5mP86Z2G7UUzojU", "new-address")
+```
+
+### Get Voltr Vault Position Values
+
+Get the current position values and total value of assets in a Voltr vault.
+
+```typescript
+const values = await agent.voltrGetPositionValues("7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K")
+```
+
+### Deposit into Voltr Strategy
+
+Deposit assets into a specific strategy within a Voltr vault.
+
+```typescript
+const signature = await agent.voltrDepositStrategy(
+  new BN("1000000000"), // amount in base units (e.g., 1 USDC = 1000000)
+  "7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K", // vault
+  "9ZQQYvr4x7AMqd6abVa1f5duGjti5wk1MHsX6hogPsLk"  // strategy
+)
+```
+
+### Withdraw from Voltr Strategy
+
+Withdraw assets from a specific strategy within a Voltr vault.
+
+```typescript
+const signature = await agent.voltrWithdrawStrategy(
+  new BN("1000000000"), // amount in base units (e.g., 1 USDC = 1000000)
+  "7opUkqYtxmQRriZvwZkPcg6LqmGjAh1RSEsVrdsGDx5K", // vault
+  "9ZQQYvr4x7AMqd6abVa1f5duGjti5wk1MHsX6hogPsLk"  // strategy
+)
 ```
 
 ### Get a Solana asset by its ID
