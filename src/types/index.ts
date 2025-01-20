@@ -9,6 +9,7 @@ export interface Config {
   FLASH_PRIVILEGE?: string;
   FLEXLEND_API_KEY?: string;
   HELIUS_API_KEY?: string;
+  PRIORITY_LEVEL?: string; // medium, high, or veryHigh
 }
 
 export interface Creator {
