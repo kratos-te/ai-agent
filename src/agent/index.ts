@@ -117,7 +117,6 @@ import {
   get_asset,
   get_assets_by_authority,
   get_assets_by_creator,
-  search_assets,
 } from "../tools";
 import {
   Config,
@@ -1022,8 +1021,5 @@ export class SolanaAgentKit {
     params: GetAssetsByCreatorRpcInput,
   ): Promise<DasApiAssetList> {
     return get_assets_by_creator(this, params);
-  }
-  async searchAssets(params: SearchAssetsRpcInput): Promise<DasApiAssetList> {
-    return search_assets(this, params);
   }
 }
