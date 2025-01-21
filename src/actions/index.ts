@@ -76,8 +76,10 @@ import getAssetAction from "./metaplex/getAsset";
 import getAssetsByAuthorityAction from "./metaplex/getAssetsByAuthority";
 import getAssetsByCreatorAction from "./metaplex/getAssetsByCreator";
 import searchAssetsAction from "./metaplex/searchAssets";
+import getInfoAction from "./agent/get_info";
 
 export const ACTIONS = {
+  GET_INFO_ACTION: getInfoAction,
   WALLET_ADDRESS_ACTION: getWalletAddressAction,
   TOKEN_BALANCES_ACTION: tokenBalancesAction,
   DEPLOY_TOKEN_ACTION: deployTokenAction,

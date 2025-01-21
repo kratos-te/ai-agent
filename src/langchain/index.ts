@@ -134,10 +134,12 @@ import {
   SolanaGetAssetsByAuthorityTool,
   SolanaGetAssetsByCreatorTool,
   SolanaSearchAssetsTool,
+  SolanaGetInfoTool,
 } from "./index";
 
 export function createSolanaTools(solanaKit: SolanaAgentKit) {
   return [
+    new SolanaGetInfoTool(solanaKit),
     new SolanaBalanceTool(solanaKit),
     new SolanaBalanceOtherTool(solanaKit),
     new SolanaTransferTool(solanaKit),
