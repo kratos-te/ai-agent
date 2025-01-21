@@ -3,12 +3,10 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources";
 
 /**
- * Generate an image using OpenAI's DALL-E
+ * Get detailed and latest information about any topic using Perplexity AI.
  * @param agent SolanaAgentKit instance
- * @param prompt Text description of the image to generate
- * @param size Image size ('256x256', '512x512', or '1024x1024') (default: '1024x1024')
- * @param n Number of images to generate (default: 1)
- * @returns Object containing the generated image URLs
+ * @param prompt Text description of the topic to get information about
+ * @returns Object containing the generated information
  */
 export async function get_info(agent: SolanaAgentKit, prompt: string) {
   try {
