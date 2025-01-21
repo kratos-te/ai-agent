@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export interface Config {
   OPENAI_API_KEY?: string;
+  PERPLEXITY_API_KEY?: string;
   JUPITER_REFERRAL_ACCOUNT?: string;
   JUPITER_FEE_BPS?: number;
   FLASH_PRIVILEGE?: string;
