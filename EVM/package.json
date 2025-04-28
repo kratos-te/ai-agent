@@ -1,0 +1,21 @@
+{
+  "name": "ai-onchain-agent",
+  "author": "0xOse",
+  "version": "1.0.0",
+  "description": "",
+  "module": "src/index.ts",
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "openai": "^4.76.3",
+    "readline": "^1.3.0",
+    "viem": "^2.21.55"
+  }
+}
