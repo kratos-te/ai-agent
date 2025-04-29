@@ -1,4 +1,4 @@
-# 🌐 Blockchain AI Agent
+# 🌐 Blockchain AI Agent (EVMs, Solana, Sui)
 
 > **An intelligent autonomous agent that interacts with blockchain networks: monitoring, analyzing, and transacting on-chain in real-time.**
 

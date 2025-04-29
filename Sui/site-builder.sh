@@ -1,0 +1,1 @@
+site-builder --config site.yaml publish ./dist

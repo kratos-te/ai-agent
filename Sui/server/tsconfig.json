@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+	  "outDir": "dist",
+	  "target": "es2016",
+	  "lib": ["dom", "esnext"],
+	  "allowSyntheticDefaultImports": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "strictPropertyInitialization": true,
+	  "noImplicitReturns": true,
+	  "noErrorTruncation": true,
+	  "noImplicitThis": false,
+	  "noUnusedParameters": false,
+	  "preserveConstEnums": true,
+	  "removeComments": false,
+	  "sourceMap": true,
+	  "strict": true,
+	  "declaration": true,
+	  "esModuleInterop": true,
+	  "module": "commonjs",
+	  "moduleResolution": "node",
+	  "resolveJsonModule": true,
+	  "isolatedModules": false,
+	  "rootDir": "./",
+	  "downlevelIteration": true,
+	  "allowJs": true
+	}
+  }
+  

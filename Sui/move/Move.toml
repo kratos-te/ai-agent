@@ -1,0 +1,12 @@
+[package]
+name = "SuiAIAgent"
+version = "0.0.1"
+edition = "legacy"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+#Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.31.1" }
+blob_store = { local = "../dependencies/blob_store" }
+
+[addresses]
+sui_ai_agent = "0x0"
