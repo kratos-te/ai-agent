@@ -125,8 +125,8 @@ We welcome contributions! 🚀
 
 ## 📢 Stay Connected
 
-- Twitter: [@yourprofile](https://twitter.com/akratos_god)
-- Telegram: [yourwebsite.com](https://t.me/akratos_god)
+- Twitter: [@akratos_god](https://twitter.com/akratos_god)
+- Telegram: [@akratos_god](https://t.me/akratos_god)
 
 ---
 
