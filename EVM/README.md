@@ -152,4 +152,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-https://t.me/meta0xflip
+https://t.me/akratos_god
